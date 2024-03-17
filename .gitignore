@@ -1,0 +1,4 @@
+.idea/
+apps/authentication/migrations/
+ngrok.exe
+/.env
