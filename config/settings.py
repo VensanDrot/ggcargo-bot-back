@@ -144,13 +144,16 @@ MEDIA_ROOT = join_path(BASE_DIR, 'media')
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# BOT
+BOT_TOKEN = getenv('BOT_TOKEN')
+
 # RestFramework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        # 'rest_framework.permissions.IsAuthenticated',
     ],
     'EXCEPTION_HANDLER': 'config.utils.api_exceptions.uni_exception_handler',
 }
