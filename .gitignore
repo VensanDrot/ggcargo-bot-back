@@ -7,6 +7,8 @@ ngrok.exe
 # migrations
 apps/authentication/migrations/
 apps/bot/migrations/
-apps/customer/migrations/
+apps/user/migrations/
 apps/files/migrations/
 apps/tools/migrations/
+apps/loads/migrations/
+apps/payment/migrations/

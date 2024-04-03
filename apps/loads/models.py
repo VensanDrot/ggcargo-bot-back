@@ -1,13 +1,20 @@
 from django.db import models
 
-from apps.customer.models import Customer
-from apps.tools.models import Product
+from apps.user.models import Customer
 from config.models import BaseModel
+
+
+class Product(BaseModel):
+    barcode = models.CharField(max_length=155)
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, related_name='products', null=True, blank=True)
+
+    # photos file
+    class Meta:
+        db_table = 'Product'
 
 
 class Load(BaseModel):
     weight = models.FloatField()
-    # Created / Paid / Done
     CREATED = 'CREATED'
     PAID = 'PAID'
     DONE = 'DONE'

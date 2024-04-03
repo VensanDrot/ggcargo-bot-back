@@ -39,10 +39,12 @@ INSTALLED_APPS = [
     'corsheaders',
 
     # apps
-    'apps.customer',
+    'apps.user',
     'apps.bot',
     'apps.loads',
     'apps.tools',
+    'apps.files',
+    'apps.payment',
 ]
 
 MIDDLEWARE = [
@@ -115,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'customer.User'
+AUTH_USER_MODEL = 'user.User'
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'

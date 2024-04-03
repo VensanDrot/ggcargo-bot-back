@@ -28,7 +28,7 @@ class Cost(Settings):
     cost_per_kg = models.FloatField()
 
     class Meta:
-        db_table = 'PaymentCard'
+        db_table = 'Cost'
 
 
 class ChannelLink(Settings):
@@ -45,10 +45,26 @@ class WarehouseAddress(Settings):
         db_table = 'WarehouseAddress'
 
 
-class Product(BaseModel):
-    barcode = models.CharField(max_length=155)
-    customer_id = models.CharField(max_length=155)
+class Newsletter(BaseModel):
+    is_gg = models.BooleanField(default=True)
+    CAR = 'CAR'
+    AIR = 'AIR'
+    CAR_OR_AIR_CHOICE = [
+        (CAR, 'Car'),
+        (AIR, 'Air')
+    ]
+    bot_type = models.CharField("user type", max_length=3, choices=CAR_OR_AIR_CHOICE)
+    text_uz = models.TextField(null=True, blank=True)
+    photo_uz = models.FileField(null=True, blank=True)
+    text_ru = models.TextField(null=True, blank=True)
+    photo_ru = models.FileField(null=True, blank=True)
+    SENT = 'SENT'
+    PENDING = 'PENDING'
+    STATUS_CHOICE = [
+        (SENT, 'Sent'),
+        (PENDING, 'Pending')
+    ]
+    status = models.CharField(choices=STATUS_CHOICE, max_length=7, default=PENDING)
 
-    # photos file
     class Meta:
-        db_table = 'Product'
+        db_table = 'Newsletter'
