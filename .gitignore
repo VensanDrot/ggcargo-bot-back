@@ -1,7 +1,12 @@
 .idea/
-apps/authentication/migrations/
-apps/bot/migrations/
 ngrok.exe
 /.env
 /db.sqlite3
 /logs.log
+
+# migrations
+apps/authentication/migrations/
+apps/bot/migrations/
+apps/customer/migrations/
+apps/files/migrations/
+apps/tools/migrations/
