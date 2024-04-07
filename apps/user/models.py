@@ -54,7 +54,7 @@ class Customer(BaseModel):
     passport_serial_number = models.CharField(max_length=100, null=True, blank=True)  # if user_type==AIR
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='customers')
-    customer_id = models.ForeignKey(CustomerID, on_delete=models.CASCADE, related_name='customers')
+    customer_code = models.ForeignKey(CustomerID, on_delete=models.CASCADE, related_name='customers')
 
     class Meta:
         db_table = 'Customer'
