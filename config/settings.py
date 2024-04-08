@@ -117,6 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = ['config.backends.EmailBackend']
 AUTH_USER_MODEL = 'user.User'
 
 # Internationalization
@@ -148,6 +149,15 @@ MEDIA_ROOT = join_path(BASE_DIR, 'media')
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# EMAIL
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_HOST_USER = getenv('EMAIL_USER')
+EMAIL_HOST_PASSWORD = getenv('EMAIL_PASSWORD')
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
 
 # BOT
 BOT_TOKEN = getenv('BOT_TOKEN')

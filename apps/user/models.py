@@ -5,6 +5,8 @@ from django.db import models
 
 from config.models import BaseModel
 
+username_validator = UnicodeUsernameValidator()
+
 
 class CustomerID(BaseModel):
     code = models.CharField(max_length=255)
@@ -14,7 +16,8 @@ class CustomerID(BaseModel):
 
 
 class User(AbstractUser):
-    username_validator = UnicodeUsernameValidator()
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     first_name = None
     last_name = None
@@ -31,6 +34,7 @@ class User(AbstractUser):
         },
         null=True, blank=True
     )
+    email = models.EmailField(_("email address"), unique=True)
     full_name = models.CharField("full name", max_length=255, null=True, blank=True)
 
     class Meta:
@@ -60,23 +64,26 @@ class Customer(BaseModel):
         db_table = 'Customer'
 
 
+WEB = 'WEB'
+TELEGRAM = 'TELEGRAM'
+WEB_OR_TELEGRAM_CHOICE = [
+    (WEB, 'Web'),
+    (TELEGRAM, 'Telegram')
+]
+TASHKENT = 'TASHKENT'
+CHINA = 'CHINA'
+WAREHOUSE_CHOICE = [
+    (TASHKENT, 'Tashkent'),
+    (CHINA, 'China')
+]
+
+
 class Operator(BaseModel):
     # Type(Telegram / Web
-    WEB = 'WEB'
-    TELEGRAM = 'TELEGRAM'
-    WEB_OR_TELEGRAM_CHOICE = [
-        (WEB, 'Web'),
-        (TELEGRAM, 'Telegram')
-    ]
-    TASHKENT = 'TASHKENT'
-    CHINA = 'CHINA'
-    WAREHOUSE_CHOICE = [
-        (TASHKENT, 'Web'),
-        (CHINA, 'China')
-    ]
+
     tg_id = models.CharField(max_length=155, null=True, blank=True)
     operator_type = models.CharField("operator type", max_length=8, choices=WEB_OR_TELEGRAM_CHOICE)
-    warehouse = models.CharField("operator type", max_length=8, choices=WAREHOUSE_CHOICE, null=True, blank=True)
+    warehouse = models.CharField("warehouse", max_length=8, choices=WAREHOUSE_CHOICE, null=True, blank=True)
     is_gg = models.BooleanField(default=True)
     # Ownership ? TODO: what is this
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operators')

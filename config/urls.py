@@ -28,7 +28,7 @@ urlpatterns = [
 
     path('control-panel/', admin.site.urls),
     path('api/', include('apps.bot.urls')),
-    # path('auth/', include('apps.authentication.urls')),
+    path('staff/', include('apps.user.urls')),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
