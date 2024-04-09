@@ -12,3 +12,5 @@ apps/files/migrations/
 apps/tools/migrations/
 apps/loads/migrations/
 apps/payment/migrations/
+
+media/uploads/

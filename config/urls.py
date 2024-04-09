@@ -27,8 +27,11 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 
     path('control-panel/', admin.site.urls),
-    path('api/', include('apps.bot.urls')),
+    path('bot/', include('apps.bot.urls')),
     path('staff/', include('apps.user.urls')),
+    path('api/', include('apps.loads.urls')),
+    path('tool/', include('apps.tools.urls')),
+    path('file/', include('apps.files.urls')),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

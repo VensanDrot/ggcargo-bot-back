@@ -9,7 +9,7 @@ username_validator = UnicodeUsernameValidator()
 
 
 class CustomerID(BaseModel):
-    code = models.CharField(max_length=255)
+    code = models.CharField(max_length=255, unique=True)
 
     class Meta:
         db_table = 'CustomerID'

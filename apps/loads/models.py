@@ -6,7 +6,8 @@ from config.models import BaseModel
 
 class Product(BaseModel):
     barcode = models.CharField(max_length=155)
-    customer = models.ForeignKey(CustomerID, on_delete=models.SET_NULL, related_name='products', null=True, blank=True)
+    customer_code = models.ForeignKey(CustomerID, on_delete=models.SET_NULL, related_name='products',
+                                      null=True, blank=True)
 
     # photos file
     class Meta:
