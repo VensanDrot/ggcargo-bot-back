@@ -27,7 +27,7 @@ class Load(BaseModel):
     ]
     status = models.CharField(choices=STATUS_CHOICE, default=CREATED, max_length=9)
 
-    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name='loads')
+    customer = models.ForeignKey(CustomerID, on_delete=models.SET_NULL, null=True, blank=True, related_name='loads')
     products = models.ManyToManyField(Product, related_name='loads')
 
     class Meta:

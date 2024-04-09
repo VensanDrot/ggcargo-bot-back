@@ -117,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = ['config.backends.EmailBackend']
+AUTHENTICATION_BACKENDS = ['config.core.backends.EmailAuthenticationBackend']
 AUTH_USER_MODEL = 'user.User'
 
 # Internationalization
@@ -170,7 +170,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         # 'rest_framework.permissions.IsAuthenticated',
     ],
-    'EXCEPTION_HANDLER': 'config.utils.api_exceptions.uni_exception_handler',
+    'EXCEPTION_HANDLER': 'config.core.api_exceptions.uni_exception_handler',
 }
 
 # Swagger

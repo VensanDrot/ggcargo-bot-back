@@ -1,9 +1,62 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from apps.user.models import User, WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, Operator
 
 
-class UserCreateSerializer(serializers.ModelSerializer):
+class AdminLoginSerializer(TokenObtainPairSerializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['username'] = user.username
+        token['full_name'] = user.full_name
+        return token
+
+
+class CustomerLoginSerializer(TokenObtainPairSerializer):
+    code = serializers.CharField()
+    password = serializers.CharField()
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token['username'] = user.username
+        token['full_name'] = user.full_name
+        return token
+
+
+class OperatorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Operator
+        fields = ['tg_id',
+                  'operator_type',
+                  'warehouse',
+                  'is_gg', ]
+
+
+class GetUserSerializer(serializers.ModelSerializer):
+    tg_id = serializers.CharField(source='operators.first.tg_id')
+    operator_type = serializers.ChoiceField(source='operators.first.get_operator_type_display',
+                                            choices=WEB_OR_TELEGRAM_CHOICE)
+    warehouse = serializers.ChoiceField(source='operators.first.get_warehouse_display', choices=WAREHOUSE_CHOICE)
+    is_gg = serializers.BooleanField(source='operators.first.is_gg')
+
+    class Meta:
+        model = User
+        depth = 1
+        fields = ['id',
+                  'full_name',
+                  'email',
+                  'tg_id',
+                  'operator_type',
+                  'warehouse',
+                  'is_gg', ]
+
+
+class PostUserSerializer(serializers.ModelSerializer):
     tg_id = serializers.CharField(source='operators.tg_id', write_only=True)
     operator_type = serializers.ChoiceField(source='operators.operator_type', choices=WEB_OR_TELEGRAM_CHOICE,
                                             write_only=True)
@@ -18,6 +71,15 @@ class UserCreateSerializer(serializers.ModelSerializer):
         Operator.objects.create(user_id=user.id, **operators)
         user.save()
         return user
+
+    def update(self, instance, validated_data):
+        operators = validated_data.pop('operators', {})
+        user_password = validated_data.pop('password', None)
+        user = super().update(instance, validated_data)
+        user.set_password(user_password)
+        user.operators.update(**operators)
+        user.save()
+        return instance
 
     class Meta:
         model = User
