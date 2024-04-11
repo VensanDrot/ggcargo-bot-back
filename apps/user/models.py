@@ -16,9 +16,6 @@ class CustomerID(BaseModel):
 
 
 class User(AbstractUser):
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
-
     first_name = None
     last_name = None
     username = models.CharField(
@@ -56,9 +53,10 @@ class Customer(BaseModel):
     passport_photo = models.FileField(null=True, blank=True)  # if user_type==AIR
     birt_date = models.DateField(null=True, blank=True)  # if user_type==AIR
     passport_serial_number = models.CharField(max_length=100, null=True, blank=True)  # if user_type==AIR
+    products_accepted = models.IntegerField(default=0)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='customers')
-    customer_code = models.ForeignKey(CustomerID, on_delete=models.CASCADE, related_name='customers')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customers')
+    customer_code = models.OneToOneField(CustomerID, on_delete=models.CASCADE, related_name='customers')
 
     class Meta:
         db_table = 'Customer'
@@ -86,7 +84,7 @@ class Operator(BaseModel):
     warehouse = models.CharField("warehouse", max_length=8, choices=WAREHOUSE_CHOICE, null=True, blank=True)
     is_gg = models.BooleanField(default=True)
     # Ownership ? TODO: what is this
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='operators')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='operators')
 
     class Meta:
         db_table = 'Operator'

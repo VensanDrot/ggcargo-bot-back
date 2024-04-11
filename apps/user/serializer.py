@@ -4,21 +4,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from apps.user.models import User, WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, Operator
 
 
-class AdminLoginSerializer(TokenObtainPairSerializer):
-    email = serializers.EmailField()
-    password = serializers.CharField()
-
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        token['username'] = user.username
-        token['full_name'] = user.full_name
-        return token
-
-
-class CustomerLoginSerializer(TokenObtainPairSerializer):
-    code = serializers.CharField()
-    password = serializers.CharField()
+class JWTLoginSerializer(TokenObtainPairSerializer):
 
     @classmethod
     def get_token(cls, user):
@@ -57,11 +43,12 @@ class GetUserSerializer(serializers.ModelSerializer):
 
 
 class PostUserSerializer(serializers.ModelSerializer):
-    tg_id = serializers.CharField(source='operators.tg_id', write_only=True)
+    tg_id = serializers.CharField(source='operators.tg_id', write_only=True, required=False)
     operator_type = serializers.ChoiceField(source='operators.operator_type', choices=WEB_OR_TELEGRAM_CHOICE,
-                                            write_only=True)
-    warehouse = serializers.ChoiceField(source='operators.warehouse', choices=WAREHOUSE_CHOICE, write_only=True)
-    is_gg = serializers.BooleanField(source='operators.is_gg', write_only=True)
+                                            write_only=True, required=False)
+    warehouse = serializers.ChoiceField(source='operators.warehouse', choices=WAREHOUSE_CHOICE, write_only=True,
+                                        required=False)
+    is_gg = serializers.BooleanField(source='operators.is_gg', write_only=True, required=False)
 
     def create(self, validated_data):
         operators = validated_data.pop('operators', {})

@@ -1,26 +1,17 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.permissions import AllowAny
-from rest_framework.request import Request
-from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from apps.user.models import User
-from apps.user.serializer import PostUserSerializer, GetUserSerializer, AdminLoginSerializer, CustomerLoginSerializer
+from apps.user.serializer import PostUserSerializer, GetUserSerializer, JWTLoginSerializer
 from config.core.pagination import APIPagination
 from config.views import ModelViewSetPack
 
 
-class AdminJWTObtainPairView(TokenObtainPairView):
-    serializer_class = AdminLoginSerializer
+class JWTObtainPairView(TokenObtainPairView):
+    serializer_class = JWTLoginSerializer
     permission_classes = [AllowAny, ]
 
-
-class CustomerJWTObtainPairView(TokenObtainPairView):
-    serializer_class = CustomerLoginSerializer
-    permission_classes = [AllowAny, ]
-
-
-# TODO: end this view, double auth (for customers and admins)
 
 class UserModelViewSet(ModelViewSetPack):
     queryset = User.objects.filter(operators__isnull=False)
