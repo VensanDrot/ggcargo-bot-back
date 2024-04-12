@@ -5,7 +5,6 @@ from config.models import BaseModel
 
 
 class Product(BaseModel):
-    barcode = models.CharField(max_length=155)
     ON_WAY = 'ON_WAY'
     DELIVERED = 'DELIVERED'
     DONE = 'DONE'
@@ -15,6 +14,7 @@ class Product(BaseModel):
         (DONE, 'Done'),
     ]
     status = models.CharField(choices=STATUS_CHOICE, default=ON_WAY, max_length=9)
+    barcode = models.CharField(max_length=155, unique=True)
     customer_code = models.ForeignKey(CustomerID, on_delete=models.SET_NULL, related_name='products',
                                       null=True, blank=True)
 
