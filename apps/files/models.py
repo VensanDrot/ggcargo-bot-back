@@ -10,8 +10,10 @@ class File(BaseModel):
     path = models.TextField(null=True)
     content_type = models.CharField(max_length=100, null=True)
     extension = models.CharField(max_length=30, null=True)
-    product = models.ForeignKey("loads.Product", on_delete=models.SET_NULL, null=True, blank=True,
-                                related_name='files')
+    tashkent_product = models.ForeignKey("loads.Product", on_delete=models.SET_NULL, null=True, blank=True,
+                                         related_name='tashkent_files')
+    china_product = models.ForeignKey("loads.Product", on_delete=models.SET_NULL, null=True, blank=True,
+                                      related_name='china_files')
     loads = models.ForeignKey("loads.Load", on_delete=models.SET_NULL, null=True, blank=True,
                               related_name='files')
     payments = models.ForeignKey("payment.Payment", on_delete=models.SET_NULL, null=True, blank=True,

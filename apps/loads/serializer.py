@@ -8,11 +8,9 @@ from apps.user.models import CustomerID
 
 class BarcodeConnectionSerializer(serializers.ModelSerializer):
     customer_id = serializers.CharField(source='customer_code.code')
-    files = serializers.SlugRelatedField(slug_field='id', many=True, queryset=File.objects.all())
+    china_files = serializers.SlugRelatedField(slug_field='id', many=True, queryset=File.objects.all())
 
     def create(self, validated_data):
-        # operator = self.context.get('request').user
-
         code = validated_data.pop('customer_code', '')
         code_obj = get_object_or_404(CustomerID, code=code.get('code'))
         instance: Product = super().create(validated_data)
@@ -24,4 +22,12 @@ class BarcodeConnectionSerializer(serializers.ModelSerializer):
         model = Product
         fields = ['barcode',
                   'customer_id',
-                  'files', ]
+                  'china_files', ]
+
+
+class AcceptProductSerializer(serializers.ModelSerializer):
+    tashkent_files = serializers.SlugRelatedField(slug_field='id', many=True, queryset=File.objects.all())
+
+    class Meta:
+        model = Product
+        fields = ['tashkent_files']

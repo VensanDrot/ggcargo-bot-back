@@ -23,12 +23,13 @@ class OperatorSerializer(serializers.ModelSerializer):
                   'is_gg', ]
 
 
+# STAFF
 class GetUserSerializer(serializers.ModelSerializer):
-    tg_id = serializers.CharField(source='operators.first.tg_id')
-    operator_type = serializers.ChoiceField(source='operators.first.get_operator_type_display',
+    tg_id = serializers.CharField(source='operators.tg_id')
+    operator_type = serializers.ChoiceField(source='operators.get_operator_type_display',
                                             choices=WEB_OR_TELEGRAM_CHOICE)
-    warehouse = serializers.ChoiceField(source='operators.first.get_warehouse_display', choices=WAREHOUSE_CHOICE)
-    is_gg = serializers.BooleanField(source='operators.first.is_gg')
+    warehouse = serializers.ChoiceField(source='operators.get_warehouse_display', choices=WAREHOUSE_CHOICE)
+    is_gg = serializers.BooleanField(source='operators.is_gg')
 
     class Meta:
         model = User
@@ -49,6 +50,63 @@ class PostUserSerializer(serializers.ModelSerializer):
     warehouse = serializers.ChoiceField(source='operators.warehouse', choices=WAREHOUSE_CHOICE, write_only=True,
                                         required=False)
     is_gg = serializers.BooleanField(source='operators.is_gg', write_only=True, required=False)
+
+    def create(self, validated_data):
+        operators = validated_data.pop('operators', {})
+        user_password = validated_data.pop('password', None)
+        user: User = super().create(validated_data)
+        user.set_password(user_password)
+        Operator.objects.create(user_id=user.id, **operators)
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        operators = validated_data.pop('operators', {})
+        user_password = validated_data.pop('password', None)
+        user = super().update(instance, validated_data)
+        user.set_password(user_password)
+        user.operators.update(**operators)
+        user.save()
+        return instance
+
+    class Meta:
+        model = User
+        fields = ['tg_id',
+                  'operator_type',
+                  'warehouse',
+                  'is_gg',
+                  'full_name',
+                  'email',
+                  'password', ]
+
+
+# CUSTOMERS
+# TODO: end CUSTOMER's serializer
+class GetCustomerSerializer(serializers.ModelSerializer):
+    customer_code = serializers.CharField(source='customers.customer_code.code', read_only=True)
+    user_type = serializers.ChoiceField(source='customers.get_user_type_display', choices=WEB_OR_TELEGRAM_CHOICE)
+    warehouse = serializers.ChoiceField(source='customers.get_warehouse_display', choices=WAREHOUSE_CHOICE)
+    is_gg = serializers.BooleanField(source='customers.is_gg')
+
+    class Meta:
+        model = User
+        depth = 1
+        fields = ['id',
+                  'full_name',
+                  'email',
+                  'customer_code',
+                  'user_type',
+                  'warehouse',
+                  'is_gg', ]
+
+
+class PostCustomerSerializer(serializers.ModelSerializer):
+    tg_id = serializers.CharField(source='customers.tg_id', write_only=True, required=False)
+    operator_type = serializers.ChoiceField(source='customers.operator_type', choices=WEB_OR_TELEGRAM_CHOICE,
+                                            write_only=True, required=False)
+    warehouse = serializers.ChoiceField(source='customers.warehouse', choices=WAREHOUSE_CHOICE, write_only=True,
+                                        required=False)
+    is_gg = serializers.BooleanField(source='customers.is_gg', write_only=True, required=False)
 
     def create(self, validated_data):
         operators = validated_data.pop('operators', {})
