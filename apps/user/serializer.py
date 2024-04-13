@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from apps.user.models import User, WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, Operator
+from apps.user.models import User, WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, Operator, CAR_OR_AIR_CHOICE, Customer
 
 
 class JWTLoginSerializer(TokenObtainPairSerializer):
@@ -14,22 +14,13 @@ class JWTLoginSerializer(TokenObtainPairSerializer):
         return token
 
 
-class OperatorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Operator
-        fields = ['tg_id',
-                  'operator_type',
-                  'warehouse',
-                  'is_gg', ]
-
-
 # STAFF
 class GetUserSerializer(serializers.ModelSerializer):
-    tg_id = serializers.CharField(source='operators.tg_id')
-    operator_type = serializers.ChoiceField(source='operators.get_operator_type_display',
+    tg_id = serializers.CharField(source='operator.tg_id')
+    operator_type = serializers.ChoiceField(source='operator.get_operator_type_display',
                                             choices=WEB_OR_TELEGRAM_CHOICE)
-    warehouse = serializers.ChoiceField(source='operators.get_warehouse_display', choices=WAREHOUSE_CHOICE)
-    is_gg = serializers.BooleanField(source='operators.is_gg')
+    warehouse = serializers.ChoiceField(source='operator.get_warehouse_display', choices=WAREHOUSE_CHOICE)
+    company_type = serializers.CharField(source='get_company_type_display')
 
     class Meta:
         model = User
@@ -40,19 +31,18 @@ class GetUserSerializer(serializers.ModelSerializer):
                   'tg_id',
                   'operator_type',
                   'warehouse',
-                  'is_gg', ]
+                  'company_type', ]
 
 
 class PostUserSerializer(serializers.ModelSerializer):
-    tg_id = serializers.CharField(source='operators.tg_id', write_only=True, required=False)
-    operator_type = serializers.ChoiceField(source='operators.operator_type', choices=WEB_OR_TELEGRAM_CHOICE,
+    tg_id = serializers.CharField(source='operator.tg_id', write_only=True, required=False)
+    operator_type = serializers.ChoiceField(source='operator.operator_type', choices=WEB_OR_TELEGRAM_CHOICE,
                                             write_only=True, required=False)
-    warehouse = serializers.ChoiceField(source='operators.warehouse', choices=WAREHOUSE_CHOICE, write_only=True,
+    warehouse = serializers.ChoiceField(source='operator.warehouse', choices=WAREHOUSE_CHOICE, write_only=True,
                                         required=False)
-    is_gg = serializers.BooleanField(source='operators.is_gg', write_only=True, required=False)
 
     def create(self, validated_data):
-        operators = validated_data.pop('operators', {})
+        operators = validated_data.pop('operator', {})
         user_password = validated_data.pop('password', None)
         user: User = super().create(validated_data)
         user.set_password(user_password)
@@ -61,7 +51,7 @@ class PostUserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        operators = validated_data.pop('operators', {})
+        operators = validated_data.pop('operator', {})
         user_password = validated_data.pop('password', None)
         user = super().update(instance, validated_data)
         user.set_password(user_password)
@@ -74,19 +64,18 @@ class PostUserSerializer(serializers.ModelSerializer):
         fields = ['tg_id',
                   'operator_type',
                   'warehouse',
-                  'is_gg',
+                  'company_type',
                   'full_name',
                   'email',
                   'password', ]
 
 
+# TODO: end these
 # CUSTOMERS
-# TODO: end CUSTOMER's serializer
 class GetCustomerSerializer(serializers.ModelSerializer):
-    customer_code = serializers.CharField(source='customers.customer_code.code', read_only=True)
-    user_type = serializers.ChoiceField(source='customers.get_user_type_display', choices=WEB_OR_TELEGRAM_CHOICE)
-    warehouse = serializers.ChoiceField(source='customers.get_warehouse_display', choices=WAREHOUSE_CHOICE)
-    is_gg = serializers.BooleanField(source='customers.is_gg')
+    customer_code = serializers.CharField(source='customer.customer_code.code', read_only=True)
+    user_type = serializers.ChoiceField(source='customer.get_user_type_display', choices=CAR_OR_AIR_CHOICE)
+    phone_number = serializers.ChoiceField(source='customer.phone_number', choices=WAREHOUSE_CHOICE)
 
     class Meta:
         model = User
@@ -96,29 +85,25 @@ class GetCustomerSerializer(serializers.ModelSerializer):
                   'email',
                   'customer_code',
                   'user_type',
-                  'warehouse',
-                  'is_gg', ]
+                  'phone_number',
+                  'is_active', ]
 
 
 class PostCustomerSerializer(serializers.ModelSerializer):
-    tg_id = serializers.CharField(source='customers.tg_id', write_only=True, required=False)
-    operator_type = serializers.ChoiceField(source='customers.operator_type', choices=WEB_OR_TELEGRAM_CHOICE,
-                                            write_only=True, required=False)
-    warehouse = serializers.ChoiceField(source='customers.warehouse', choices=WAREHOUSE_CHOICE, write_only=True,
-                                        required=False)
-    is_gg = serializers.BooleanField(source='customers.is_gg', write_only=True, required=False)
-
+    customer_code = serializers.CharField(source='customer.code', read_only=True)
+    user_type = serializers.ChoiceField(source='customer.user_type', choices=CAR_OR_AIR_CHOICE)
+    phone_number = serializers.ChoiceField(source='customer.phone_number', choices=WAREHOUSE_CHOICE)
     def create(self, validated_data):
-        operators = validated_data.pop('operators', {})
+        operators = validated_data.pop('customer', {})
         user_password = validated_data.pop('password', None)
         user: User = super().create(validated_data)
         user.set_password(user_password)
-        Operator.objects.create(user_id=user.id, **operators)
+        Customer.objects.create(user_id=user.id, **operators)
         user.save()
         return user
 
     def update(self, instance, validated_data):
-        operators = validated_data.pop('operators', {})
+        operators = validated_data.pop('customer', {})
         user_password = validated_data.pop('password', None)
         user = super().update(instance, validated_data)
         user.set_password(user_password)
@@ -128,10 +113,9 @@ class PostCustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['tg_id',
-                  'operator_type',
-                  'warehouse',
-                  'is_gg',
+        fields = ['customer_code',
+                  'user_type',
+                  'phone_number',
                   'full_name',
                   'email',
                   'password', ]

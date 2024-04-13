@@ -15,7 +15,7 @@ class JWTObtainPairView(TokenObtainPairView):
 
 
 class UserModelViewSet(ModelViewSetPack):
-    queryset = User.objects.filter(operators__isnull=False)
+    queryset = User.objects.filter(operator__isnull=False)
     serializer_class = GetUserSerializer
     post_serializer_class = PostUserSerializer
     pagination_class = APIPagination
@@ -30,15 +30,15 @@ class UserModelViewSet(ModelViewSetPack):
 
 
 class CustomerModelViewSet(ModelViewSetPack):
-    queryset = User.objects.filter(customers__isnull=False)
-    # serializer_class = GetCustomerSerializer
-    # post_serializer_class = PostCustomerSerializer
+    queryset = User.objects.filter(customer__isnull=False)
+    serializer_class = GetCustomerSerializer
+    post_serializer_class = PostCustomerSerializer
     pagination_class = APIPagination
-#
-#     @swagger_auto_schema(request_body=PostCustomerSerializer)
-#     def update(self, request, *args, **kwargs):
-#         return super().update(request, *args, **kwargs)
-#
-#     @swagger_auto_schema(request_body=PostCustomerSerializer)
-#     def partial_update(self, request, *args, **kwargs):
-#         return super().partial_update(request, *args, **kwargs)
+
+    @swagger_auto_schema(request_body=PostCustomerSerializer)
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @swagger_auto_schema(request_body=PostCustomerSerializer)
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
