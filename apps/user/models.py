@@ -1,38 +1,14 @@
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from apps.user.utils.choices import COMPANY_TYPE_CHOICES, GG, CAR_OR_AIR_CHOICE, WEB_OR_TELEGRAM_CHOICE, \
+    WAREHOUSE_CHOICE, PREFIX_CHOICES
 from config.models import BaseModel
 
 username_validator = UnicodeUsernameValidator()
-
-# CUSTOMERS
-AUTO = 'AUTO'
-AVIA = 'AVIA'
-CAR_OR_AIR_CHOICE = [
-    (AUTO, _('Auto')),
-    (AVIA, _('Avia'))
-]
-GG = 'GG'
-EXP = 'EXP'
-COMPANY_TYPE_CHOICES = [
-    (GG, GG),
-    (EXP, EXP),
-]
-# OPERATORS
-WEB = 'WEB'
-TELEGRAM = 'TELEGRAM'
-WEB_OR_TELEGRAM_CHOICE = [
-    (WEB, _('Web')),
-    (TELEGRAM, _('Telegram'))
-]
-TASHKENT = 'TASHKENT'
-CHINA = 'CHINA'
-WAREHOUSE_CHOICE = [
-    (TASHKENT, _('Tashkent')),
-    (CHINA, _('China'))
-]
 
 
 class User(AbstractUser):
@@ -60,12 +36,14 @@ class User(AbstractUser):
 
 
 class Customer(BaseModel):
-    code = models.CharField(max_length=255, unique=True)
+    prefix = models.CharField("prefix", max_length=4, choices=PREFIX_CHOICES)
+    code = models.CharField(max_length=255)
     debt = models.FloatField(default=0)
     phone_number = models.CharField(_("phone number"), max_length=35, null=True, blank=True)
 
     user_type = models.CharField(_("user type"), max_length=4, choices=CAR_OR_AIR_CHOICE)
-    passport_photo = models.FileField(null=True, blank=True)  # if user_type==AIR
+    passport_photo = models.ForeignKey("files.File", on_delete=models.SET_NULL,
+                                       null=True, blank=True)  # if user_type==AIR
     birt_date = models.DateField(null=True, blank=True)  # if user_type==AIR
     passport_serial_number = models.CharField(max_length=100, null=True, blank=True)  # if user_type==AIR
     products_accepted = models.IntegerField(default=0)
@@ -75,6 +53,7 @@ class Customer(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
 
     class Meta:
+        unique_together = ['prefix', 'code']
         db_table = 'Customer'
 
 

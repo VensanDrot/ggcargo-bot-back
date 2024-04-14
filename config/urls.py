@@ -9,13 +9,13 @@ from django.conf.urls.static import static
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="PROJECT_NAME Swagger",
+        title="Cargo Swagger",
         default_version='v1',
-        description="Swagger foy PROJECT_NAME project, token authorization: user __/auth/token/__ API "
+        description="Swagger foy Cargo project, token authorization: user __/staff/token/__ API "
                     "then click authorize button and type __Bearer {token}__.",
-        terms_of_service="https://domen.com/",
-        contact=openapi.Contact(email="help@domen.com"),
-        license=openapi.License(name="PROJECT_NAME License"),
+        terms_of_service="https://google.com/",
+        contact=openapi.Contact(email=""),
+        license=openapi.License(name="Cargo License"),
     ),
     public=True,
     permission_classes=[permissions.AllowAny, ],

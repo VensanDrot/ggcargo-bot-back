@@ -1,7 +1,12 @@
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from apps.user.models import User, WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, Operator, CAR_OR_AIR_CHOICE, Customer
+from apps.files.models import File
+from apps.user.models import User, Operator, Customer
+from apps.user.utils.choices import WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, CAR_OR_AIR_CHOICE, PREFIX_CHOICES
+
+from apps.user.utils.services import generate_customer_code, prefix_check
+from config.core.api_exceptions import APIValidation
 
 
 class JWTLoginSerializer(TokenObtainPairSerializer):
@@ -51,11 +56,11 @@ class PostUserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        operators = validated_data.pop('operator', {})
+        operator = validated_data.pop('operator', {})
         user_password = validated_data.pop('password', None)
         user = super().update(instance, validated_data)
         user.set_password(user_password)
-        user.operators.update(**operators)
+        user.operator.update(**operator)
         user.save()
         return instance
 
@@ -70,52 +75,97 @@ class PostUserSerializer(serializers.ModelSerializer):
                   'password', ]
 
 
-# TODO: end these
 # CUSTOMERS
 class GetCustomerSerializer(serializers.ModelSerializer):
-    customer_code = serializers.CharField(source='customer.customer_code.code', read_only=True)
+    customer_code = serializers.CharField(source='customer.code', allow_null=True)
     user_type = serializers.ChoiceField(source='customer.get_user_type_display', choices=CAR_OR_AIR_CHOICE)
     phone_number = serializers.ChoiceField(source='customer.phone_number', choices=WAREHOUSE_CHOICE)
+    accepted_by = serializers.CharField(source='customer.accepted_by.full_name', allow_null=True)
 
     class Meta:
         model = User
         depth = 1
         fields = ['id',
                   'full_name',
-                  'email',
                   'customer_code',
                   'user_type',
                   'phone_number',
+                  'accepted_by',
                   'is_active', ]
 
 
 class PostCustomerSerializer(serializers.ModelSerializer):
-    customer_code = serializers.CharField(source='customer.code', read_only=True)
+    prefix = serializers.ChoiceField(source='customer.prefix', allow_null=True, required=False, choices=PREFIX_CHOICES)
+    customer_id = serializers.CharField(source='customer.code')
     user_type = serializers.ChoiceField(source='customer.user_type', choices=CAR_OR_AIR_CHOICE)
-    phone_number = serializers.ChoiceField(source='customer.phone_number', choices=WAREHOUSE_CHOICE)
-    def create(self, validated_data):
-        operators = validated_data.pop('customer', {})
-        user_password = validated_data.pop('password', None)
-        user: User = super().create(validated_data)
-        user.set_password(user_password)
-        Customer.objects.create(user_id=user.id, **operators)
-        user.save()
-        return user
+    phone_number = serializers.CharField(source='customer.phone_number')
+    current_password = serializers.CharField(allow_null=True, required=False)
+    passport_photo = serializers.PrimaryKeyRelatedField(source='customer.passport_photo', required=False,
+                                                        queryset=File.objects.all())
+    birt_date = serializers.DateField(source='customer.birt_date', required=False)
+    passport_serial_number = serializers.CharField(source='customer.passport_serial_number', required=False)
 
-    def update(self, instance, validated_data):
-        operators = validated_data.pop('customer', {})
+    def create(self, validated_data: dict):
+        user = None
+        try:
+            validated_data.pop('current_password', '')
+
+            request = self.context.get('request')
+            prefix = validated_data.get('customer', {}).get('prefix')
+            prefix_check(prefix, validated_data.get('customer').get('user_type'), request)
+            customers = validated_data.pop('customer', {})
+            code: str = customers.get('code')
+            if not code.isdigit():
+                raise APIValidation("Code should be a number", status_code=status.HTTP_400_BAD_REQUEST)
+
+            user_password = validated_data.pop('password', None)
+            user: User = super().create(validated_data)
+            user.company_type = request.user.company_type
+            user.set_password(user_password)
+
+            customers['code'] = customers['code'].zfill(4)
+            Customer.objects.create(user_id=user.id, accepted_by=request.user, **customers)
+            user.save()
+            return user
+        except Exception as exc:
+            if user:
+                user.delete()
+            raise APIValidation(f"{exc.args}", status_code=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, instance: User, validated_data: dict):
+        request = self.context.get('request')
+        prefix = validated_data.get('customer', {}).get('prefix')
+        prefix_check(prefix, validated_data.get('customer').get('user_type'), request)
+        customers = validated_data.pop('customer', {})
+        code: str = customers.get('code')
+        if not code.isdigit():
+            raise APIValidation("Code should be a number", status_code=status.HTTP_400_BAD_REQUEST)
+
+        current_password = validated_data.pop('current_password', None)
+        if not instance.check_password(current_password):
+            raise APIValidation("Current password is incorrect", status_code=status.HTTP_400_BAD_REQUEST)
         user_password = validated_data.pop('password', None)
         user = super().update(instance, validated_data)
         user.set_password(user_password)
-        user.operators.update(**operators)
+
+        customers['code'] = customers['code'].zfill(4)
+        for field, value in customers.items():
+            setattr(user.customer, field, value)
+        user.customer.accepted_by = request.user
+        user.customer.save()
         user.save()
         return instance
 
     class Meta:
         model = User
-        fields = ['customer_code',
+        fields = ['prefix',
+                  'customer_id',
                   'user_type',
                   'phone_number',
                   'full_name',
-                  'email',
-                  'password', ]
+                  'password',
+                  'current_password',
+                  'is_active',
+                  'passport_photo',
+                  'birt_date',
+                  'passport_serial_number', ]
