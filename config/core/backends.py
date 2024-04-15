@@ -9,7 +9,7 @@ class EmailAuthenticationBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         user_model = get_user_model()
         try:
-            user = user_model.objects.get(Q(email=username) | Q(customer__code=username))
+            user = user_model.objects.get(Q(email=username) | Q(operator__tg_id=username) | Q(customer__code=username))
         except user_model.DoesNotExist:
             return None
         else:

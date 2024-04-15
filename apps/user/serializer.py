@@ -105,56 +105,53 @@ class PostCustomerSerializer(serializers.ModelSerializer):
     birt_date = serializers.DateField(source='customer.birt_date', required=False)
     passport_serial_number = serializers.CharField(source='customer.passport_serial_number', required=False)
 
+    def validate_customer_id(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("Code should be a number")
+        return value.zfill(4)
+
     def create(self, validated_data: dict):
-        user = None
         try:
-            validated_data.pop('current_password', '')
+            validated_data.pop('current_password', None)
+            user_password = validated_data.pop('password', None)
 
             request = self.context.get('request')
-            prefix = validated_data.get('customer', {}).get('prefix')
-            prefix_check(prefix, validated_data.get('customer').get('user_type'), request)
-            customers = validated_data.pop('customer', {})
-            code: str = customers.get('code')
-            if not code.isdigit():
-                raise APIValidation("Code should be a number", status_code=status.HTTP_400_BAD_REQUEST)
+            customer_data = validated_data.pop('customer', {})
+            prefix_check(customer_data.get('prefix'), customer_data.get('user_type'), request)
 
-            user_password = validated_data.pop('password', None)
-            user: User = super().create(validated_data)
+            user = super().create(validated_data)
             user.company_type = request.user.company_type
             user.set_password(user_password)
-
-            customers['code'] = customers['code'].zfill(4)
-            Customer.objects.create(user_id=user.id, accepted_by=request.user, **customers)
             user.save()
+
+            Customer.objects.create(user=user, accepted_by=request.user, **customer_data)
             return user
         except Exception as exc:
-            if user:
+            if 'user' in locals() and user:
                 user.delete()
             raise APIValidation(f"{exc.args}", status_code=status.HTTP_400_BAD_REQUEST)
 
     def update(self, instance: User, validated_data: dict):
-        request = self.context.get('request')
-        prefix = validated_data.get('customer', {}).get('prefix')
-        prefix_check(prefix, validated_data.get('customer').get('user_type'), request)
-        customers = validated_data.pop('customer', {})
-        code: str = customers.get('code')
-        if not code.isdigit():
-            raise APIValidation("Code should be a number", status_code=status.HTTP_400_BAD_REQUEST)
+        try:
+            current_password = validated_data.pop('current_password', None)
+            user_password = validated_data.pop('password', None)
 
-        current_password = validated_data.pop('current_password', None)
-        if not instance.check_password(current_password):
-            raise APIValidation("Current password is incorrect", status_code=status.HTTP_400_BAD_REQUEST)
-        user_password = validated_data.pop('password', None)
-        user = super().update(instance, validated_data)
-        user.set_password(user_password)
+            request = self.context.get('request')
+            customer_data = validated_data.pop('customer', {})
+            prefix_check(customer_data.get('prefix'), customer_data.get('user_type'), request)
 
-        customers['code'] = customers['code'].zfill(4)
-        for field, value in customers.items():
-            setattr(user.customer, field, value)
-        user.customer.accepted_by = request.user
-        user.customer.save()
-        user.save()
-        return instance
+            if current_password and not instance.check_password(current_password):
+                raise serializers.ValidationError("Current password is incorrect")
+
+            user = super().update(instance, validated_data)
+            if user_password:
+                user.set_password(user_password)
+                user.save()
+
+            Customer.objects.filter(user=user, accepted_by=request.user).update(**customer_data)
+            return instance
+        except Exception as exc:
+            raise APIValidation(f"{exc.args}", status_code=status.HTTP_400_BAD_REQUEST)
 
     class Meta:
         model = User

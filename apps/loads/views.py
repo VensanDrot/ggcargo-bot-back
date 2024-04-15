@@ -7,16 +7,19 @@ from rest_framework.views import APIView
 from apps.loads.models import Product
 from apps.loads.serializer import BarcodeConnectionSerializer, AcceptProductSerializer
 from config.core.api_exceptions import APIValidation
+from config.core.permissions import IsTashkentOperator, IsChinaOperator
 
 
 class BarcodeConnectionAPIView(CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = BarcodeConnectionSerializer
+    permission_classes = [IsChinaOperator, ]
 
 
 class AcceptProductAPIView(APIView):
     queryset = Product.objects.all()
     serializer_class = AcceptProductSerializer
+    permission_classes = [IsTashkentOperator, ]
 
     def get_object(self):
         try:

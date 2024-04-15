@@ -25,3 +25,33 @@ class IsOperator(permissions.BasePermission):
             if hasattr(user, 'operator'):
                 return True
         return False
+
+
+class IsTashkentOperator(permissions.BasePermission):
+    """
+    Allow if user has operator relation
+    """
+
+    def has_permission(self, request, view):
+        user: User = request.user
+        if user.is_authenticated:
+            if hasattr(user, 'operator'):
+                warehouse = user.operator.warehouse
+                if warehouse == 'TASHKENT':
+                    return True
+        return False
+
+
+class IsChinaOperator(permissions.BasePermission):
+    """
+    Allow if user has operator relation
+    """
+
+    def has_permission(self, request, view):
+        user: User = request.user
+        if user.is_authenticated:
+            if hasattr(user, 'operator'):
+                warehouse = user.operator.warehouse
+                if warehouse == 'CHINA':
+                    return True
+        return False

@@ -16,7 +16,7 @@ class Product(BaseModel):
     status = models.CharField(choices=STATUS_CHOICE, default=ON_WAY, max_length=9)
     barcode = models.CharField(max_length=155, unique=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, related_name='products',
-                                      null=True, blank=True)
+                                 null=True, blank=True)
 
     # photos file
     class Meta:
