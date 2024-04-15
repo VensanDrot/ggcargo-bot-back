@@ -1,6 +1,6 @@
 from django.db import models
 
-from apps.user.models import Customer
+from apps.user.models import Customer, Operator
 from config.models import BaseModel
 
 
@@ -17,6 +17,9 @@ class Product(BaseModel):
     barcode = models.CharField(max_length=155, unique=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, related_name='products',
                                  null=True, blank=True)
+    accepted_by = models.ForeignKey(Operator, on_delete=models.SET_NULL, related_name='products',
+                                    null=True, blank=True)
+    accepted_time = models.DateTimeField(null=True, blank=True)
 
     # photos file
     class Meta:

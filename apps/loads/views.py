@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
@@ -8,6 +10,12 @@ from apps.loads.models import Product
 from apps.loads.serializer import BarcodeConnectionSerializer, AcceptProductSerializer
 from config.core.api_exceptions import APIValidation
 from config.core.permissions import IsTashkentOperator, IsChinaOperator
+
+
+class OperatorStatisticsAPIView(APIView):
+    @staticmethod
+    def get(request, *args, **kwargs):
+        return Response({})
 
 
 class BarcodeConnectionAPIView(CreateAPIView):
@@ -35,5 +43,7 @@ class AcceptProductAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         instance.status = 'DELIVERED'
+        instance.accepted_by = request.user
+        instance.accepted_time = datetime.now()
         instance.save()
         return Response({'detail': 'Product accepted'})
