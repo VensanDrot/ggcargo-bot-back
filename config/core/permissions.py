@@ -21,6 +21,8 @@ class IsOperator(permissions.BasePermission):
 
     def has_permission(self, request, view):
         user: User = request.user
+        if user.is_superuser:
+            return True
         if user.is_authenticated:
             if hasattr(user, 'operator'):
                 return True
@@ -29,11 +31,13 @@ class IsOperator(permissions.BasePermission):
 
 class IsTashkentOperator(permissions.BasePermission):
     """
-    Allow if user has operator relation
+    Allow if user is Tashkent Operator
     """
 
     def has_permission(self, request, view):
         user: User = request.user
+        if user.is_superuser:
+            return True
         if user.is_authenticated:
             if hasattr(user, 'operator'):
                 warehouse = user.operator.warehouse
@@ -44,11 +48,13 @@ class IsTashkentOperator(permissions.BasePermission):
 
 class IsChinaOperator(permissions.BasePermission):
     """
-    Allow if user has operator relation
+    Allow if user is China Operator
     """
 
     def has_permission(self, request, view):
         user: User = request.user
+        if user.is_superuser:
+            return True
         if user.is_authenticated:
             if hasattr(user, 'operator'):
                 warehouse = user.operator.warehouse

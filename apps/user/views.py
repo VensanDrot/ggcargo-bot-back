@@ -22,6 +22,7 @@ class JWTObtainPairView(TokenObtainPairView):
 class UserModelViewSet(ModelViewSetPack):
     queryset = User.objects.filter(operator__isnull=False)
     serializer_class = GetUserSerializer
+    permission_classes = [IsOperator, ]
     post_serializer_class = PostUserSerializer
     pagination_class = APIPagination
 
@@ -37,9 +38,9 @@ class UserModelViewSet(ModelViewSetPack):
 class CustomerModelViewSet(ModelViewSetPack):
     queryset = User.objects.filter(customer__isnull=False)
     serializer_class = GetCustomerSerializer
+    permission_classes = [IsOperator, ]
     post_serializer_class = PostCustomerSerializer
     pagination_class = APIPagination
-    permission_classes = [IsOperator, ]
 
     @swagger_auto_schema(request_body=PostCustomerSerializer)
     def update(self, request, *args, **kwargs):
