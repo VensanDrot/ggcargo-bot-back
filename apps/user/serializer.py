@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import serializers, status
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -124,7 +126,7 @@ class PostCustomerSerializer(serializers.ModelSerializer):
             user.set_password(user_password)
             user.save()
 
-            Customer.objects.create(user=user, accepted_by=request.user, **customer_data)
+            Customer.objects.create(user=user, accepted_time=datetime.now(), accepted_by=request.user, **customer_data)
             return user
         except Exception as exc:
             if 'user' in locals() and user:

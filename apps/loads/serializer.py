@@ -26,8 +26,8 @@ class BarcodeConnectionSerializer(serializers.ModelSerializer):
         customer = get_object_or_404(Customer, code=code, prefix=prefix)
         instance: Product = super().create(validated_data)
         instance.customer_id = customer.id
-        instance.accepted_by = request.user
-        instance.accepted_time = datetime.now()
+        instance.accepted_by_china = request.user
+        instance.accepted_time_china = datetime.now()
         instance.save()
         return instance
 

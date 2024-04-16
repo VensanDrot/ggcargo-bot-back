@@ -43,7 +43,7 @@ class AcceptProductAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         instance.status = 'DELIVERED'
-        instance.accepted_by = request.user
-        instance.accepted_time = datetime.now()
+        instance.accepted_by_tashkent = request.user
+        instance.accepted_time_tashkent = datetime.now()
         instance.save()
         return Response({'detail': 'Product accepted'})
