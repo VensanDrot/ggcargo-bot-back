@@ -49,6 +49,7 @@ class Customer(BaseModel):
     products_accepted = models.IntegerField(default=0)
     accepted_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='customers_accepted_by',
                                     null=True, blank=True)
+    accepted_time = models.DateTimeField(null=True, blank=True)
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
 
