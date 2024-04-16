@@ -3,7 +3,7 @@ ngrok.exe
 /.env
 /db.sqlite3
 /logs.log
-
+logs/
 # migrations
 apps/authentication/migrations/
 apps/bot/migrations/
@@ -14,3 +14,5 @@ apps/loads/migrations/
 apps/payment/migrations/
 
 media/uploads/
+static/
+g_config.py
