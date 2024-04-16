@@ -91,6 +91,7 @@ class GetCustomerSerializer(serializers.ModelSerializer):
                   'full_name',
                   'customer_code',
                   'user_type',
+                  'company_type',
                   'phone_number',
                   'accepted_by',
                   'is_active', ]
@@ -122,7 +123,8 @@ class PostCustomerSerializer(serializers.ModelSerializer):
             prefix_check(customer_data.get('prefix'), customer_data.get('user_type'), request)
 
             user = super().create(validated_data)
-            user.company_type = request.user.company_type
+            if not validated_data.get('company_type'):
+                user.company_type = request.user.company_type
             user.set_password(user_password)
             user.save()
 
@@ -160,6 +162,7 @@ class PostCustomerSerializer(serializers.ModelSerializer):
         fields = ['prefix',
                   'customer_id',
                   'user_type',
+                  'company_type',
                   'phone_number',
                   'full_name',
                   'password',

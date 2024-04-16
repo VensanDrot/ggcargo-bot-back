@@ -26,6 +26,13 @@ class UserModelViewSet(ModelViewSetPack):
     post_serializer_class = PostUserSerializer
     pagination_class = APIPagination
 
+    def get_queryset(self):
+        user = self.request.user
+        queryset = super().get_queryset()
+        if not user.is_superuser:
+            queryset = queryset.filter(company_type=user.company_type)
+        return queryset
+
     @swagger_auto_schema(request_body=PostUserSerializer)
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
@@ -41,6 +48,13 @@ class CustomerModelViewSet(ModelViewSetPack):
     permission_classes = [IsOperator, ]
     post_serializer_class = PostCustomerSerializer
     pagination_class = APIPagination
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = super().get_queryset()
+        if not user.is_superuser:
+            queryset = queryset.filter(company_type=user.company_type)
+        return queryset
 
     @swagger_auto_schema(request_body=PostCustomerSerializer)
     def update(self, request, *args, **kwargs):

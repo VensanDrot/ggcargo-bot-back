@@ -47,7 +47,14 @@ def generate_customer_code(user, customers: dict) -> str:
 
 def prefix_check(prefix, user_type, request):
     company_type = request.user.company_type
-
+    if request.user.is_superuser:
+        if prefix in ['GG', 'E', 'X'] and user_type == 'AUTO':
+            return True
+        elif prefix in ['GAGA', 'M'] and user_type == 'AVIA':
+            return True
+        else:
+            raise APIValidation("Wrong combination of prefix and user_type",
+                                status_code=status.HTTP_400_BAD_REQUEST)
     if company_type == 'GG':
         if prefix == 'GG' and user_type == 'AUTO':
             return True

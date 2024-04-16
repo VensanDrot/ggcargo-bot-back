@@ -27,7 +27,7 @@ class User(AbstractUser):
         },
         null=True, blank=True
     )
-    email = models.EmailField(_("email address"), unique=True)
+    email = models.EmailField(_("email address"), unique=True, null=True, blank=True)
     full_name = models.CharField("full name", max_length=255, null=True, blank=True)
     company_type = models.CharField(_("company type"), max_length=155, choices=COMPANY_TYPE_CHOICES, default=GG)
 
