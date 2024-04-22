@@ -14,6 +14,7 @@ username_validator = UnicodeUsernameValidator()
 class User(AbstractUser):
     first_name = None
     last_name = None
+    password = models.CharField(_("password"), max_length=128, null=True, blank=True)
     username = models.CharField(
         _("username"),
         max_length=150,
@@ -46,7 +47,6 @@ class Customer(BaseModel):
                                        null=True, blank=True)  # if user_type==AVIA
     birt_date = models.DateField(null=True, blank=True)  # if user_type==AVIA
     passport_serial_number = models.CharField(max_length=100, null=True, blank=True)  # if user_type==AVIA
-    products_accepted = models.IntegerField(default=0)
     accepted_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='customers_accepted_by',
                                     null=True, blank=True)
     accepted_time = models.DateTimeField(null=True, blank=True)
@@ -62,6 +62,7 @@ class Operator(BaseModel):
     # Type(Telegram / Web
 
     tg_id = models.CharField(max_length=155, null=True, blank=True)
+    # products_accepted = models.IntegerField(default=0)
     operator_type = models.CharField(_("operator type"), max_length=8, choices=WEB_OR_TELEGRAM_CHOICE)
     warehouse = models.CharField(_("warehouse"), max_length=8, choices=WAREHOUSE_CHOICE, null=True, blank=True)
     # Ownership ? TODO: what is this

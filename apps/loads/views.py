@@ -2,20 +2,26 @@ from datetime import datetime
 
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.loads.models import Product
 from apps.loads.serializer import BarcodeConnectionSerializer, AcceptProductSerializer
+from apps.tools.utils.helpers import accepted_today
+from apps.user.models import User
 from config.core.api_exceptions import APIValidation
-from config.core.permissions import IsTashkentOperator, IsChinaOperator
+from config.core.permissions import IsTashkentOperator, IsChinaOperator, IsOperator
 
 
 class OperatorStatisticsAPIView(APIView):
+    queryset = User.objects.filter(operator__isnull=False)
+    permission_classes = [IsOperator, ]
+
     @staticmethod
     def get(request, *args, **kwargs):
-        return Response({})
+        user = request.user
+        return Response({"accepted_today": accepted_today(user)})
 
 
 class BarcodeConnectionAPIView(CreateAPIView):
