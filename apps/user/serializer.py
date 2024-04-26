@@ -48,6 +48,14 @@ class PostUserSerializer(serializers.ModelSerializer):
     warehouse = serializers.ChoiceField(source='operator.warehouse', choices=WAREHOUSE_CHOICE, write_only=True,
                                         required=False)
 
+    def validate_company_type(self, value):
+        user = self.context.get('request').user
+        if user.is_superuser:
+            return value
+        if user.company_type != value:
+            raise APIValidation('Company type is invalid', status_code=status.HTTP_400_BAD_REQUEST)
+        return value
+
     def create(self, validated_data):
         operators = validated_data.pop('operator', {})
         user_password = validated_data.pop('password', None)
