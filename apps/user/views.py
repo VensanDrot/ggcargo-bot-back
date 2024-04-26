@@ -8,6 +8,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from apps.user.models import User
 from apps.user.serializer import PostUserSerializer, GetUserSerializer, JWTLoginSerializer, PostCustomerSerializer, \
     GetCustomerSerializer
+from apps.user.utils.services import authenticate_user
 from config.core.api_exceptions import APIValidation
 from config.core.pagination import APIPagination
 from config.core.permissions import IsOperator
@@ -17,6 +18,13 @@ from config.views import ModelViewSetPack
 class JWTObtainPairView(TokenObtainPairView):
     serializer_class = JWTLoginSerializer
     permission_classes = [AllowAny, ]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            return Response(authenticate_user(request))
+        else:
+            raise APIValidation(serializer.errors, status_code=status.HTTP_400_BAD_REQUEST)
 
 
 class UserModelViewSet(ModelViewSetPack):

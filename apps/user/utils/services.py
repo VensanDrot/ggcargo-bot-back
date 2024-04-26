@@ -1,4 +1,7 @@
 from rest_framework import status
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
 
 from apps.user.models import Customer
 from config.core.api_exceptions import APIValidation
@@ -73,3 +76,31 @@ def prefix_check(prefix, user_type, request):
                                 status_code=status.HTTP_400_BAD_REQUEST)
     else:
         raise APIValidation("Permission not allowed", status_code=status.HTTP_403_FORBIDDEN)
+
+
+def authenticate_user(request):
+    user = authenticate(request,
+                        username=request.data['username'],
+                        password=request.data['password'])
+    if user is not None:
+        customer_operator = ''
+        warehouse = ''
+        if hasattr(user, 'operator'):
+            customer_operator = 'OPERATOR'
+            warehouse = user.operator.warehouse
+        elif hasattr(user, 'customer'):
+            customer_operator = 'CUSTOMER'
+
+        refresh = RefreshToken.for_user(user)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'data': {
+                'full_name': user.full_name,
+                'company_type': user.company_type,
+                'warehouse': warehouse,
+                'customer_operator': customer_operator
+            }
+        }
+    else:
+        raise APIValidation('invalid username or password', status_code=403)

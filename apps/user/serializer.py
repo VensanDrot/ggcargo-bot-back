@@ -16,13 +16,13 @@ class JWTLoginSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        if user.email:
-            token['username'] = user.email
-        elif user.operator.tg_id:
-            token['username'] = user.operator.tg_id
-        elif user.customer.code:
-            token['username'] = user.customer.code
-        token['full_name'] = user.full_name
+        # if user.email:
+        #     token['username'] = user.email
+        # elif user.operator.tg_id:
+        #     token['username'] = user.operator.tg_id
+        # elif user.customer.code:
+        #     token['username'] = user.customer.code
+        # token['full_name'] = user.full_name
         return token
 
 
@@ -100,6 +100,7 @@ class PostUserSerializer(serializers.ModelSerializer):
 
 # CUSTOMERS
 class GetCustomerSerializer(serializers.ModelSerializer):
+    debt = serializers.CharField(source='customer.debt', allow_null=True)
     customer_code = serializers.CharField(source='customer.code', allow_null=True)
     user_type = serializers.ChoiceField(source='customer.get_user_type_display', choices=CAR_OR_AIR_CHOICE)
     phone_number = serializers.ChoiceField(source='customer.phone_number', choices=WAREHOUSE_CHOICE)
@@ -114,6 +115,7 @@ class GetCustomerSerializer(serializers.ModelSerializer):
                   'user_type',
                   'company_type',
                   'phone_number',
+                  'debt',
                   'accepted_by',
                   'is_active', ]
 
