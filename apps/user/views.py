@@ -30,7 +30,7 @@ class UserModelViewSet(ModelViewSetPack):
         user = self.request.user
         queryset = super().get_queryset()
         if not user.is_superuser:
-            queryset = queryset.filter(company_type=user.company_type)
+            queryset = queryset.filter(company_type=user.company_type).exclude(pk=user.id)
         return queryset
 
     @swagger_auto_schema(request_body=PostUserSerializer)
