@@ -14,9 +14,9 @@ def split_code(full_code, request):
             code += char
         else:
             prefix += char
-    user_company_type = request.user.company_type
-    if user_company_type != prefix:
-        raise APIValidation("Not allowed for this customer", status_code=status.HTTP_400_BAD_REQUEST)
+    # user_company_type = request.user.company_type
+    # if user_company_type != prefix:
+    #     raise APIValidation("Not allowed for this customer", status_code=status.HTTP_400_BAD_REQUEST)
     return prefix, code
 
 
