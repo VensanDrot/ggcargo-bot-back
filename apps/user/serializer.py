@@ -127,14 +127,15 @@ class GetCustomerSerializer(serializers.ModelSerializer):
 
 class PostCustomerSerializer(serializers.ModelSerializer):
     prefix = serializers.ChoiceField(source='customer.prefix', allow_null=True, required=False, choices=PREFIX_CHOICES)
-    customer_id = serializers.CharField(source='customer.code')
-    user_type = serializers.ChoiceField(source='customer.user_type', choices=CAR_OR_AIR_CHOICE)
-    phone_number = serializers.CharField(source='customer.phone_number')
+    customer_id = serializers.CharField(source='customer.code', allow_null=True)
+    user_type = serializers.ChoiceField(source='customer.user_type', choices=CAR_OR_AIR_CHOICE, allow_null=True)
+    phone_number = serializers.CharField(source='customer.phone_number', allow_null=True)
     current_password = serializers.CharField(allow_null=True, required=False)
     passport_photo = serializers.PrimaryKeyRelatedField(source='customer.passport_photo', required=False,
-                                                        queryset=File.objects.all())
-    birt_date = serializers.DateField(source='customer.birt_date', required=False)
-    passport_serial_number = serializers.CharField(source='customer.passport_serial_number', required=False)
+                                                        queryset=File.objects.all(), allow_null=True)
+    birt_date = serializers.DateField(source='customer.birt_date', required=False, allow_null=True)
+    passport_serial_number = serializers.CharField(source='customer.passport_serial_number', required=False,
+                                                   allow_null=True)
 
     def validate_customer_id(self, value):
         if not value.isdigit():
