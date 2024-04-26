@@ -16,7 +16,12 @@ class JWTLoginSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['username'] = user.username
+        if user.email:
+            token['username'] = user.email
+        elif user.operator.tg_id:
+            token['username'] = user.operator.tg_id
+        elif user.customer.code:
+            token['username'] = user.customer.code
         token['full_name'] = user.full_name
         return token
 
