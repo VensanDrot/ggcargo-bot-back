@@ -19,13 +19,13 @@ E = 'E'
 M = 'M'
 X = 'X'
 GG = 'GG'
-GAGA = 'GAGA'
+GAG = 'GAG'
 PREFIX_CHOICES = [
     (E, E),
     (M, M),
     (X, X),
     (GG, GG),
-    (GAGA, GAGA),
+    (GAG, GAG),
 ]
 # OPERATORS
 WEB = 'WEB'

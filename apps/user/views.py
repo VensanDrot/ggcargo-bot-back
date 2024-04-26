@@ -87,7 +87,7 @@ class CustomerIDPrefix(APIView):
             if user_type == 'AUTO':
                 response = [{'prefix': 'GG'}, {'prefix': 'E'}, {'prefix': 'X'}, ]
             elif user_type == 'AVIA':
-                response = [{'prefix': 'GAGA'}, {'prefix': 'M'}]
+                response = [{'prefix': 'GAG'}, {'prefix': 'M'}]
             else:
                 raise APIValidation("Url parameter (user_type) accepts only AUTO or AVIA",
                                     status_code=status.HTTP_400_BAD_REQUEST)
@@ -96,7 +96,7 @@ class CustomerIDPrefix(APIView):
             if user_type == 'AUTO':
                 response = [{'prefix': 'GG'}]
             elif user_type == 'AVIA':
-                response = [{'prefix': 'GAGA'}]
+                response = [{'prefix': 'GAG'}]
             else:
                 raise APIValidation("Url parameter (user_type) accepts only AUTO or AVIA",
                                     status_code=status.HTTP_400_BAD_REQUEST)

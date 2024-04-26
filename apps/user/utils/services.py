@@ -53,7 +53,7 @@ def prefix_check(prefix, user_type, request):
     if request.user.is_superuser:
         if prefix in ['GG', 'E', 'X'] and user_type == 'AUTO':
             return True
-        elif prefix in ['GAGA', 'M'] and user_type == 'AVIA':
+        elif prefix in ['GAG', 'M'] and user_type == 'AVIA':
             return True
         else:
             raise APIValidation("Wrong combination of prefix and user_type",
@@ -61,7 +61,7 @@ def prefix_check(prefix, user_type, request):
     if company_type == 'GG':
         if prefix == 'GG' and user_type == 'AUTO':
             return True
-        elif prefix == 'GAGA' and user_type == 'AVIA':
+        elif prefix == 'GAG' and user_type == 'AVIA':
             return True
         else:
             raise APIValidation("Wrong combination of prefix and user_type",
