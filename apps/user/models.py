@@ -1,5 +1,4 @@
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -29,8 +28,8 @@ class User(AbstractUser):
         null=True, blank=True
     )
     email = models.EmailField(_("email address"), unique=True, null=True, blank=True)
-    full_name = models.CharField("full name", max_length=255, null=True, blank=True)
-    company_type = models.CharField(_("company type"), max_length=155, choices=COMPANY_TYPE_CHOICES, default=GG)
+    full_name = models.CharField(_("full name"), max_length=255, null=True, blank=True)
+    company_type = models.CharField(_("company type"), max_length=5, choices=COMPANY_TYPE_CHOICES, default=GG)
 
     class Meta:
         db_table = 'User'

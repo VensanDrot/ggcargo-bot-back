@@ -9,9 +9,11 @@ CAR_OR_AIR_CHOICE = [
 ]
 GG = 'GG'
 EXP = 'EXP'
+CHINA = 'CHINA'
 COMPANY_TYPE_CHOICES = [
     (GG, GG),
     (EXP, EXP),
+    (CHINA, CHINA),
 ]
 E = 'E'
 M = 'M'
