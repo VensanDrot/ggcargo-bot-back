@@ -101,10 +101,15 @@ class PostUserSerializer(serializers.ModelSerializer):
 # CUSTOMERS
 class GetCustomerSerializer(serializers.ModelSerializer):
     debt = serializers.CharField(source='customer.debt', allow_null=True)
-    customer_code = serializers.CharField(source='customer.code', allow_null=True)
+    customer_code = serializers.SerializerMethodField(allow_null=True)
     user_type = serializers.ChoiceField(source='customer.get_user_type_display', choices=CAR_OR_AIR_CHOICE)
     phone_number = serializers.ChoiceField(source='customer.phone_number', choices=WAREHOUSE_CHOICE)
     accepted_by = serializers.CharField(source='customer.accepted_by.full_name', allow_null=True)
+
+    @staticmethod
+    def get_customer_code(obj):
+        customer = obj.customer
+        return f'{customer.prefix}{customer.code}'
 
     class Meta:
         model = User
