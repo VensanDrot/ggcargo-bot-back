@@ -80,10 +80,39 @@ def prefix_check(prefix, user_type, request):
         raise APIValidation("Permission not allowed", status_code=status.HTTP_403_FORBIDDEN)
 
 
-def authenticate_user(request):
+def authenticate_user(request, is_telegram: bool = False):
     user = authenticate(request,
                         username=request.data['username'],
-                        password=request.data['password'])
+                        password=request.data['password'],
+                        is_telegram=is_telegram)
+    if user is not None:
+        customer_operator = ''
+        warehouse = ''
+        if hasattr(user, 'operator'):
+            customer_operator = 'OPERATOR'
+            warehouse = user.operator.warehouse
+        elif hasattr(user, 'customer'):
+            customer_operator = 'CUSTOMER'
+
+        refresh = RefreshToken.for_user(user)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'data': {
+                'full_name': user.full_name,
+                'company_type': user.company_type,
+                'warehouse': warehouse,
+                'customer_operator': customer_operator
+            }
+        }
+    else:
+        raise APIValidation('invalid username or password', status_code=403)
+
+
+def authenticate_telegram_user(request, is_telegram: bool = False):
+    user = authenticate(request,
+                        username=request.data['tg_id'],
+                        is_telegram=is_telegram)
     if user is not None:
         customer_operator = ''
         warehouse = ''

@@ -11,19 +11,27 @@ from apps.user.utils.services import generate_customer_code, prefix_check
 from config.core.api_exceptions import APIValidation
 
 
-class JWTLoginSerializer(TokenObtainPairSerializer):
+# class JWTLoginSerializer(TokenObtainPairSerializer):
+#
+#     @classmethod
+#     def get_token(cls, user):
+#         token = super().get_token(user)
+#         # if user.email:
+#         #     token['username'] = user.email
+#         # elif user.operator.tg_id:
+#         #     token['username'] = user.operator.tg_id
+#         # elif user.customer.code:
+#         #     token['username'] = user.customer.code
+#         # token['full_name'] = user.full_name
+#         return token
 
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-        # if user.email:
-        #     token['username'] = user.email
-        # elif user.operator.tg_id:
-        #     token['username'] = user.operator.tg_id
-        # elif user.customer.code:
-        #     token['username'] = user.customer.code
-        # token['full_name'] = user.full_name
-        return token
+class JWTLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+
+class TelegramLoginSerializer(serializers.Serializer):
+    tg_id = serializers.CharField()
 
 
 # STAFF

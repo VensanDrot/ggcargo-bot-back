@@ -7,8 +7,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from apps.user.models import User
 from apps.user.serializer import PostUserSerializer, GetUserSerializer, JWTLoginSerializer, PostCustomerSerializer, \
-    GetCustomerSerializer
-from apps.user.utils.services import authenticate_user
+    GetCustomerSerializer, TelegramLoginSerializer
+from apps.user.utils.services import authenticate_user, authenticate_telegram_user
 from config.core.api_exceptions import APIValidation
 from config.core.pagination import APIPagination
 from config.core.permissions import IsOperator
@@ -25,6 +25,20 @@ class JWTObtainPairView(TokenObtainPairView):
             return Response(authenticate_user(request))
         else:
             raise APIValidation(serializer.errors, status_code=status.HTTP_400_BAD_REQUEST)
+
+
+class TelegramLoginAPIView(APIView):
+    serializer_class = TelegramLoginSerializer
+    permission_classes = [AllowAny, ]
+
+    @swagger_auto_schema(request_body=TelegramLoginSerializer)
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if serializer.validated_data.get('tg_id'):
+            return Response(authenticate_telegram_user(request, True))
+        else:
+            raise APIValidation('tg_id was not provided', status_code=status.HTTP_400_BAD_REQUEST)
 
 
 class UserModelViewSet(ModelViewSetPack):
