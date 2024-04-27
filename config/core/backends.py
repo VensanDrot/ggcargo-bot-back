@@ -10,7 +10,8 @@ class EmailAuthenticationBackend(ModelBackend):
         user_model = get_user_model()
         try:
             if is_telegram:
-                return user_model.objects.get(operator__tg_id=username)
+                user = user_model.objects.get(operator__tg_id=username, operator__warehouse=kwargs['warehouse'])
+                return user
             user = user_model.objects.get(
                 Q(email=username) | Q(operator__tg_id=username) |
                 (Q(customer__prefix=username[:2]) & Q(customer__code=username[2:]))
