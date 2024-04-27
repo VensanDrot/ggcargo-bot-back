@@ -3,6 +3,7 @@ from datetime import datetime
 from rest_framework import serializers, status
 
 from apps.files.models import File
+from apps.files.serializer import FileDataSerializer
 from apps.user.models import User, Operator, Customer
 from apps.user.utils.choices import WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, CAR_OR_AIR_CHOICE, PREFIX_CHOICES
 
@@ -117,6 +118,38 @@ class GetCustomerSerializer(serializers.ModelSerializer):
                   'user_type',
                   # 'company_type',
                   'phone_number',
+                  'debt',
+                  'accepted_by',
+                  'is_active', ]
+
+
+class RetrieveCustomerSerializer(serializers.ModelSerializer):
+    debt = serializers.CharField(source='customer.debt', allow_null=True)
+    customer_code = serializers.SerializerMethodField(allow_null=True)
+    user_type = serializers.ChoiceField(source='customer.get_user_type_display', choices=CAR_OR_AIR_CHOICE)
+    phone_number = serializers.ChoiceField(source='customer.phone_number', choices=WAREHOUSE_CHOICE)
+    passport_photo = FileDataSerializer(source='customer.passport_photo')
+    birt_date = serializers.CharField(source='customer.birt_date')
+    passport_serial_number = serializers.CharField(source='customer.passport_serial_number')
+    accepted_by = serializers.CharField(source='customer.accepted_by.full_name', allow_null=True)
+
+    @staticmethod
+    def get_customer_code(obj):
+        customer = obj.customer
+        return f'{customer.prefix}{customer.code}'
+
+    class Meta:
+        model = User
+        depth = 1
+        fields = ['id',
+                  'full_name',
+                  'customer_code',
+                  'user_type',
+                  # 'company_type',
+                  'phone_number',
+                  'passport_photo',
+                  'birt_date',
+                  'passport_serial_number',
                   'debt',
                   'accepted_by',
                   'is_active', ]

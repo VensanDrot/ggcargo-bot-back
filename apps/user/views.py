@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from apps.user.models import User
 from apps.user.serializer import PostUserSerializer, GetUserSerializer, JWTLoginSerializer, PostCustomerSerializer, \
-    GetCustomerSerializer, TelegramLoginSerializer
+    GetCustomerSerializer, TelegramLoginSerializer, RetrieveCustomerSerializer
 from apps.user.utils.services import authenticate_user, authenticate_telegram_user
 from config.core.api_exceptions import APIValidation
 from config.core.pagination import APIPagination
@@ -70,6 +70,11 @@ class CustomerModelViewSet(ModelViewSetPack):
     permission_classes = [IsOperator, ]
     post_serializer_class = PostCustomerSerializer
     pagination_class = APIPagination
+
+    def get_serializer(self, *args, **kwargs):
+        if self.action == 'retrieve':
+            return RetrieveCustomerSerializer(args[0])
+        return super().get_serializer(*args, **kwargs)
 
     # def get_queryset(self):
     #     user = self.request.user
