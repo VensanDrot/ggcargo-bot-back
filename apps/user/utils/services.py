@@ -50,6 +50,8 @@ def generate_customer_code(user, customers: dict) -> str:
 
 def prefix_check(prefix, user_type, request):
     company_type = request.user.company_type
+    if not prefix and not user_type:
+        raise APIValidation('Prefix and user_type was not provided', status_code=status.HTTP_400_BAD_REQUEST)
     if request.user.is_superuser:
         if prefix in ['GG', 'E', 'X'] and user_type == 'AUTO':
             return True

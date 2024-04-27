@@ -127,9 +127,10 @@ class GetCustomerSerializer(serializers.ModelSerializer):
 
 class PostCustomerSerializer(serializers.ModelSerializer):
     prefix = serializers.ChoiceField(source='customer.prefix', allow_null=True, required=False, choices=PREFIX_CHOICES)
-    customer_id = serializers.CharField(source='customer.code', allow_null=True)
-    user_type = serializers.ChoiceField(source='customer.user_type', choices=CAR_OR_AIR_CHOICE, allow_null=True)
-    phone_number = serializers.CharField(source='customer.phone_number', allow_null=True)
+    customer_id = serializers.CharField(source='customer.code', allow_null=True, required=False)
+    user_type = serializers.ChoiceField(source='customer.user_type', choices=CAR_OR_AIR_CHOICE, allow_null=True,
+                                        required=False)
+    phone_number = serializers.CharField(source='customer.phone_number', allow_null=True, required=False)
     current_password = serializers.CharField(allow_null=True, required=False)
     passport_photo = serializers.PrimaryKeyRelatedField(source='customer.passport_photo', required=False,
                                                         queryset=File.objects.all(), allow_null=True)
@@ -171,7 +172,8 @@ class PostCustomerSerializer(serializers.ModelSerializer):
 
             request = self.context.get('request')
             customer_data = validated_data.pop('customer', {})
-            prefix_check(customer_data.get('prefix'), customer_data.get('user_type'), request)
+            if customer_data.get('prefix') and customer_data.get('user_type'):
+                prefix_check(customer_data.get('prefix'), customer_data.get('user_type'), request)
 
             if current_password and not instance.check_password(current_password):
                 raise serializers.ValidationError("Current password is incorrect")
