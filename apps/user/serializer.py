@@ -1,29 +1,14 @@
 from datetime import datetime
 
 from rest_framework import serializers, status
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from apps.files.models import File
 from apps.user.models import User, Operator, Customer
 from apps.user.utils.choices import WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, CAR_OR_AIR_CHOICE, PREFIX_CHOICES
 
-from apps.user.utils.services import generate_customer_code, prefix_check
+from apps.user.utils.services import generate_code
 from config.core.api_exceptions import APIValidation
 
-
-# class JWTLoginSerializer(TokenObtainPairSerializer):
-#
-#     @classmethod
-#     def get_token(cls, user):
-#         token = super().get_token(user)
-#         # if user.email:
-#         #     token['username'] = user.email
-#         # elif user.operator.tg_id:
-#         #     token['username'] = user.operator.tg_id
-#         # elif user.customer.code:
-#         #     token['username'] = user.customer.code
-#         # token['full_name'] = user.full_name
-#         return token
 
 class JWTLoginSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -41,18 +26,21 @@ class GetUserSerializer(serializers.ModelSerializer):
     operator_type = serializers.ChoiceField(source='operator.get_operator_type_display',
                                             choices=WEB_OR_TELEGRAM_CHOICE)
     warehouse = serializers.ChoiceField(source='operator.get_warehouse_display', choices=WAREHOUSE_CHOICE)
-    company_type = serializers.CharField(source='get_company_type_display')
+
+    # company_type = serializers.CharField(source='get_company_type_display')
 
     class Meta:
         model = User
         depth = 1
-        fields = ['id',
-                  'full_name',
-                  'email',
-                  'tg_id',
-                  'operator_type',
-                  'warehouse',
-                  'company_type', ]
+        fields = [
+            'id',
+            'full_name',
+            'email',
+            'tg_id',
+            'operator_type',
+            'warehouse',
+            # 'company_type',
+        ]
 
 
 class PostUserSerializer(serializers.ModelSerializer):
@@ -70,13 +58,13 @@ class PostUserSerializer(serializers.ModelSerializer):
             raise APIValidation('Warehouse is incorrect', status_code=status.HTTP_400_BAD_REQUEST)
         return value
 
-    def validate_company_type(self, value):
-        user = self.context.get('request').user
-        if user.is_superuser:
-            return value
-        if user.company_type != value:
-            raise APIValidation('Company type is invalid', status_code=status.HTTP_400_BAD_REQUEST)
-        return value
+    # def validate_company_type(self, value):
+    #     user = self.context.get('request').user
+    #     if user.is_superuser:
+    #         return value
+    #     if user.company_type != value:
+    #         raise APIValidation('Company type is invalid', status_code=status.HTTP_400_BAD_REQUEST)
+    #     return value
 
     def create(self, validated_data):
         operators = validated_data.pop('operator', {})
@@ -101,7 +89,7 @@ class PostUserSerializer(serializers.ModelSerializer):
         fields = ['tg_id',
                   'operator_type',
                   'warehouse',
-                  'company_type',
+                  # 'company_type',
                   'full_name',
                   'email',
                   'password', ]
@@ -127,7 +115,7 @@ class GetCustomerSerializer(serializers.ModelSerializer):
                   'full_name',
                   'customer_code',
                   'user_type',
-                  'company_type',
+                  # 'company_type',
                   'phone_number',
                   'debt',
                   'accepted_by',
@@ -135,12 +123,12 @@ class GetCustomerSerializer(serializers.ModelSerializer):
 
 
 class PostCustomerSerializer(serializers.ModelSerializer):
-    prefix = serializers.ChoiceField(source='customer.prefix', allow_null=True, required=False, choices=PREFIX_CHOICES)
-    customer_id = serializers.CharField(source='customer.code', allow_null=True, required=False)
+    # prefix = serializers.ChoiceField(source='customer.prefix', allow_null=True, required=False,
+    # choices=PREFIX_CHOICES)
+    # customer_id = serializers.CharField(source='customer.code', allow_null=True, required=False)
     user_type = serializers.ChoiceField(source='customer.user_type', choices=CAR_OR_AIR_CHOICE, allow_null=True,
                                         required=False)
     phone_number = serializers.CharField(source='customer.phone_number', allow_null=True, required=False)
-    current_password = serializers.CharField(allow_null=True, required=False)
     passport_photo = serializers.PrimaryKeyRelatedField(source='customer.passport_photo', required=False,
                                                         queryset=File.objects.all(), allow_null=True)
     birt_date = serializers.DateField(source='customer.birt_date', required=False, allow_null=True)
@@ -154,20 +142,18 @@ class PostCustomerSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict):
         try:
-            validated_data.pop('current_password', None)
             user_password = validated_data.pop('password', None)
 
             request = self.context.get('request')
             customer_data = validated_data.pop('customer', {})
-            prefix_check(customer_data.get('prefix'), customer_data.get('user_type'), request)
+            prefix, code = generate_code(customer_data)
 
             user = super().create(validated_data)
-            if not validated_data.get('company_type'):
-                user.company_type = request.user.company_type
             user.set_password(user_password)
             user.save()
 
-            Customer.objects.create(user=user, accepted_time=datetime.now(), accepted_by=request.user, **customer_data)
+            Customer.objects.create(user=user, prefix=prefix, code=code, accepted_time=datetime.now(),
+                                    accepted_by=request.user, **customer_data)
             return user
         except Exception as exc:
             if 'user' in locals() and user:
@@ -176,16 +162,10 @@ class PostCustomerSerializer(serializers.ModelSerializer):
 
     def update(self, instance: User, validated_data: dict):
         try:
-            current_password = validated_data.pop('current_password', None)
             user_password = validated_data.pop('password', None)
 
             request = self.context.get('request')
             customer_data = validated_data.pop('customer', {})
-            if customer_data.get('prefix') and customer_data.get('user_type'):
-                prefix_check(customer_data.get('prefix'), customer_data.get('user_type'), request)
-
-            if current_password and not instance.check_password(current_password):
-                raise serializers.ValidationError("Current password is incorrect")
 
             user = super().update(instance, validated_data)
             if user_password:
@@ -199,15 +179,17 @@ class PostCustomerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['prefix',
-                  'customer_id',
-                  'user_type',
-                  'company_type',
-                  'phone_number',
-                  'full_name',
-                  'password',
-                  'current_password',
-                  'is_active',
-                  'passport_photo',
-                  'birt_date',
-                  'passport_serial_number', ]
+        fields = [
+            # 'prefix',
+            # 'customer_id',
+            'user_type',
+            # 'company_type',
+            'phone_number',
+            'full_name',
+            'password',
+            # 'current_password',
+            'is_active',
+            'passport_photo',
+            'birt_date',
+            'passport_serial_number',
+        ]

@@ -48,12 +48,12 @@ class UserModelViewSet(ModelViewSetPack):
     post_serializer_class = PostUserSerializer
     pagination_class = APIPagination
 
-    def get_queryset(self):
-        user = self.request.user
-        queryset = super().get_queryset()
-        if not user.is_superuser:
-            queryset = queryset.filter(company_type=user.company_type).exclude(pk=user.id)
-        return queryset
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     queryset = super().get_queryset()
+    #     if not user.is_superuser:
+    #         queryset = queryset.filter(company_type=user.company_type).exclude(pk=user.id)
+    #     return queryset
 
     @swagger_auto_schema(request_body=PostUserSerializer)
     def update(self, request, *args, **kwargs):
@@ -71,12 +71,12 @@ class CustomerModelViewSet(ModelViewSetPack):
     post_serializer_class = PostCustomerSerializer
     pagination_class = APIPagination
 
-    def get_queryset(self):
-        user = self.request.user
-        queryset = super().get_queryset()
-        if not user.is_superuser:
-            queryset = queryset.filter(company_type=user.company_type)
-        return queryset
+    # def get_queryset(self):
+    #     user = self.request.user
+    #     queryset = super().get_queryset()
+    #     if not user.is_superuser:
+    #         queryset = queryset.filter(company_type=user.company_type)
+    #     return queryset
 
     @swagger_auto_schema(request_body=PostCustomerSerializer)
     def update(self, request, *args, **kwargs):
@@ -96,30 +96,11 @@ class CustomerIDPrefix(APIView):
     @staticmethod
     def get(request, *args, **kwargs):
         user_type = kwargs.get('user_type')
-        user = request.user
-        if user.is_superuser:
-            if user_type == 'AUTO':
-                response = [{'prefix': 'GG'}, {'prefix': 'E'}, {'prefix': 'X'}, ]
-            elif user_type == 'AVIA':
-                response = [{'prefix': 'GAG'}, {'prefix': 'M'}]
-            else:
-                raise APIValidation("Url parameter (user_type) accepts only AUTO or AVIA",
-                                    status_code=status.HTTP_400_BAD_REQUEST)
-            return Response(response)
-        if user.company_type == 'GG':
-            if user_type == 'AUTO':
-                response = [{'prefix': 'GG'}]
-            elif user_type == 'AVIA':
-                response = [{'prefix': 'GAG'}]
-            else:
-                raise APIValidation("Url parameter (user_type) accepts only AUTO or AVIA",
-                                    status_code=status.HTTP_400_BAD_REQUEST)
+        if user_type == 'AUTO':
+            response = [{'prefix': 'G'}, {'prefix': 'E'}, {'prefix': 'X'}, ]
+        elif user_type == 'AVIA':
+            response = [{'prefix': 'W'}, {'prefix': 'M'}, {'prefix': 'Z'}]
         else:
-            if user_type == 'AUTO':
-                response = [{'prefix': 'E'}, {'prefix': 'X'}]
-            elif user_type == 'AVIA':
-                response = [{'prefix': 'M'}]
-            else:
-                raise APIValidation("Url parameter (user_type) accepts only AUTO or AVIA",
-                                    status_code=status.HTTP_400_BAD_REQUEST)
+            raise APIValidation("Url parameter (user_type) accepts only AUTO or AVIA",
+                                status_code=status.HTTP_400_BAD_REQUEST)
         return Response(response)
