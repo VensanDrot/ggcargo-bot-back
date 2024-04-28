@@ -125,30 +125,27 @@ class GetCustomerSerializer(serializers.ModelSerializer):
 
 class RetrieveCustomerSerializer(serializers.ModelSerializer):
     debt = serializers.CharField(source='customer.debt', allow_null=True)
-    customer_code = serializers.SerializerMethodField(allow_null=True)
+    prefix = serializers.CharField(source='customer.prefix', allow_null=True)
+    code = serializers.CharField(source='customer.code', allow_null=True)
     user_type = serializers.ChoiceField(source='customer.get_user_type_display', choices=CAR_OR_AIR_CHOICE)
     phone_number = serializers.ChoiceField(source='customer.phone_number', choices=WAREHOUSE_CHOICE)
     passport_photo = FileDataSerializer(source='customer.passport_photo')
-    birt_date = serializers.CharField(source='customer.birt_date')
+    birth_date = serializers.CharField(source='customer.birth_date')
     passport_serial_number = serializers.CharField(source='customer.passport_serial_number')
     accepted_by = serializers.CharField(source='customer.accepted_by.full_name', allow_null=True)
-
-    @staticmethod
-    def get_customer_code(obj):
-        customer = obj.customer
-        return f'{customer.prefix}{customer.code}'
 
     class Meta:
         model = User
         depth = 1
         fields = ['id',
                   'full_name',
-                  'customer_code',
+                  'prefix',
+                  'code',
                   'user_type',
                   # 'company_type',
                   'phone_number',
                   'passport_photo',
-                  'birt_date',
+                  'birth_date',
                   'passport_serial_number',
                   'debt',
                   'accepted_by',
@@ -164,7 +161,7 @@ class PostCustomerSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(source='customer.phone_number', allow_null=True, required=False)
     passport_photo = serializers.PrimaryKeyRelatedField(source='customer.passport_photo', required=False,
                                                         queryset=File.objects.all(), allow_null=True)
-    birt_date = serializers.DateField(source='customer.birt_date', required=False, allow_null=True)
+    birth_date = serializers.DateField(source='customer.birth_date', required=False, allow_null=True)
     passport_serial_number = serializers.CharField(source='customer.passport_serial_number', required=False,
                                                    allow_null=True)
 
@@ -223,6 +220,6 @@ class PostCustomerSerializer(serializers.ModelSerializer):
             # 'current_password',
             'is_active',
             'passport_photo',
-            'birt_date',
+            'birth_date',
             'passport_serial_number',
         ]

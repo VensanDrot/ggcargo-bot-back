@@ -44,7 +44,7 @@ class Customer(BaseModel):
     user_type = models.CharField(_("user type"), max_length=4, choices=CAR_OR_AIR_CHOICE)
     passport_photo = models.ForeignKey("files.File", on_delete=models.SET_NULL,
                                        null=True, blank=True)  # if user_type==AVIA
-    birt_date = models.DateField(null=True, blank=True)  # if user_type==AVIA
+    birth_date = models.DateField(null=True, blank=True)  # if user_type==AVIA
     passport_serial_number = models.CharField(max_length=100, null=True, blank=True)  # if user_type==AVIA
     accepted_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='customers_accepted_by',
                                     null=True, blank=True)
