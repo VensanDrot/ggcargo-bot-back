@@ -4,9 +4,9 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
 from apps.files.models import File
-from apps.loads.models import Product
+from apps.loads.models import Product, Load
 from apps.tools.utils.helpers import split_code
-from apps.user.models import Customer, User
+from apps.user.models import Customer
 
 
 class BarcodeConnectionSerializer(serializers.ModelSerializer):
@@ -40,3 +40,30 @@ class AcceptProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['tashkent_files']
+
+
+class ProductListSerializer(serializers.ModelSerializer):
+    customer_id = serializers.SerializerMethodField()
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+
+    @staticmethod
+    def get_customer_id(obj):
+        prefix = obj.customer.prefix
+        code = obj.customer.code
+        return f'{prefix}{code}'
+
+    class Meta:
+        model = Product
+        fields = ['id',
+                  'status',
+                  'status_display',
+                  'barcode',
+                  'customer_id']
+
+
+class AddLoadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Load
+        fields = ['id',
+                  'weight',
+                  'products', ]

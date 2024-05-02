@@ -87,7 +87,8 @@ class PostUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['tg_id',
+        fields = ['id',
+                  'tg_id',
                   'operator_type',
                   'warehouse',
                   # 'company_type',
@@ -210,6 +211,7 @@ class PostCustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
+            'id',
             # 'prefix',
             # 'customer_id',
             'user_type',

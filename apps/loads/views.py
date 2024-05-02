@@ -1,13 +1,15 @@
 from datetime import datetime
 
+from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, get_object_or_404
+from rest_framework.generics import CreateAPIView, get_object_or_404, ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.loads.models import Product
-from apps.loads.serializer import BarcodeConnectionSerializer, AcceptProductSerializer
+from apps.loads.models import Product, Load
+from apps.loads.serializer import BarcodeConnectionSerializer, AcceptProductSerializer, ProductListSerializer, \
+    AddLoadSerializer
 from apps.tools.utils.helpers import accepted_today
 from apps.user.models import User
 from config.core.api_exceptions import APIValidation
@@ -53,3 +55,22 @@ class AcceptProductAPIView(APIView):
         instance.accepted_time_tashkent = datetime.now()
         instance.save()
         return Response({'detail': 'Product accepted'})
+
+
+class CustomerProductsListAPIView(ListAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductListSerializer
+    permission_classes = [IsTashkentOperator, ]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.kwargs.get('customer_id'):
+            queryset = queryset.filter(
+                Q(customer__prefix=self.kwargs['customer_id'][:2]) & Q(customer__code=self.kwargs['customer_id'][2:])
+            )
+        return queryset
+
+
+class AddLoadAPIView(CreateAPIView):
+    queryset = Load.objects.all()
+    serializer_class = AddLoadSerializer
