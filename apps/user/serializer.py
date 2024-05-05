@@ -203,7 +203,7 @@ class PostCustomerSerializer(serializers.ModelSerializer):
                 user.set_password(user_password)
                 user.save()
 
-            Customer.objects.filter(user=user, accepted_by=request.user).update(**customer_data)
+            Customer.objects.filter(user=user).update(accepted_by=request.user, **customer_data)
             return instance
         except Exception as exc:
             raise APIValidation(f"{exc.args}", status_code=status.HTTP_400_BAD_REQUEST)
