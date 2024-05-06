@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from apps.user.utils.choices import COMPANY_TYPE_CHOICES, GG, CAR_OR_AIR_CHOICE, WEB_OR_TELEGRAM_CHOICE, \
+from config.core.choices import COMPANY_TYPE_CHOICES, GG, CAR_OR_AIR_CHOICE, WEB_OR_TELEGRAM_CHOICE, \
     WAREHOUSE_CHOICE, PREFIX_CHOICES
 from config.models import BaseModel
 

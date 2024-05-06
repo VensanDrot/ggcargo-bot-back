@@ -5,7 +5,7 @@ from rest_framework import serializers, status
 from apps.files.models import File
 from apps.files.serializer import FileDataSerializer
 from apps.user.models import User, Operator, Customer
-from apps.user.utils.choices import WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, CAR_OR_AIR_CHOICE, PREFIX_CHOICES
+from config.core.choices import WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, CAR_OR_AIR_CHOICE
 
 from apps.user.utils.services import generate_code
 from config.core.api_exceptions import APIValidation
