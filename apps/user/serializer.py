@@ -45,6 +45,7 @@ class GetUserSerializer(serializers.ModelSerializer):
 
 
 class PostUserSerializer(serializers.ModelSerializer):
+    is_admin = serializers.BooleanField(source='operator.is_admin', write_only=True, required=False)
     tg_id = serializers.CharField(source='operator.tg_id', write_only=True, required=False)
     operator_type = serializers.ChoiceField(source='operator.operator_type', choices=WEB_OR_TELEGRAM_CHOICE,
                                             write_only=True, required=False)
@@ -55,7 +56,9 @@ class PostUserSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if user.is_superuser:
             return value
-        if user.operator.warehouse != value:
+        if not user.operator.is_admin:
+            raise APIValidation('Operator is not admin', status_code=status.HTTP_403_FORBIDDEN)
+        elif user.operator.warehouse != value:
             raise APIValidation('Warehouse is incorrect', status_code=status.HTTP_400_BAD_REQUEST)
         return value
 
@@ -77,11 +80,13 @@ class PostUserSerializer(serializers.ModelSerializer):
         return user
 
     def update(self, instance, validated_data):
-        operator = validated_data.pop('operator', {})
+        operator_data = validated_data.pop('operator', {})
         user_password = validated_data.pop('password', None)
         user = super().update(instance, validated_data)
         user.set_password(user_password)
-        user.operator.update(**operator)
+        for key, value in operator_data.items():
+            setattr(user.operator, key, value)
+        user.operator.save()
         user.save()
         return instance
 
@@ -94,7 +99,8 @@ class PostUserSerializer(serializers.ModelSerializer):
                   # 'company_type',
                   'full_name',
                   'email',
-                  'password', ]
+                  'password',
+                  'is_admin', ]
 
 
 # CUSTOMERS

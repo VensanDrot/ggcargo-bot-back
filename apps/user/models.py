@@ -65,6 +65,7 @@ class Operator(BaseModel):
     operator_type = models.CharField(_("operator type"), max_length=8, choices=WEB_OR_TELEGRAM_CHOICE)
     warehouse = models.CharField(_("warehouse"), max_length=8, choices=WAREHOUSE_CHOICE, null=True, blank=True)
     # Ownership ? TODO: what is this
+    is_admin = models.BooleanField(default=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='operator')
 
     class Meta:

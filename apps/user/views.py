@@ -11,7 +11,7 @@ from apps.user.serializer import PostUserSerializer, GetUserSerializer, JWTLogin
 from apps.user.utils.services import authenticate_user, authenticate_telegram_user
 from config.core.api_exceptions import APIValidation
 from config.core.pagination import APIPagination
-from config.core.permissions import IsOperator
+from config.core.permissions import IsOperator, IsAdminOperator
 from config.views import ModelViewSetPack
 
 
@@ -44,7 +44,7 @@ class TelegramLoginAPIView(APIView):
 class UserModelViewSet(ModelViewSetPack):
     queryset = User.objects.filter(operator__isnull=False)
     serializer_class = GetUserSerializer
-    permission_classes = [IsOperator, ]
+    permission_classes = [IsAdminOperator, ]
     post_serializer_class = PostUserSerializer
     pagination_class = APIPagination
 

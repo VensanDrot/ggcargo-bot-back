@@ -29,6 +29,24 @@ class IsOperator(permissions.BasePermission):
         return False
 
 
+class IsAdminOperator(permissions.BasePermission):
+    """
+    Allow if user has operator relation, if is_admin field is True
+    """
+
+    def has_permission(self, request, view):
+        user: User = request.user
+        if user.is_superuser:
+            return True
+        if user.is_authenticated:
+            if hasattr(user, 'operator'):
+                is_admin = user.operator.is_admin
+                if is_admin:
+                    return True
+                return False
+        return False
+
+
 class IsTashkentOperator(permissions.BasePermission):
     """
     Allow if user is Tashkent Operator
