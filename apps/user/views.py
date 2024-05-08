@@ -7,7 +7,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from apps.user.models import User
 from apps.user.serializer import PostUserSerializer, GetUserSerializer, JWTLoginSerializer, PostCustomerSerializer, \
-    GetCustomerSerializer, TelegramLoginSerializer, RetrieveCustomerSerializer, PostResponseCustomerSerializer
+    GetCustomerSerializer, TelegramLoginSerializer, RetrieveCustomerSerializer, PostResponseCustomerSerializer, \
+    PostResponseUserSerializer
 from apps.user.utils.services import authenticate_user, authenticate_telegram_user
 from config.core.api_exceptions import APIValidation
 from config.core.pagination import APIPagination
@@ -48,16 +49,25 @@ class UserModelViewSet(ModelViewSetPack):
     post_serializer_class = PostUserSerializer
     pagination_class = APIPagination
 
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     queryset = super().get_queryset()
-    #     if not user.is_superuser:
-    #         queryset = queryset.filter(company_type=user.company_type).exclude(pk=user.id)
-    #     return queryset
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            instance = serializer.save()
+            response_serializer = PostResponseUserSerializer(instance=instance)
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @swagger_auto_schema(request_body=PostUserSerializer)
+    @swagger_auto_schema(request_body=PostResponseUserSerializer)
     def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        new_instance = self.get_object()
+        response_serializer = PostResponseUserSerializer(instance=new_instance)
+        response = response_serializer.data
+        return Response(response)
 
     @swagger_auto_schema(request_body=PostUserSerializer)
     def partial_update(self, request, *args, **kwargs):

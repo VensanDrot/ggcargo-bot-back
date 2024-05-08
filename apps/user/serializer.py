@@ -62,14 +62,6 @@ class PostUserSerializer(serializers.ModelSerializer):
             raise APIValidation('Warehouse is incorrect', status_code=status.HTTP_400_BAD_REQUEST)
         return value
 
-    # def validate_company_type(self, value):
-    #     user = self.context.get('request').user
-    #     if user.is_superuser:
-    #         return value
-    #     if user.company_type != value:
-    #         raise APIValidation('Company type is invalid', status_code=status.HTTP_400_BAD_REQUEST)
-    #     return value
-
     def create(self, validated_data):
         operators = validated_data.pop('operator', {})
         user_password = validated_data.pop('password', None)
@@ -100,6 +92,32 @@ class PostUserSerializer(serializers.ModelSerializer):
                   'full_name',
                   'email',
                   'password',
+                  'is_admin', ]
+
+
+class PostResponseUserSerializer(serializers.ModelSerializer):
+    is_admin = serializers.BooleanField(source='operator.is_admin', read_only=True, required=False)
+    tg_id = serializers.CharField(source='operator.tg_id', read_only=True, required=False)
+    operator_type = serializers.ChoiceField(source='operator.operator_type', choices=WEB_OR_TELEGRAM_CHOICE,
+                                            read_only=True, required=False)
+    warehouse = serializers.ChoiceField(source='operator.warehouse', choices=WAREHOUSE_CHOICE, read_only=True,
+                                        required=False)
+    operator_type_display = serializers.ChoiceField(source='operator.get_operator_type_display', required=False,
+                                                    choices=WEB_OR_TELEGRAM_CHOICE)
+    warehouse_display = serializers.ChoiceField(source='operator.get_warehouse_display', choices=WAREHOUSE_CHOICE,
+                                                required=False)
+
+    class Meta:
+        model = User
+        fields = ['id',
+                  'tg_id',
+                  'operator_type',
+                  'operator_type_display',
+                  'warehouse',
+                  'warehouse_display',
+                  # 'company_type',
+                  'full_name',
+                  'email',
                   'is_admin', ]
 
 
