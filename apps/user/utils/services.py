@@ -40,7 +40,7 @@ def generate_code(customer_data) -> tuple:
     customers_count = query.filter(prefix=last_prefix).count()
     if customers_count > 3:
         prefix = last_prefix
-        code = customers_count.zfill(4)
+        code = str(customers_count).zfill(4)
         return prefix, code
     elif customers_count == 3 and last_prefix not in ['Z', 'G']:
         prefix = next_prefix(last_prefix, user_type)
