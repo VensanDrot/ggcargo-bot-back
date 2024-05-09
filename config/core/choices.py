@@ -15,17 +15,20 @@ COMPANY_TYPE_CHOICES = [
     (EXP, EXP),
     (CHINA, CHINA),
 ]
-E = 'E'
-M = 'M'
-X = 'X'
-GG = 'GG'
-GAG = 'GAG'
+
+WSC = 'WSC'
+YDQ = 'YDQ'
+ZRD = 'ZRD'
+HVP = 'HVP'
+LXE = 'LXE'
+GZG = 'GZG'
 PREFIX_CHOICES = [
-    (E, E),
-    (M, M),
-    (X, X),
-    (GG, GG),
-    (GAG, GAG),
+    (WSC, 'WSC'),
+    (YDQ, 'YDQ'),
+    (ZRD, 'ZRD'),
+    (HVP, 'HVP'),
+    (LXE, 'LXE'),
+    (GZG, 'GZG'),
 ]
 # OPERATORS
 WEB = 'WEB'

@@ -9,22 +9,22 @@ from config.core.api_exceptions import APIValidation
 
 def start_prefix(user_type):
     if user_type == 'AUTO':
-        return 'E'
+        return 'WSC'
     elif user_type == 'AVIA':
-        return 'W'
+        return 'HVP'
     else:
         raise APIValidation('user_type must be AUTO or AVIA')
 
 
 def next_prefix(last_prefix, user_type):
     if user_type == 'AUTO':
-        if last_prefix == 'E':
-            return 'X'
-        return 'G'
+        if last_prefix == 'WSC':
+            return 'YDQ'
+        return 'ZRD'
     elif user_type == 'AVIA':
-        if last_prefix == 'W':
-            return 'M'
-        return 'Z'
+        if last_prefix == 'HVP':
+            return 'LXE'
+        return 'GZG'
     else:
         raise APIValidation('user_type must be AUTO or AVIA')
 
@@ -42,7 +42,7 @@ def generate_code(customer_data) -> tuple:
         prefix = last_prefix
         code = str(customers_count).zfill(4)
         return prefix, code
-    elif customers_count == 3000 and last_prefix not in ['Z', 'G']:
+    elif customers_count == 3000 and last_prefix not in ['ZRD', 'GZG']:
         prefix = next_prefix(last_prefix, user_type)
         code = str(1).zfill(4)
         return prefix, code
@@ -55,9 +55,9 @@ def generate_code(customer_data) -> tuple:
 def prefix_check(prefix, user_type):
     if not prefix and not user_type:
         raise APIValidation('Prefix, user_type was not provided', status_code=status.HTTP_400_BAD_REQUEST)
-    if prefix in ['E', 'X', 'G'] and user_type == 'AUTO':
+    if prefix in ['WSC', 'YDQ', 'ZRD'] and user_type == 'AUTO':
         return True
-    elif prefix in ['W', 'M', 'Z'] and user_type == 'AVIA':
+    elif prefix in ['HVP', 'LXE', 'GZG'] and user_type == 'AVIA':
         return True
     else:
         raise APIValidation("Wrong combination of prefix and user_type",
