@@ -3,20 +3,9 @@ from rest_framework import permissions
 from apps.user.models import User
 
 
-class LandingPage(permissions.BasePermission):
+class IsTGOperator(permissions.BasePermission):
     """
-    Allow users to GET requests
-    """
-
-    def has_permission(self, request, view):
-        if view.action == 'list' or view.action == 'retrieve':
-            return True
-        return request.user.is_authenticated
-
-
-class IsOperator(permissions.BasePermission):
-    """
-    Allow if user has operator relation
+    Allow if user has telegram operator relation
     """
 
     def has_permission(self, request, view):
@@ -25,13 +14,14 @@ class IsOperator(permissions.BasePermission):
             return True
         if user.is_authenticated:
             if hasattr(user, 'operator'):
-                return True
+                if user.operator.operator_type == 'TELEGRAM':
+                    return True
         return False
 
 
-class IsAdminOperator(permissions.BasePermission):
+class IsTGAdminOperator(permissions.BasePermission):
     """
-    Allow if user has operator relation, if is_admin field is True
+    Allow if user has telegram operator relation, if is_admin field is True
     """
 
     def has_permission(self, request, view):
@@ -40,6 +30,8 @@ class IsAdminOperator(permissions.BasePermission):
             return True
         if user.is_authenticated:
             if hasattr(user, 'operator'):
+                if not user.operator.operator_type == 'TELEGRAM':
+                    return False
                 is_admin = user.operator.is_admin
                 if is_admin:
                     return True
@@ -47,9 +39,9 @@ class IsAdminOperator(permissions.BasePermission):
         return False
 
 
-class IsTashkentOperator(permissions.BasePermission):
+class IsTashkentTGOperator(permissions.BasePermission):
     """
-    Allow if user is Tashkent Operator
+    Allow if user is telegram Tashkent Operator
     """
 
     def has_permission(self, request, view):
@@ -58,15 +50,17 @@ class IsTashkentOperator(permissions.BasePermission):
             return True
         if user.is_authenticated:
             if hasattr(user, 'operator'):
+                if not user.operator.operator_type == 'TELEGRAM':
+                    return False
                 warehouse = user.operator.warehouse
                 if warehouse == 'TASHKENT':
                     return True
         return False
 
 
-class IsChinaOperator(permissions.BasePermission):
+class IsChinaTGOperator(permissions.BasePermission):
     """
-    Allow if user is China Operator
+    Allow if user is China telegram Operator
     """
 
     def has_permission(self, request, view):
@@ -75,6 +69,8 @@ class IsChinaOperator(permissions.BasePermission):
             return True
         if user.is_authenticated:
             if hasattr(user, 'operator'):
+                if not user.operator.operator_type == 'TELEGRAM':
+                    return False
                 warehouse = user.operator.warehouse
                 if warehouse == 'CHINA':
                     return True

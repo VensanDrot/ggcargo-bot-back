@@ -1,76 +1,27 @@
-from datetime import datetime
+import json
 
-from django.db.models import Q
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import status
-from rest_framework.generics import CreateAPIView, get_object_or_404, ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.loads.models import Product, Load
-from apps.loads.serializer import BarcodeConnectionSerializer, AcceptProductSerializer, ProductListSerializer, \
-    AddLoadSerializer
-from apps.tools.utils.helpers import accepted_today
-from apps.user.models import User
-from config.core.api_exceptions import APIValidation
-from config.core.permissions import IsTashkentOperator, IsChinaOperator, IsOperator
+from apps.loads.serializers.general import LoadCostSerializer
+from apps.tools.serializer import SettingsSerializer
+from apps.tools.views import settings_path
 
 
-class OperatorStatisticsAPIView(APIView):
-    queryset = User.objects.filter(operator__isnull=False)
-    permission_classes = [IsOperator, ]
+class LoadCostAPIView(APIView):
+    serializer_class = LoadCostSerializer
 
-    @staticmethod
-    def get(request, *args, **kwargs):
-        user = request.user
-        return Response({"accepted_today": accepted_today(user)})
-
-
-class BarcodeConnectionAPIView(CreateAPIView):
-    queryset = Product.objects.all()
-    serializer_class = BarcodeConnectionSerializer
-    permission_classes = [IsChinaOperator, ]
-
-
-class AcceptProductAPIView(APIView):
-    queryset = Product.objects.all()
-    serializer_class = AcceptProductSerializer
-    permission_classes = [IsTashkentOperator, ]
-
-    def get_object(self):
-        try:
-            return Product.objects.get(barcode=self.kwargs['barcode'])
-        except Product.DoesNotExist:
-            raise APIValidation("Product does not exist or barcode was not provided",
-                                status_code=status.HTTP_400_BAD_REQUEST)
-
-    @swagger_auto_schema(request_body=AcceptProductSerializer)
+    @swagger_auto_schema(request_body=LoadCostSerializer)
     def post(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.serializer_class(instance=instance, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        instance.status = 'DELIVERED'
-        instance.accepted_by_tashkent = request.user
-        instance.accepted_time_tashkent = datetime.now()
-        instance.save()
-        return Response({'detail': 'Product accepted'})
+        with open(settings_path, 'r') as file:
+            file_data = json.load(file)
+            settings_serializer = SettingsSerializer(data=file_data)
+            settings_serializer.is_valid(raise_exception=True)
+            settings_data = settings_serializer.validated_data
+            price = settings_data.get('price')
 
-
-class CustomerProductsListAPIView(ListAPIView):
-    queryset = Product.objects.all()
-    serializer_class = ProductListSerializer
-    permission_classes = [IsTashkentOperator, ]
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        if self.kwargs.get('customer_id'):
-            queryset = queryset.filter(
-                Q(customer__prefix=self.kwargs['customer_id'][:2]) & Q(customer__code=self.kwargs['customer_id'][2:])
-            )
-        return queryset
-
-
-class AddLoadAPIView(CreateAPIView):
-    queryset = Load.objects.all()
-    serializer_class = AddLoadSerializer
+            cost_serializer = self.serializer_class(data=request.data)
+            cost_serializer.is_valid(raise_exception=True)
+            response = cost_serializer.calculate_cost(price)
+        return Response({'load_cost': response})

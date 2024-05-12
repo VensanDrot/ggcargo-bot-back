@@ -1,0 +1,22 @@
+{
+  "payment_card": {
+    "avia": "1234212233334444",
+    "auto": "1234111122229999"
+  },
+  "price": {
+    "avia": "20",
+    "auto": "12"
+  },
+  "address": {
+    "avia": "1234 2122 3333 4444",
+    "auto": "1241241111 2222 9999"
+  },
+  "link": {
+    "avia": "https://google.com",
+    "auto": "https://facebook.com"
+  },
+  "support": {
+    "avia": "+99891812821",
+    "auto": "+19209312390"
+  }
+}

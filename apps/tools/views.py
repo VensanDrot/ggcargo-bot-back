@@ -1,56 +1,40 @@
+import json
+from os.path import join as join_path
+
+from django.conf import settings
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from apps.tools.models import PaymentCard, Cost, ChannelLink, WarehouseAddress, SupportService
-from apps.tools.serializer import PaymentCardSerializer, CostSerializer, ChannelLinkSerializer, \
-    WarehouseAddressSerializer, SupportServiceSerializer
-from config.views import ModelViewSetPack
+from apps.tools.serializer import SettingsSerializer
 
-
-class PaymentCardModelViewSet(ModelViewSetPack):
-    queryset = PaymentCard.objects.all()
-    serializer_class = PaymentCardSerializer
-    post_serializer_class = PaymentCardSerializer
-
-    @swagger_auto_schema(request_body=PaymentCardSerializer)
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
+settings_path = join_path(settings.BASE_DIR, 'apps', 'tools', 'settings.json')
 
 
-class CostModelViewSet(ModelViewSetPack):
-    queryset = Cost.objects.all()
-    serializer_class = CostSerializer
-    post_serializer_class = CostSerializer
+class GetSettingsAPIView(APIView):
+    serializer_class = SettingsSerializer
 
-    @swagger_auto_schema(request_body=PaymentCardSerializer)
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-
-
-class ChannelLinkModelViewSet(ModelViewSetPack):
-    queryset = ChannelLink.objects.all()
-    serializer_class = ChannelLinkSerializer
-    post_serializer_class = ChannelLinkSerializer
-
-    @swagger_auto_schema(request_body=PaymentCardSerializer)
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
+    @swagger_auto_schema(responses={status.HTTP_200_OK: SettingsSerializer})
+    def get(self, request, *args, **kwargs):
+        with open(settings_path, 'r') as file:
+            settings_data = json.load(file)
+            serializer = self.serializer_class(data=settings_data)
+            serializer.is_valid(raise_exception=True)
+            return Response(serializer.validated_data)
 
 
-class WarehouseAddressModelViewSet(ModelViewSetPack):
-    queryset = WarehouseAddress.objects.all()
-    serializer_class = WarehouseAddressSerializer
-    post_serializer_class = WarehouseAddressSerializer
+class PostSettingsAPIView(APIView):
+    serializer_class = SettingsSerializer
 
-    @swagger_auto_schema(request_body=PaymentCardSerializer)
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
-
-
-class SupportServiceModelViewSet(ModelViewSetPack):
-    queryset = SupportService.objects.all()
-    serializer_class = SupportServiceSerializer
-    post_serializer_class = SupportServiceSerializer
-
-    @swagger_auto_schema(request_body=PaymentCardSerializer)
-    def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
+    @swagger_auto_schema(request_body=SettingsSerializer)
+    def post(self, request, *args, **kwargs):
+        with open(settings_path, 'r') as file:
+            existing_settings = json.load(file)
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+        with open(settings_path, 'w') as new_file:
+            new_settings = dict(serializer.data)
+            existing_settings.update(new_settings)
+            json.dump(existing_settings, new_file, indent=2)
+        return Response(new_settings)

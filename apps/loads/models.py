@@ -1,19 +1,12 @@
 from django.db import models
 
 from apps.user.models import Customer, Operator, User
+from config.core.choices import PRODUCT_STATUS_CHOICE, ON_WAY
 from config.models import BaseModel
 
 
 class Product(BaseModel):
-    ON_WAY = 'ON_WAY'
-    DELIVERED = 'DELIVERED'
-    DONE = 'DONE'
-    STATUS_CHOICE = [
-        (ON_WAY, 'On the way'),
-        (DELIVERED, 'Delivered'),
-        (DONE, 'Done'),
-    ]
-    status = models.CharField(choices=STATUS_CHOICE, default=ON_WAY, max_length=9)
+    status = models.CharField(choices=PRODUCT_STATUS_CHOICE, default=ON_WAY, max_length=10)
     barcode = models.CharField(max_length=155, unique=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, related_name='products',
                                  null=True, blank=True)

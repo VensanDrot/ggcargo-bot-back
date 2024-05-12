@@ -12,7 +12,7 @@ from apps.user.serializer import PostUserSerializer, GetUserSerializer, JWTLogin
 from apps.user.utils.services import authenticate_user, authenticate_telegram_user
 from config.core.api_exceptions import APIValidation
 from config.core.pagination import APIPagination
-from config.core.permissions import IsOperator, IsAdminOperator
+from config.core.permissions.telegram import IsTGAdminOperator, IsTGOperator
 from config.views import ModelViewSetPack
 
 
@@ -45,7 +45,7 @@ class TelegramLoginAPIView(APIView):
 class UserModelViewSet(ModelViewSetPack):
     queryset = User.objects.filter(operator__isnull=False)
     serializer_class = GetUserSerializer
-    permission_classes = [IsAdminOperator, ]
+    permission_classes = [IsTGAdminOperator, ]
     post_serializer_class = PostUserSerializer
     pagination_class = APIPagination
 
@@ -77,7 +77,7 @@ class UserModelViewSet(ModelViewSetPack):
 class CustomerModelViewSet(ModelViewSetPack):
     queryset = User.objects.filter(customer__isnull=False)
     serializer_class = GetCustomerSerializer
-    permission_classes = [IsOperator, ]
+    permission_classes = [IsTGOperator, ]
     post_serializer_class = PostCustomerSerializer
     pagination_class = APIPagination
 
@@ -115,7 +115,7 @@ class CustomerIDPrefix(APIView):
     """
     url-parameter choices: AVIA and AUTO
     """
-    permission_classes = [IsOperator, ]
+    permission_classes = [IsTGOperator, ]
 
     @staticmethod
     def get(request, *args, **kwargs):

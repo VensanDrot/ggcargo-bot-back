@@ -1,33 +1,41 @@
 from rest_framework import serializers
 
-from apps.tools.models import PaymentCard, Cost, ChannelLink, WarehouseAddress, SupportService
+from config.core.api_exceptions import APIValidation
 
 
-class PaymentCardSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PaymentCard
-        fields = ['id', 'info', 'customer_type', ]
+class SettingToolSerializer(serializers.Serializer):
+    avia = serializers.CharField(allow_null=True)
+    auto = serializers.CharField(allow_null=True)
 
 
-class CostSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Cost
-        fields = ['id', 'info', 'customer_type', ]
+class PaymentCardToolSerializer(serializers.Serializer):
+    avia = serializers.CharField(source='get_avia', allow_null=True)
+    auto = serializers.CharField(source='get_auto', allow_null=True)
+
+    @staticmethod
+    def get_avia(value):
+        p_card = value.replace(' ', '')
+        if len(p_card) != 16:
+            raise APIValidation('Payment card should have 16 digits')
+        return p_card
+
+    @staticmethod
+    def get_auto(value):
+        p_card = value.replace(' ', '')
+        if len(p_card) != 16:
+            raise APIValidation('Payment card should have 16 digits')
+        return p_card
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['avia'] = self.get_avia(representation['avia'])
+        representation['auto'] = self.get_auto(representation['auto'])
+        return representation
 
 
-class ChannelLinkSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ChannelLink
-        fields = ['id', 'info', 'customer_type', ]
-
-
-class WarehouseAddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WarehouseAddress
-        fields = ['id', 'info', 'customer_type', ]
-
-
-class SupportServiceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SupportService
-        fields = ['id', 'info', 'customer_type', ]
+class SettingsSerializer(serializers.Serializer):
+    payment_card = PaymentCardToolSerializer(required=False)
+    price = SettingToolSerializer(required=False)
+    address = SettingToolSerializer(required=False)
+    link = SettingToolSerializer(required=False)
+    support = SettingToolSerializer(required=False)

@@ -46,6 +46,18 @@ class ProductListSerializer(serializers.ModelSerializer):
     customer_id = serializers.SerializerMethodField()
     status_display = serializers.CharField(source='get_status_display', read_only=True)
 
+    # @staticmethod
+    # def get_status(obj):
+    #     if obj.status == 'DELIVERED':
+    #         return NOT_LOADED
+    #     return obj.status
+    #
+    # @staticmethod
+    # def get_status_display(obj):
+    #     if obj.status == 'DELIVERED':
+    #         return NOT_LOADED_DISPLAY
+    #     return obj.get_status_display()
+
     @staticmethod
     def get_customer_id(obj):
         prefix = obj.customer.prefix
@@ -58,12 +70,23 @@ class ProductListSerializer(serializers.ModelSerializer):
                   'status',
                   'status_display',
                   'barcode',
-                  'customer_id']
+                  'customer_id', ]
 
 
 class AddLoadSerializer(serializers.ModelSerializer):
+    customer_id = serializers.SerializerMethodField()
+    products = serializers.SlugRelatedField(slug_field='id', many=True, required=True, queryset=Product.objects.all())
+    image = serializers.SlugRelatedField(source='loads.id', slug_field='id', queryset=File.objects.all(),
+                                         required=False)
+
+    @staticmethod
+    def get_customer_id(obj):
+        return 'Test'
+
     class Meta:
         model = Load
         fields = ['id',
+                  'customer_id',
                   'weight',
-                  'products', ]
+                  'products',
+                  'image', ]
