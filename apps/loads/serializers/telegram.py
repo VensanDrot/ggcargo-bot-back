@@ -1,12 +1,13 @@
 from datetime import datetime
 
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.generics import get_object_or_404
 
 from apps.files.models import File
 from apps.loads.models import Product, Load
-from apps.tools.utils.helpers import split_code
+from apps.tools.utils.helpers import split_code, get_price
 from apps.user.models import Customer
+from config.core.api_exceptions import APIValidation
 
 
 class BarcodeConnectionSerializer(serializers.ModelSerializer):
@@ -74,14 +75,34 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 
 class AddLoadSerializer(serializers.ModelSerializer):
-    customer_id = serializers.SerializerMethodField()
+    customer_id = serializers.CharField()
     products = serializers.SlugRelatedField(slug_field='id', many=True, required=True, queryset=Product.objects.all())
-    image = serializers.SlugRelatedField(source='loads.id', slug_field='id', queryset=File.objects.all(),
-                                         required=False)
+    image = serializers.SlugRelatedField(slug_field='id', queryset=File.objects.all(), required=False)
 
-    @staticmethod
-    def get_customer_id(obj):
-        return 'Test'
+    def load_cost(self, customer):
+        weight = self.validated_data.get('weight')
+
+        price = get_price().get('auto') if customer.user_type == 'AUTO' else get_price().get('avia')
+        if price and price.isdigit():
+            return float(price) * weight
+        raise APIValidation('Configure price in settings', status_code=status.HTTP_400_BAD_REQUEST)
+
+    def create(self, validated_data):
+        customer_id = validated_data.pop('customer_id')
+        image = validated_data.pop('image')
+        prefix, code = split_code(customer_id)
+        customer = get_object_or_404(Customer, prefix=prefix, code=code)
+        l_cost = self.load_cost(customer)
+        instance = super().create(validated_data)
+        instance.customer_id = customer.id
+        instance.accepted_by = self.context.get('request').user
+        instance.accepted_time = datetime.now()
+        instance.save()
+        image.loads_id = instance.id
+        image.save()
+        customer.debt += l_cost
+        customer.save()
+        return instance
 
     class Meta:
         model = Load
@@ -90,3 +111,21 @@ class AddLoadSerializer(serializers.ModelSerializer):
                   'weight',
                   'products',
                   'image', ]
+
+
+class LoadCostDebtSerializer(serializers.Serializer):
+    customer_id = serializers.CharField()
+    weight = serializers.FloatField()
+
+    def response(self, price_obj):
+        data = self.validated_data
+        prefix, code = split_code(data.get('customer_id'))
+        customer = get_object_or_404(Customer, prefix=prefix, code=code)
+
+        price = price_obj.get('auto') if data.get('customer_type') == 'AUTO' else price_obj.get('avia')
+        if price and price.isdigit():
+            return {
+                'load_cost': float(price) * data.get('weight'),
+                'debt': customer.debt
+            }
+        raise APIValidation('Configure price in settings', status_code=status.HTTP_400_BAD_REQUEST)

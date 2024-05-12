@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 
 from apps.loads.models import Product, Load
 from apps.loads.serializers.telegram import BarcodeConnectionSerializer, AcceptProductSerializer, ProductListSerializer, \
-    AddLoadSerializer
-from apps.tools.utils.helpers import accepted_today
+    AddLoadSerializer, LoadCostDebtSerializer
+from apps.tools.utils.helpers import products_accepted_today, get_price, loads_accepted_today
 from apps.user.models import User
 from config.core.api_exceptions import APIValidation
 from config.core.permissions.telegram import IsTashkentTGOperator, IsChinaTGOperator, IsTGOperator
@@ -23,7 +23,14 @@ class OperatorStatisticsAPIView(APIView):
     @staticmethod
     def get(request, *args, **kwargs):
         user = request.user
-        return Response({"accepted_today": accepted_today(user)})
+        if user.products_china.exists():
+            response = {'products': products_accepted_today(user)}
+        else:
+            response = {
+                'products': products_accepted_today(user),
+                'loads': loads_accepted_today(user)
+            }
+        return Response(response)
 
 
 class BarcodeConnectionAPIView(CreateAPIView):
@@ -74,3 +81,16 @@ class CustomerProductsListAPIView(ListAPIView):
 class AddLoadAPIView(CreateAPIView):
     queryset = Load.objects.all()
     serializer_class = AddLoadSerializer
+
+
+class LoadCostAPIView(APIView):
+    serializer_class = LoadCostDebtSerializer
+
+    @swagger_auto_schema(request_body=LoadCostDebtSerializer)
+    def post(self, request, *args, **kwargs):
+        price = get_price()
+
+        cost_serializer = self.serializer_class(data=request.data)
+        cost_serializer.is_valid(raise_exception=True)
+        response = cost_serializer.response(price)
+        return Response(response)

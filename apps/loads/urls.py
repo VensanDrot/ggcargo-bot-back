@@ -1,10 +1,9 @@
 from django.urls import path
 
 from apps.loads.routes.telegram import BarcodeConnectionAPIView, AcceptProductAPIView, OperatorStatisticsAPIView, \
-    CustomerProductsListAPIView, AddLoadAPIView
+    CustomerProductsListAPIView, AddLoadAPIView, LoadCostAPIView
 from apps.loads.routes.web import AdminProductListAPIView, AdminSelectProductStatus, AdminAddProduct, \
     AdminUpdateProduct, AdminDeleteProduct
-from apps.loads.views import LoadCostAPIView
 
 app_name = 'api'
 
@@ -19,11 +18,11 @@ urlpatterns = [
     # bot
     path('operator/china/barcode-connection/', BarcodeConnectionAPIView.as_view(), name='china_barcode'),
     path('operator/tashkent/accept-product/<str:barcode>/', AcceptProductAPIView.as_view(), name='tashkent_accept'),
-    path('operator/stats/', OperatorStatisticsAPIView.as_view(), name='operator_stats'),
+    path('operator/daily-stats/', OperatorStatisticsAPIView.as_view(), name='operator_daily_stats'),
     path('operator/tashkent/<str:customer_id>/products/', CustomerProductsListAPIView.as_view(),
          name='tashkent_customers_product_list'),
-    # path('operator/tashkent/add-load/', AddLoadAPIView.as_view(), name='tashkent_add_load'),
+    path('operator/tashkent/add-load/', AddLoadAPIView.as_view(), name='tashkent_add_load'),
+    path('operator/tashkent/load-cost/', LoadCostAPIView.as_view(), name='tashkent_load_cost'),
 
     # common
-    path('general/load-cost/', LoadCostAPIView.as_view(), name='general_load_cost')
 ]

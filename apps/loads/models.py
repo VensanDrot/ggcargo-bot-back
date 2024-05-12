@@ -39,5 +39,8 @@ class Load(BaseModel):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name='loads')
     products = models.ManyToManyField(Product, related_name='loads')
 
+    accepted_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='loads', null=True, blank=True)
+    accepted_time = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         db_table = "Load"

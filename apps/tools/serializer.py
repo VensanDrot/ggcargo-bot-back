@@ -9,8 +9,8 @@ class SettingToolSerializer(serializers.Serializer):
 
 
 class PaymentCardToolSerializer(serializers.Serializer):
-    avia = serializers.CharField(source='get_avia', allow_null=True)
-    auto = serializers.CharField(source='get_auto', allow_null=True)
+    avia = serializers.CharField(allow_null=True)
+    auto = serializers.CharField(allow_null=True)
 
     @staticmethod
     def get_avia(value):

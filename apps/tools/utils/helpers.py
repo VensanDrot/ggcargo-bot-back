@@ -1,11 +1,13 @@
+import json
 from datetime import datetime
 
 from rest_framework import status
 
-from config.core.api_exceptions import APIValidation
+from apps.tools.serializer import SettingsSerializer
+from apps.tools.views import settings_path
 
 
-def split_code(full_code, request):
+def split_code(full_code):
     prefix = ""
     code = ""
 
@@ -14,15 +16,27 @@ def split_code(full_code, request):
             code += char
         else:
             prefix += char
-    # user_company_type = request.user.company_type
-    # if user_company_type != prefix:
-    #     raise APIValidation("Not allowed for this customer", status_code=status.HTTP_400_BAD_REQUEST)
     return prefix, code
 
 
-def accepted_today(user):
+def products_accepted_today(user):
     if user.products_china.exists():
         count = user.products_china.filter(accepted_time_china__date=datetime.now().date()).count()
     else:
         count = user.products_tashkent.filter(accepted_time_tashkent__date=datetime.now().date()).count()
     return count
+
+
+def loads_accepted_today(user):
+    count = user.loads.filter(accepted_time__date=datetime.now().date()).count()
+    return count
+
+
+def get_price():
+    with open(settings_path, 'r') as file:
+        file_data = json.load(file)
+        settings_serializer = SettingsSerializer(data=file_data)
+        settings_serializer.is_valid(raise_exception=True)
+        settings_data = settings_serializer.validated_data
+        price = settings_data.get('price')
+        return price
