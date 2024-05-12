@@ -22,7 +22,7 @@ urlpatterns = [
     path('operator/stats/', OperatorStatisticsAPIView.as_view(), name='operator_stats'),
     path('operator/tashkent/<str:customer_id>/products/', CustomerProductsListAPIView.as_view(),
          name='tashkent_customers_product_list'),
-    path('operator/tashkent/add-load/', AddLoadAPIView.as_view(), name='tashkent_add_load'),
+    # path('operator/tashkent/add-load/', AddLoadAPIView.as_view(), name='tashkent_add_load'),
 
     # common
     path('general/load-cost/', LoadCostAPIView.as_view(), name='general_load_cost')
