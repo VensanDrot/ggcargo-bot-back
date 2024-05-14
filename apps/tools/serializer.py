@@ -8,6 +8,11 @@ class SettingToolSerializer(serializers.Serializer):
     auto = serializers.CharField(allow_null=True, required=False)
 
 
+class PriceToolSerializer(serializers.Serializer):
+    avia = serializers.IntegerField(allow_null=True, required=False)
+    auto = serializers.IntegerField(allow_null=True, required=False)
+
+
 class PaymentCardToolSerializer(serializers.Serializer):
     avia = serializers.CharField(allow_null=True, required=False)
     auto = serializers.CharField(allow_null=True, required=False)
@@ -45,7 +50,7 @@ class PaymentCardToolSerializer(serializers.Serializer):
 
 class SettingsSerializer(serializers.Serializer):
     payment_card = PaymentCardToolSerializer(required=False)
-    price = SettingToolSerializer(required=False)
+    price = PriceToolSerializer(required=False)
     address = SettingToolSerializer(required=False)
     link = SettingToolSerializer(required=False)
     support = SettingToolSerializer(required=False)
