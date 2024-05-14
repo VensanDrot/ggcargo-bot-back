@@ -8,6 +8,7 @@ from apps.loads.models import Product, Load
 from apps.tools.utils.helpers import split_code, get_price
 from apps.user.models import Customer
 from config.core.api_exceptions import APIValidation
+from config.core.choices import NOT_LOADED, NOT_LOADED_DISPLAY
 
 
 class BarcodeConnectionSerializer(serializers.ModelSerializer):
@@ -34,30 +35,22 @@ class BarcodeConnectionSerializer(serializers.ModelSerializer):
                   'china_files', ]
 
 
-class AcceptProductSerializer(serializers.ModelSerializer):
-    tashkent_files = serializers.SlugRelatedField(slug_field='id', many=True, required=False,
-                                                  queryset=File.objects.all())
-
-    class Meta:
-        model = Product
-        fields = ['tashkent_files']
-
-
 class ProductListSerializer(serializers.ModelSerializer):
     customer_id = serializers.SerializerMethodField()
-    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    status = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
 
-    # @staticmethod
-    # def get_status(obj):
-    #     if obj.status == 'DELIVERED':
-    #         return NOT_LOADED
-    #     return obj.status
-    #
-    # @staticmethod
-    # def get_status_display(obj):
-    #     if obj.status == 'DELIVERED':
-    #         return NOT_LOADED_DISPLAY
-    #     return obj.get_status_display()
+    @staticmethod
+    def get_status(obj):
+        if obj.status == 'DELIVERED':
+            return NOT_LOADED
+        return obj.status
+
+    @staticmethod
+    def get_status_display(obj):
+        if obj.status == 'DELIVERED':
+            return NOT_LOADED_DISPLAY
+        return obj.get_status_display()
 
     @staticmethod
     def get_customer_id(obj):
