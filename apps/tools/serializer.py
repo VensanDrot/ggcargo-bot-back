@@ -4,13 +4,13 @@ from config.core.api_exceptions import APIValidation
 
 
 class SettingToolSerializer(serializers.Serializer):
-    avia = serializers.CharField(allow_null=True)
-    auto = serializers.CharField(allow_null=True)
+    avia = serializers.CharField(allow_null=True, required=False)
+    auto = serializers.CharField(allow_null=True, required=False)
 
 
 class PaymentCardToolSerializer(serializers.Serializer):
-    avia = serializers.CharField(allow_null=True)
-    auto = serializers.CharField(allow_null=True)
+    avia = serializers.CharField(allow_null=True, required=False)
+    auto = serializers.CharField(allow_null=True, required=False)
 
     @staticmethod
     def get_avia(value):
