@@ -37,5 +37,5 @@ class PostSettingsAPIView(APIView):
             new_settings = dict(serializer.data)
             if new_settings:
                 existing_settings.update(new_settings)
-                json.dump(existing_settings, new_file, indent=2)
+            json.dump(existing_settings, new_file, indent=2)
         return Response(existing_settings)
