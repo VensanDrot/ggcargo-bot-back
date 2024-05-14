@@ -10,6 +10,7 @@ from apps.loads.filter import AdminProductFilter
 from apps.loads.models import Product
 from apps.loads.serializers.web import AdminProductListSerializer, AdminAddProductSerializer
 from config.core.choices import PRODUCT_STATUS_CHOICE
+from config.core.pagination import APIPagination
 from config.core.permissions.web import IsWebOperator
 
 
@@ -17,6 +18,7 @@ class AdminProductListAPIView(ListAPIView):
     queryset = Product.objects.all()
     serializer_class = AdminProductListSerializer
     permission_classes = [IsWebOperator, ]
+    pagination_class = APIPagination
     filterset_class = AdminProductFilter
     filter_backends = [DjangoFilterBackend, SearchFilter, ]
     search_fields = ['barcode', 'customer__prefix', 'customer__code', 'accepted_by_china__full_name', ]
