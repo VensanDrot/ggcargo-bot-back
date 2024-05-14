@@ -14,17 +14,27 @@ class PaymentCardToolSerializer(serializers.Serializer):
 
     @staticmethod
     def get_avia(value):
-        p_card = value.replace(' ', '')
-        if len(p_card) != 16:
-            raise APIValidation('Payment card should have 16 digits')
-        return p_card
+        if value:
+            if value.isdigit():
+                p_card = value.replace(' ', '')
+            else:
+                raise APIValidation('Payment card includes only digits (payment-card 16 digits)')
+            if len(p_card) != 16:
+                raise APIValidation('Payment card should have 16 digits')
+            return p_card
+        return value
 
     @staticmethod
     def get_auto(value):
-        p_card = value.replace(' ', '')
-        if len(p_card) != 16:
-            raise APIValidation('Payment card should have 16 digits')
-        return p_card
+        if value:
+            if value.isdigit():
+                p_card = value.replace(' ', '')
+            else:
+                raise APIValidation('Payment card includes only digits (payment-card 16 digits)')
+            if len(p_card) != 16:
+                raise APIValidation('Payment card should have 16 digits')
+            return p_card
+        return value
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
