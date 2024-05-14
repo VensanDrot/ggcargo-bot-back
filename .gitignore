@@ -16,3 +16,4 @@ apps/payment/migrations/
 media/uploads/
 static/
 g_config.py
+apps/tools/settings.json
