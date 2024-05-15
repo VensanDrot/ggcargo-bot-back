@@ -49,7 +49,7 @@ class AdminAddProductSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
 
         code = validated_data.pop('customer', '')
-        prefix, code = split_code(code.get('code'), request)
+        prefix, code = split_code(code.get('code'))
         image = validated_data.pop('china_files', None)
         customer = get_object_or_404(Customer, code=code, prefix=prefix)
         instance: Product = super().create(validated_data)
@@ -69,7 +69,7 @@ class AdminAddProductSerializer(serializers.ModelSerializer):
         image = validated_data.pop('china_files', {})
         instance = super().update(instance, validated_data)
         if code:
-            prefix, code = split_code(code.get('code'), request)
+            prefix, code = split_code(code.get('code'))
             customer = get_object_or_404(Customer, code=code, prefix=prefix)
             instance.customer_id = customer.id
         instance.accepted_by_tashkent = request.user
