@@ -1,12 +1,12 @@
 from django.urls import path
 
 from apps.loads.routes.telegram import BarcodeConnectionAPIView, AcceptProductAPIView, OperatorStatisticsAPIView, \
-    CustomerProductsListAPIView, AddLoadAPIView, LoadCostAPIView
+    CustomerProductsListAPIView, AddLoadAPIView, LoadCostAPIView, ReleaseLoadAPIView, ModerationNotProcessedLoadAPIView, \
+    ModerationProcessedLoadAPIView
 from apps.loads.routes.web import AdminProductListAPIView, AdminSelectProductStatus, AdminAddProduct, \
     AdminUpdateProduct, AdminDeleteProduct
 
 app_name = 'api'
-
 urlpatterns = [
     # admin
     path('admin/delivery/products/', AdminProductListAPIView.as_view(), name='admin_delivery_products'),
@@ -21,8 +21,13 @@ urlpatterns = [
     path('operator/daily-stats/', OperatorStatisticsAPIView.as_view(), name='operator_daily_stats'),
     path('operator/tashkent/<str:customer_id>/products/', CustomerProductsListAPIView.as_view(),
          name='tashkent_customers_product_list'),
-    path('operator/tashkent/add-load/', AddLoadAPIView.as_view(), name='tashkent_add_load'),
     path('operator/tashkent/load-cost/', LoadCostAPIView.as_view(), name='tashkent_load_cost'),
+    path('operator/tashkent/add-load/', AddLoadAPIView.as_view(), name='tashkent_add_load'),
+    # path('operator/tashkent/release-load/', ReleaseLoadAPIView.as_view(), name='tashkent_release_load'),
+    path('operator/tashkent/moderation/not-processed/', ModerationNotProcessedLoadAPIView.as_view(),
+         name='tashkent_not_processed'),
+    path('operator/tashkent/moderation/processed/', ModerationProcessedLoadAPIView.as_view(),
+         name='tashkent_not_processed'),
 
     # common
 ]

@@ -72,20 +72,37 @@ class AddLoadSerializer(serializers.ModelSerializer):
     products = serializers.SlugRelatedField(slug_field='id', many=True, required=True, queryset=Product.objects.all())
     image = serializers.SlugRelatedField(slug_field='id', queryset=File.objects.all(), required=False)
 
+    def validate_products(self, value):
+        customer_id = self.context.get('request').data.get('customer_id')
+        prefix, code = split_code(customer_id)
+        for product in value:
+            if product.status != 'DELIVERED':
+                raise APIValidation(f'Product #{product.id} was not delivered or already loaded',
+                                    status_code=status.HTTP_400_BAD_REQUEST)
+            if product.customer.prefix != prefix or product.customer.code != code:
+                raise APIValidation(f"Customer#{customer_id} with such products not found",
+                                    status_code=status.HTTP_400_BAD_REQUEST)
+        return value
+
     def load_cost(self, customer):
         weight = self.validated_data.get('weight')
 
         price = get_price().get('auto') if customer.user_type == 'AUTO' else get_price().get('avia')
-        if price and price.isdigit():
+        if price:
             return float(price) * weight
         raise APIValidation('Configure price in settings', status_code=status.HTTP_400_BAD_REQUEST)
 
     def create(self, validated_data):
         customer_id = validated_data.pop('customer_id')
+        products = validated_data.get('products')
         image = validated_data.pop('image')
         prefix, code = split_code(customer_id)
         customer = get_object_or_404(Customer, prefix=prefix, code=code)
         l_cost = self.load_cost(customer)
+        existing_load = Load.objects.filter(customer_id=customer.id, status='CREATED')
+        if existing_load.exists():
+
+            return existing_load
         instance = super().create(validated_data)
         instance.customer_id = customer.id
         instance.accepted_by = self.context.get('request').user
@@ -95,6 +112,9 @@ class AddLoadSerializer(serializers.ModelSerializer):
         image.save()
         customer.debt += l_cost
         customer.save()
+        for product in products:
+            product.status = 'LOADED'
+            product.save()
         return instance
 
     class Meta:
@@ -122,3 +142,11 @@ class LoadCostDebtSerializer(serializers.Serializer):
                 'debt': customer.debt
             }
         raise APIValidation('Configure price in settings', status_code=status.HTTP_400_BAD_REQUEST)
+
+
+class ModerationNotProcessedLoadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Load
+        fields = ['id',
+                  'customer_id',
+                  '']
