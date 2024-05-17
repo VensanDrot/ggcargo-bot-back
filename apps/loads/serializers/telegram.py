@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.db.models import Q
 from rest_framework import serializers, status
 from rest_framework.generics import get_object_or_404
 
@@ -19,7 +20,7 @@ class BarcodeConnectionSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
 
         code = validated_data.pop('customer', '')
-        prefix, code = split_code(code.get('code'), request)
+        prefix, code = split_code(code.get('code'))
         customer = get_object_or_404(Customer, code=code, prefix=prefix)
         instance: Product = super().create(validated_data)
         instance.customer_id = customer.id
@@ -35,10 +36,9 @@ class BarcodeConnectionSerializer(serializers.ModelSerializer):
                   'china_files', ]
 
 
-class ProductListSerializer(serializers.ModelSerializer):
-    customer_id = serializers.SerializerMethodField()
-    status = serializers.SerializerMethodField()
-    status_display = serializers.SerializerMethodField()
+class ProductSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField(read_only=True, allow_null=True)
+    status_display = serializers.SerializerMethodField(read_only=True, allow_null=True)
 
     @staticmethod
     def get_status(obj):
@@ -52,19 +52,40 @@ class ProductListSerializer(serializers.ModelSerializer):
             return NOT_LOADED_DISPLAY
         return obj.get_status_display()
 
-    @staticmethod
-    def get_customer_id(obj):
-        prefix = obj.customer.prefix
-        code = obj.customer.code
-        return f'{prefix}{code}'
-
     class Meta:
         model = Product
         fields = ['id',
-                  'status',
-                  'status_display',
                   'barcode',
-                  'customer_id', ]
+                  'status',
+                  'status_display']
+
+
+class LoadInfoSerializer(serializers.Serializer):
+    customer_id = serializers.CharField(write_only=True)
+    weight = serializers.FloatField()
+
+    # @staticmethod
+    # def get_customer_id(obj):
+    #     prefix = obj.customer.prefix
+    #     code = obj.customer.code
+    #     return f'{prefix}{code}'
+
+    def response(self, price_obj):
+        data = self.validated_data
+        prefix, code = split_code(data.get('customer_id'))
+        customer = get_object_or_404(Customer, prefix=prefix, code=code)
+        products = customer.products.filter(
+            (Q(customer__prefix=prefix) & Q(customer__code=code)) & Q(status='DELIVERED')
+        )
+        products_serializer = ProductSerializer(products, many=True)
+        price = price_obj.get('auto') if data.get('customer_type') == 'AUTO' else price_obj.get('avia')
+        if not price:
+            raise APIValidation('Configure price in settings', status_code=status.HTTP_400_BAD_REQUEST)
+        return {
+            'load_cost': float(price) * data.get('weight'),
+            'debt': customer.debt,
+            'products': products_serializer.data,
+        }
 
 
 class AddLoadSerializer(serializers.ModelSerializer):
@@ -101,7 +122,6 @@ class AddLoadSerializer(serializers.ModelSerializer):
         l_cost = self.load_cost(customer)
         existing_load = Load.objects.filter(customer_id=customer.id, status='CREATED')
         if existing_load.exists():
-
             return existing_load
         instance = super().create(validated_data)
         instance.customer_id = customer.id
@@ -126,27 +146,9 @@ class AddLoadSerializer(serializers.ModelSerializer):
                   'image', ]
 
 
-class LoadCostDebtSerializer(serializers.Serializer):
-    customer_id = serializers.CharField()
-    weight = serializers.FloatField()
-
-    def response(self, price_obj):
-        data = self.validated_data
-        prefix, code = split_code(data.get('customer_id'))
-        customer = get_object_or_404(Customer, prefix=prefix, code=code)
-
-        price = price_obj.get('auto') if data.get('customer_type') == 'AUTO' else price_obj.get('avia')
-        if price and price.isdigit():
-            return {
-                'load_cost': float(price) * data.get('weight'),
-                'debt': customer.debt
-            }
-        raise APIValidation('Configure price in settings', status_code=status.HTTP_400_BAD_REQUEST)
-
-
 class ModerationNotProcessedLoadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Load
         fields = ['id',
-                  'customer_id',
-                  '']
+                  # 'customer_id',
+                  ]

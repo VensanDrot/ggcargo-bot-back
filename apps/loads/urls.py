@@ -1,8 +1,7 @@
 from django.urls import path
 
 from apps.loads.routes.telegram import BarcodeConnectionAPIView, AcceptProductAPIView, OperatorStatisticsAPIView, \
-    CustomerProductsListAPIView, AddLoadAPIView, LoadCostAPIView, ReleaseLoadAPIView, ModerationNotProcessedLoadAPIView, \
-    ModerationProcessedLoadAPIView
+    LoadInfoAPIView, AddLoadAPIView, ModerationNotProcessedLoadAPIView, ModerationProcessedLoadAPIView
 from apps.loads.routes.web import AdminProductListAPIView, AdminSelectProductStatus, AdminAddProduct, \
     AdminUpdateProduct, AdminDeleteProduct
 
@@ -19,9 +18,8 @@ urlpatterns = [
     path('operator/china/barcode-connection/', BarcodeConnectionAPIView.as_view(), name='china_barcode'),
     path('operator/tashkent/accept-product/<str:barcode>/', AcceptProductAPIView.as_view(), name='tashkent_accept'),
     path('operator/daily-stats/', OperatorStatisticsAPIView.as_view(), name='operator_daily_stats'),
-    path('operator/tashkent/<str:customer_id>/products/', CustomerProductsListAPIView.as_view(),
-         name='tashkent_customers_product_list'),
-    path('operator/tashkent/load-cost/', LoadCostAPIView.as_view(), name='tashkent_load_cost'),
+    path('operator/tashkent/load-info/', LoadInfoAPIView.as_view(),
+         name='tashkent_load_info'),
     path('operator/tashkent/add-load/', AddLoadAPIView.as_view(), name='tashkent_add_load'),
     # path('operator/tashkent/release-load/', ReleaseLoadAPIView.as_view(), name='tashkent_release_load'),
     path('operator/tashkent/moderation/not-processed/', ModerationNotProcessedLoadAPIView.as_view(),
