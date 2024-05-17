@@ -51,6 +51,7 @@ class PostUserSerializer(serializers.ModelSerializer):
                                             write_only=True, required=False)
     warehouse = serializers.ChoiceField(source='operator.warehouse', choices=WAREHOUSE_CHOICE, write_only=True,
                                         required=False)
+    email = serializers.EmailField(required=False, allow_blank=False)
 
     def validate_warehouse(self, value):
         user = self.context['request'].user

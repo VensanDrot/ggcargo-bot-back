@@ -34,12 +34,15 @@ class TelegramLoginAPIView(APIView):
 
     @swagger_auto_schema(request_body=TelegramLoginSerializer)
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        if serializer.validated_data.get('tg_id'):
-            return Response(authenticate_telegram_user(request, True))
-        else:
-            raise APIValidation('tg_id was not provided', status_code=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            if serializer.validated_data.get('tg_id'):
+                return Response(authenticate_telegram_user(request, True))
+            else:
+                raise APIValidation('tg_id was not provided', status_code=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            raise APIValidation(f'Error occurred: {e.args[0]}', status_code=status.HTTP_400_BAD_REQUEST)
 
 
 class UserModelViewSet(ModelViewSetPack):
@@ -50,24 +53,30 @@ class UserModelViewSet(ModelViewSetPack):
     pagination_class = APIPagination
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            instance = serializer.save()
-            response_serializer = PostResponseUserSerializer(instance=instance)
-            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid():
+                instance = serializer.save()
+                response_serializer = PostResponseUserSerializer(instance=instance)
+                return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            raise APIValidation(f'Error occurred: {e.args[0]}', status_code=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(request_body=PostResponseUserSerializer)
     def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        new_instance = self.get_object()
-        response_serializer = PostResponseUserSerializer(instance=new_instance)
-        response = response_serializer.data
-        return Response(response)
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            new_instance = self.get_object()
+            response_serializer = PostResponseUserSerializer(instance=new_instance)
+            response = response_serializer.data
+            return Response(response)
+        except Exception as e:
+            raise APIValidation(f'Error occurred: {e.args[0]}', status_code=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(request_body=PostUserSerializer)
     def partial_update(self, request, *args, **kwargs):
@@ -87,24 +96,30 @@ class CustomerModelViewSet(ModelViewSetPack):
         return super().get_serializer(*args, **kwargs)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            instance = serializer.save()
-            response_serializer = PostResponseCustomerSerializer(instance=instance)
-            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = self.get_serializer(data=request.data)
+            if serializer.is_valid():
+                instance = serializer.save()
+                response_serializer = PostResponseCustomerSerializer(instance=instance)
+                return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            raise APIValidation(f'Error occurred: {e.args[0]}', status_code=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(request_body=PostCustomerSerializer)
     def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        new_instance = self.get_object()
-        response_serializer = PostResponseCustomerSerializer(instance=new_instance)
-        response = response_serializer.data
-        return Response(response)
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            new_instance = self.get_object()
+            response_serializer = PostResponseCustomerSerializer(instance=new_instance)
+            response = response_serializer.data
+            return Response(response)
+        except Exception as e:
+            raise APIValidation(f'Error occurred: {e.args[0]}', status_code=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(request_body=PostCustomerSerializer)
     def partial_update(self, request, *args, **kwargs):

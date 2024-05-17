@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.loads.models import Product, Load
-from apps.loads.serializers.telegram import BarcodeConnectionSerializer, ProductListSerializer, AddLoadSerializer, \
-    LoadCostDebtSerializer
+from apps.loads.serializers.telegram import BarcodeConnectionSerializer, LoadInfoSerializer, AddLoadSerializer, \
+    ModerationNotProcessedLoadSerializer
 from apps.tools.utils.helpers import products_accepted_today, get_price, loads_accepted_today
 from apps.user.models import User
 from config.core.api_exceptions import APIValidation
@@ -59,18 +59,26 @@ class AcceptProductAPIView(APIView):
         return Response({'detail': 'Product accepted'})
 
 
-class CustomerProductsListAPIView(ListAPIView):
+class LoadInfoAPIView(APIView):
     queryset = Product.objects.all()
-    serializer_class = ProductListSerializer
+    serializer_class = LoadInfoSerializer
     permission_classes = [IsTashkentTGOperator, ]
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = self.queryset
         if self.kwargs.get('customer_id'):
-            queryset = queryset.filter(
-                Q(customer__prefix=self.kwargs['customer_id'][:3]) & Q(customer__code=self.kwargs['customer_id'][3:])
-            )
+            queryset = queryset.filter((Q(customer__prefix=self.kwargs['customer_id'][:3]) &
+                                        Q(customer__code=self.kwargs['customer_id'][3:])) & Q(status='DELIVERED'))
         return queryset
+
+    @swagger_auto_schema(request_body=LoadInfoSerializer)
+    def post(self, request, *args, **kwargs):
+        price = get_price()
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        response = serializer.response(price)
+        return Response(response)
 
 
 class AddLoadAPIView(CreateAPIView):
@@ -78,14 +86,15 @@ class AddLoadAPIView(CreateAPIView):
     serializer_class = AddLoadSerializer
 
 
-class LoadCostAPIView(APIView):
-    serializer_class = LoadCostDebtSerializer
-
-    @swagger_auto_schema(request_body=LoadCostDebtSerializer)
+class ReleaseLoadAPIView(APIView):
     def post(self, request, *args, **kwargs):
-        price = get_price()
+        return
 
-        cost_serializer = self.serializer_class(data=request.data)
-        cost_serializer.is_valid(raise_exception=True)
-        response = cost_serializer.response(price)
-        return Response(response)
+
+class ModerationNotProcessedLoadAPIView(ListAPIView):
+    queryset = Load.objects.select_related('customer', 'accepted_by').prefetch_related('products')
+    serializer_class = ModerationNotProcessedLoadSerializer
+
+
+class ModerationProcessedLoadAPIView(ListAPIView):
+    queryset = Load.objects.select_related('customer', 'accepted_by').prefetch_related('products')
