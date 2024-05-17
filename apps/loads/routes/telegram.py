@@ -23,7 +23,7 @@ class OperatorStatisticsAPIView(APIView):
     @staticmethod
     def get(request, *args, **kwargs):
         user = request.user
-        if user.products_china.exists():
+        if user.operator.warehouse == 'CHINA':
             response = {'products': products_accepted_today(user)}
         else:
             response = {
