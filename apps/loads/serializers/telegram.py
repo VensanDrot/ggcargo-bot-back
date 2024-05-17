@@ -39,6 +39,13 @@ class BarcodeConnectionSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField(read_only=True, allow_null=True)
     status_display = serializers.SerializerMethodField(read_only=True, allow_null=True)
+    updated_at = serializers.SerializerMethodField(allow_null=True, read_only=True)
+
+    @staticmethod
+    def get_updated_at(obj):
+        if obj.updated_at:
+            return obj.updated_at.date()
+        return obj.updated_at
 
     @staticmethod
     def get_status(obj):
@@ -57,7 +64,8 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id',
                   'barcode',
                   'status',
-                  'status_display']
+                  'status_display',
+                  'updated_at', ]
 
 
 class LoadInfoSerializer(serializers.Serializer):
@@ -122,6 +130,7 @@ class AddLoadSerializer(serializers.ModelSerializer):
         l_cost = self.load_cost(customer)
         existing_load = Load.objects.filter(customer_id=customer.id, status='CREATED')
         if existing_load.exists():
+            existing_load = existing_load.first()
             return existing_load
         instance = super().create(validated_data)
         instance.customer_id = customer.id
