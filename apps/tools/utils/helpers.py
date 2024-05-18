@@ -31,7 +31,7 @@ def products_accepted_today(user):
 def loads_accepted_today(user):
     count = user.loads.filter(accepted_time__date=datetime.now().date()).aggregate(loads_count=Sum('loads_count'))[
         'loads_count']
-    return count
+    return count if count else 0
 
 
 def get_price():
