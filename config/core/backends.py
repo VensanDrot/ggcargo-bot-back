@@ -14,7 +14,7 @@ class EmailAuthenticationBackend(ModelBackend):
                 return user
             user = user_model.objects.get(
                 Q(email=username) | Q(operator__tg_id=username) |
-                (Q(customer__prefix=username[:2]) & Q(customer__code=username[2:]))
+                (Q(customer__prefix=username[:3]) & Q(customer__code=username[3:]))
             )
         except user_model.DoesNotExist:
             return None

@@ -1,19 +1,23 @@
 from datetime import datetime
 
 from django.db.models import Q
+from django.utils.timezone import localdate
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.loads.models import Product, Load
 from apps.loads.serializers.telegram import BarcodeConnectionSerializer, LoadInfoSerializer, AddLoadSerializer, \
-    ModerationNotProcessedLoadSerializer
+    ModerationNotProcessedLoadSerializer, CustomerCurrentLoadSerializer, CustomerOwnLoadsSerializer, \
+    ModerationProcessedLoadSerializer, ModerationLoadPaymentSerializer, ModerationLoadApplySerializer, \
+    ModerationLoadDeclineSerializer
+from apps.payment.models import Payment
 from apps.tools.utils.helpers import products_accepted_today, get_price, loads_accepted_today
 from apps.user.models import User
 from config.core.api_exceptions import APIValidation
-from config.core.permissions.telegram import IsTashkentTGOperator, IsChinaTGOperator, IsTGOperator
+from config.core.permissions.telegram import IsTashkentTGOperator, IsChinaTGOperator, IsTGOperator, IsCustomer
 
 
 class OperatorStatisticsAPIView(APIView):
@@ -84,6 +88,7 @@ class LoadInfoAPIView(APIView):
 class AddLoadAPIView(CreateAPIView):
     queryset = Load.objects.all()
     serializer_class = AddLoadSerializer
+    permission_classes = [IsTashkentTGOperator, ]
 
 
 class ReleaseLoadAPIView(APIView):
@@ -92,9 +97,92 @@ class ReleaseLoadAPIView(APIView):
 
 
 class ModerationNotProcessedLoadAPIView(ListAPIView):
-    queryset = Load.objects.select_related('customer', 'accepted_by').prefetch_related('products')
+    queryset = Payment.objects.select_related('customer', 'load').filter(status__isnull=True)
     serializer_class = ModerationNotProcessedLoadSerializer
+    permission_classes = [IsTashkentTGOperator, ]
 
 
 class ModerationProcessedLoadAPIView(ListAPIView):
-    queryset = Load.objects.select_related('customer', 'accepted_by').prefetch_related('products')
+    queryset = Payment.objects.select_related('customer', 'load').filter(status__isnull=False)
+    serializer_class = ModerationProcessedLoadSerializer
+    permission_classes = [IsTashkentTGOperator, ]
+
+
+class ModerationLoadPaymentAPIView(APIView):
+    serializer_class = ModerationLoadPaymentSerializer
+
+    def get(self, request, application_id, *args, **kwargs):
+        instance = get_object_or_404(Payment, pk=application_id)
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data)
+
+
+def process_payment(request, serializer_class, application_id, payment_status):
+    try:
+        instance = get_object_or_404(Payment, pk=application_id)
+        serializer = serializer_class(instance, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance: Payment = serializer.save()
+        data = serializer.data
+        instance.status = payment_status
+        if payment_status == 'SUCCESSFUL':
+            instance.customer.debt -= data.get('paid_amount', 0)
+            instance.customer.save()
+        instance.save()
+        return {
+            'id': instance.id,
+            'customer_id': f'{instance.customer.prefix}{instance.customer.code}',
+            'paid_amount': data.get('paid_amount'),
+            'debt': instance.customer.debt,
+            'date': localdate(instance.updated_at),
+            'comment': data.get('comment'),
+            'status': instance.status,
+            'status_display': instance.get_status_display(),
+        }
+    except Exception as exc:
+        raise APIValidation(f'Error occurred: {exc.args}')
+
+
+class ModerationLoadApplyAPIView(APIView):
+    serializer_class = ModerationLoadApplySerializer
+
+    @swagger_auto_schema(request_body=ModerationLoadApplySerializer)
+    def post(self, request, application_id, *args, **kwargs):
+        response = process_payment(request, ModerationLoadApplySerializer, application_id, 'SUCCESSFUL')
+        return Response(response)
+
+
+class ModerationLoadDeclineAPIView(APIView):
+    serializer_class = ModerationLoadDeclineSerializer
+
+    @swagger_auto_schema(request_body=ModerationLoadDeclineSerializer)
+    def post(self, request, application_id, *args, **kwargs):
+        response = process_payment(request, ModerationLoadDeclineSerializer, application_id, 'DECLINED')
+        return Response(response)
+
+
+# CUSTOMER
+class CustomerCurrentLoadAPIView(APIView):
+    queryset = (Load.objects
+                .select_related('customer', 'accepted_by')
+                .prefetch_related('products')
+                .filter(status='CREATED'))
+    serializer_class = CustomerCurrentLoadSerializer
+    permission_classes = [IsCustomer, ]
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        instance = self.queryset.filter(customer_id=user.customer.id).first()
+        serializer = CustomerCurrentLoadSerializer(instance)
+        return Response(serializer.data)
+
+
+class CustomerOwnLoadsHistoryAPIView(ListAPIView):
+    queryset = Load.objects.select_related('customer', 'accepted_by').prefetch_related('products').filter(status='DONE')
+    serializer_class = CustomerOwnLoadsSerializer
+    permission_classes = [IsCustomer, ]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(customer_id=self.request.user.customer.id)
+        return queryset

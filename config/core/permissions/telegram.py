@@ -75,3 +75,16 @@ class IsChinaTGOperator(permissions.BasePermission):
                 if warehouse == 'CHINA':
                     return True
         return False
+
+
+class IsCustomer(permissions.BasePermission):
+    """
+    Allow if user is customer
+    """
+
+    def has_permission(self, request, view):
+        user: User = request.user
+        if user.is_authenticated:
+            if hasattr(user, 'customer'):
+                return True
+        return False

@@ -1,10 +1,13 @@
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.timezone import localdate
 from rest_framework import serializers, status
 from rest_framework.generics import get_object_or_404
 
 from apps.files.models import File
+from apps.files.serializer import FileDataSerializer
 from apps.loads.models import Product, Load
+from apps.payment.models import Payment
 from apps.tools.utils.helpers import split_code, get_price
 from apps.user.models import Customer
 from config.core.api_exceptions import APIValidation
@@ -169,8 +172,141 @@ class AddLoadSerializer(serializers.ModelSerializer):
 
 
 class ModerationNotProcessedLoadSerializer(serializers.ModelSerializer):
+    customer_id = serializers.SerializerMethodField(allow_null=True)
+    debt = serializers.CharField(source='customer.debt', allow_null=True)
+    date = serializers.SerializerMethodField(allow_null=True)
+
+    @staticmethod
+    def get_date(obj):
+        return localdate(obj.created_at)
+
+    @staticmethod
+    def get_customer_id(obj):
+        customer = obj.customer
+        return f"{customer.prefix}{customer.code}"
+
+    class Meta:
+        model = Payment
+        fields = ['id',
+                  'customer_id',
+                  'debt',
+                  'date', ]
+
+
+class ModerationProcessedLoadSerializer(serializers.ModelSerializer):
+    customer_id = serializers.SerializerMethodField(allow_null=True)
+    debt = serializers.CharField(source='customer.debt', allow_null=True)
+    date = serializers.SerializerMethodField(allow_null=True)
+    status_display = serializers.CharField(source='get_status_display', allow_null=True)
+
+    @staticmethod
+    def get_date(obj):
+        return localdate(obj.created_at)
+
+    @staticmethod
+    def get_customer_id(obj):
+        customer = obj.customer
+        return f"{customer.prefix}{customer.code}"
+
+    class Meta:
+        model = Payment
+        fields = ['id',
+                  'customer_id',
+                  'debt',
+                  'date',
+                  'status',
+                  'status_display', ]
+
+
+class ModerationLoadPaymentSerializer(serializers.ModelSerializer):
+    customer_id = serializers.SerializerMethodField(allow_null=True)
+    date = serializers.SerializerMethodField(allow_null=True)
+    debt = serializers.CharField(source='customer.debt', allow_null=True)
+
+    @staticmethod
+    def get_date(obj):
+        return localdate(obj.created_at)
+
+    @staticmethod
+    def get_customer_id(obj):
+        customer = obj.customer
+        return f"{customer.prefix}{customer.code}"
+
+    class Meta:
+        model = Payment
+        fields = ['id',
+                  'customer_id',
+                  'date',
+                  'debt', ]
+
+
+class ModerationLoadApplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ['id',
+                  'paid_amount',
+                  'comment', ]
+
+
+class ModerationLoadDeclineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payment
+        fields = ['id',
+                  'comment', ]
+
+
+# CUSTOMER
+
+class CustomerProductsSerializer(serializers.ModelSerializer):
+    files = FileDataSerializer(source='china_files', many=True, allow_null=True)
+    status = serializers.SerializerMethodField(read_only=True, allow_null=True)
+    status_display = serializers.SerializerMethodField(read_only=True, allow_null=True)
+    updated_at = serializers.SerializerMethodField(allow_null=True, read_only=True)
+
+    @staticmethod
+    def get_updated_at(obj):
+        if obj.updated_at:
+            return obj.updated_at.date()
+        return obj.updated_at
+
+    @staticmethod
+    def get_status(obj):
+        if obj.status == 'DELIVERED':
+            return NOT_LOADED
+        return obj.status
+
+    @staticmethod
+    def get_status_display(obj):
+        if obj.status == 'DELIVERED':
+            return NOT_LOADED_DISPLAY
+        return obj.get_status_display()
+
+    class Meta:
+        model = Product
+        fields = ['id',
+                  'barcode',
+                  'status',
+                  'status_display',
+                  'files',
+                  'updated_at', ]
+
+
+class CustomerCurrentLoadSerializer(serializers.ModelSerializer):
+    products = CustomerProductsSerializer(many=True, allow_null=True)
+    debt = serializers.CharField(source='customer.debt', allow_null=True)
+
     class Meta:
         model = Load
         fields = ['id',
-                  # 'customer_id',
-                  ]
+                  'status',
+                  'weight',
+                  'debt',
+                  'products', ]
+
+
+class CustomerOwnLoadsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Load
+        fields = ['id',
+                  'status',
+                  'updated_at', ]
