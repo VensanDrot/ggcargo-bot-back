@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from django.conf import settings
 from django.db.models import Q
+from django.utils.timezone import localtime
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView
@@ -52,12 +52,10 @@ class AcceptProductAPIView(APIView):
                                 status_code=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, *args, **kwargs):
-        from django.utils.timezone import activate
-        activate(settings.TIME_ZONE)
         instance = self.get_object()
         instance.status = 'DELIVERED'
         instance.accepted_by_tashkent = request.user
-        instance.accepted_time_tashkent = datetime.now()
+        instance.accepted_time_tashkent = localtime(datetime.now())
         instance.save()
         return Response({'detail': 'Product accepted'})
 
