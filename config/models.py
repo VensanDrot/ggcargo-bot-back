@@ -5,8 +5,7 @@ from django.utils.timezone import localtime
 class LocalizedDateTimeField(models.DateTimeField):
     def to_python(self, value):
         value = super().to_python(value)
-        if value is not None:
-            value = localtime(value)
+        value = localtime(value)
         return value
 
 
