@@ -2,6 +2,8 @@ import json
 import pytz
 
 from datetime import datetime
+
+from django.utils import timezone
 from django.utils.timezone import localtime
 from django.db.models import Sum
 
@@ -21,24 +23,18 @@ def split_code(full_code):
     return prefix, code
 
 
-def datetime_now(date_time) -> datetime:
-    date_time = localtime(date_time)
-    date_time = date_time.astimezone(pytz.UTC)
-    return date_time
-
-
 def products_accepted_today(user):
     if user.operator.warehouse == 'CHINA':
-        count = user.products_china.filter(accepted_time_china__date=datetime_now(datetime.now()).date()).count()
+        count = user.products_china.filter(accepted_time_china__date=timezone.now().date()).count()
     else:
-        count = user.products_tashkent.filter(accepted_time_tashkent__date=datetime_now(datetime.now()).date()).count()
+        count = user.products_tashkent.filter(accepted_time_tashkent__date=timezone.now().date()).count()
     return count
 
 
 def loads_accepted_today(user):
     count = (
         user.loads
-        .filter(accepted_time__date=datetime_now(datetime.now()).date())
+        .filter(accepted_time__date=timezone.now().date())
         .aggregate(loads_count=Sum('loads_count'))['loads_count']
     )
     return count if count else 0
