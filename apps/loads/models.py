@@ -2,7 +2,7 @@ from django.db import models
 
 from apps.user.models import Customer, Operator, User
 from config.core.choices import PRODUCT_STATUS_CHOICE, ON_WAY
-from config.models import BaseModel, LocalizedDateTimeField
+from config.models import BaseModel
 
 
 class Product(BaseModel):
@@ -14,8 +14,8 @@ class Product(BaseModel):
                                           null=True, blank=True)
     accepted_by_tashkent = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='products_tashkent',
                                              null=True, blank=True)
-    accepted_time_china = LocalizedDateTimeField(null=True, blank=True)
-    accepted_time_tashkent = LocalizedDateTimeField(null=True, blank=True)
+    accepted_time_china = models.DateTimeField(null=True, blank=True)
+    accepted_time_tashkent = models.DateTimeField(null=True, blank=True)
 
     # photos file
     class Meta:
