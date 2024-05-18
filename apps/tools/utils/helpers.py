@@ -1,8 +1,9 @@
 import json
-from datetime import datetime
+import pytz
 
+from datetime import datetime
+from django.utils.timezone import localtime
 from django.db.models import Sum
-from rest_framework import status
 
 from apps.tools.serializer import SettingsSerializer
 from apps.tools.views import settings_path
@@ -20,17 +21,26 @@ def split_code(full_code):
     return prefix, code
 
 
+def datetime_now(date_time) -> datetime:
+    date_time = localtime(date_time)
+    date_time = date_time.astimezone(pytz.UTC)
+    return date_time
+
+
 def products_accepted_today(user):
     if user.operator.warehouse == 'CHINA':
-        count = user.products_china.filter(accepted_time_china__date=datetime.now().date()).count()
+        count = user.products_china.filter(accepted_time_china__date=datetime_now(datetime.now()).date()).count()
     else:
-        count = user.products_tashkent.filter(accepted_time_tashkent__date=datetime.now().date()).count()
+        count = user.products_tashkent.filter(accepted_time_tashkent__date=datetime_now(datetime.now()).date()).count()
     return count
 
 
 def loads_accepted_today(user):
-    count = user.loads.filter(accepted_time__date=datetime.now().date()).aggregate(loads_count=Sum('loads_count'))[
-        'loads_count']
+    count = (
+        user.loads
+        .filter(accepted_time__date=datetime_now(datetime.now()).date())
+        .aggregate(loads_count=Sum('loads_count'))['loads_count']
+    )
     return count if count else 0
 
 
