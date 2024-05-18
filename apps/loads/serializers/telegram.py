@@ -1,7 +1,5 @@
-from datetime import datetime
-
 from django.db.models import Q
-from django.utils.timezone import localtime
+from django.utils import timezone
 from rest_framework import serializers, status
 from rest_framework.generics import get_object_or_404
 
@@ -26,7 +24,7 @@ class BarcodeConnectionSerializer(serializers.ModelSerializer):
         instance: Product = super().create(validated_data)
         instance.customer_id = customer.id
         instance.accepted_by_china = request.user
-        instance.accepted_time_china = datetime.now()
+        instance.accepted_time_china = timezone.now()
         instance.save()
         return instance
 
@@ -148,7 +146,7 @@ class AddLoadSerializer(serializers.ModelSerializer):
             instance = super().create(validated_data)
             instance.customer_id = customer.id
             instance.accepted_by = self.context.get('request').user
-            instance.accepted_time = localtime(datetime.now())
+            instance.accepted_time = timezone.now()
             instance.save()
             image.loads_id = instance.id
             image.save()
