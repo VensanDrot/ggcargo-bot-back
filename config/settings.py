@@ -6,6 +6,8 @@ from pathlib import Path
 from datetime import timedelta
 
 from django.utils.translation import gettext_lazy as _
+from django.utils.timezone import activate
+
 
 load_dotenv()
 
@@ -129,11 +131,12 @@ LANGUAGE_CODE = 'en-us'
 #     ('ru', _('Russian')),
 # ]
 
-TIME_ZONE = 'UTC'
-# TIME_ZONE = 'Asia/Tashkent'
+# TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tashkent'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+activate(TIME_ZONE)
 
 LOCALE_PATHS = [
     join_path(BASE_DIR, 'locale'),
