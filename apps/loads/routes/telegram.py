@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from django.db.models import Q
-from django.utils import timezone
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView
@@ -55,7 +54,7 @@ class AcceptProductAPIView(APIView):
         instance = self.get_object()
         instance.status = 'DELIVERED'
         instance.accepted_by_tashkent = request.user
-        instance.accepted_time_tashkent = timezone.now()
+        instance.accepted_time_tashkent = datetime.now()
         instance.save()
         return Response({'detail': 'Product accepted'})
 
