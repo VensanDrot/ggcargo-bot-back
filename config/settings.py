@@ -129,8 +129,8 @@ LANGUAGE_CODE = 'en-us'
 #     ('ru', _('Russian')),
 # ]
 
-# TIME_ZONE = 'Asia/Tashkent'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tashkent'
+# TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
