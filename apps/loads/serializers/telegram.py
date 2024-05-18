@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.db.models import Q
+from django.utils.timezone import localtime
 from rest_framework import serializers, status
 from rest_framework.generics import get_object_or_404
 
@@ -122,29 +123,43 @@ class AddLoadSerializer(serializers.ModelSerializer):
         raise APIValidation('Configure price in settings', status_code=status.HTTP_400_BAD_REQUEST)
 
     def create(self, validated_data):
-        customer_id = validated_data.pop('customer_id')
-        products = validated_data.get('products')
-        image = validated_data.pop('image')
-        prefix, code = split_code(customer_id)
-        customer = get_object_or_404(Customer, prefix=prefix, code=code)
-        l_cost = self.load_cost(customer)
-        existing_load = Load.objects.filter(customer_id=customer.id, status='CREATED')
-        if existing_load.exists():
-            existing_load = existing_load.first()
-            return existing_load
-        instance = super().create(validated_data)
-        instance.customer_id = customer.id
-        instance.accepted_by = self.context.get('request').user
-        instance.accepted_time = datetime.now()
-        instance.save()
-        image.loads_id = instance.id
-        image.save()
-        customer.debt += l_cost
-        customer.save()
-        for product in products:
-            product.status = 'LOADED'
-            product.save()
-        return instance
+        try:
+            customer_id = validated_data.pop('customer_id')
+            products = validated_data.get('products')
+            image = validated_data.pop('image')
+            prefix, code = split_code(customer_id)
+            customer = get_object_or_404(Customer, prefix=prefix, code=code)
+            l_cost = self.load_cost(customer)
+            existing_load = Load.objects.filter(customer_id=customer.id, status='CREATED')
+            if existing_load.exists():
+                existing_load = existing_load.first()
+                image.loads_id = existing_load.id
+                image.save()
+                customer.debt += l_cost
+                customer.save()
+                existing_load.loads_count += 1
+                existing_load.weight += validated_data.get('weight')
+                existing_load.products.add(*products)
+                existing_load.save()
+                for product in products:
+                    product.status = 'LOADED'
+                    product.save()
+                return existing_load
+            instance = super().create(validated_data)
+            instance.customer_id = customer.id
+            instance.accepted_by = self.context.get('request').user
+            instance.accepted_time = localtime(datetime.now())
+            instance.save()
+            image.loads_id = instance.id
+            image.save()
+            customer.debt += l_cost
+            customer.save()
+            for product in products:
+                product.status = 'LOADED'
+                product.save()
+            return instance
+        except Exception as exc:
+            raise APIValidation(f'Error occurred {exc.args}', status_code=status.HTTP_400_BAD_REQUEST)
 
     class Meta:
         model = Load

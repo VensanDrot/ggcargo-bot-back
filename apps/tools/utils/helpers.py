@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 
+from django.db.models import Sum
 from rest_framework import status
 
 from apps.tools.serializer import SettingsSerializer
@@ -20,7 +21,7 @@ def split_code(full_code):
 
 
 def products_accepted_today(user):
-    if user.products_china.exists():
+    if user.operator.warehouse == 'CHINA':
         count = user.products_china.filter(accepted_time_china__date=datetime.now().date()).count()
     else:
         count = user.products_tashkent.filter(accepted_time_tashkent__date=datetime.now().date()).count()
@@ -28,7 +29,8 @@ def products_accepted_today(user):
 
 
 def loads_accepted_today(user):
-    count = user.loads.filter(accepted_time__date=datetime.now().date()).count()
+    count = user.loads.filter(accepted_time__date=datetime.now().date()).aggregate(loads_count=Sum('loads_count'))[
+        'loads_count']
     return count
 
 

@@ -23,6 +23,7 @@ class Product(BaseModel):
 
 
 class Load(BaseModel):
+    loads_count = models.IntegerField(default=1)
     weight = models.FloatField()
     CREATED = 'CREATED'
     PAID = 'PAID'
