@@ -10,7 +10,7 @@ from django.conf.urls.static import static
 swagger_description = """
 __Authorization: Bearer <ACCESS_TOKEN>__, Get tokens from __/staff/token/__ and __/staff/telegram/token/__
 
-Web Operator endpointsЖ
+Web Operator endpoints:
 /api/admin/delivery/.../ for page __Посылки__
 /api/admin/loads/.../ for page __Загрузки__
 /payment/admin/.../ for page __Модерация/Payments__
