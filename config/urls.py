@@ -7,12 +7,29 @@ from drf_yasg import openapi
 from django.conf import settings
 from django.conf.urls.static import static
 
+swagger_description = """
+__Authorization: Bearer <ACCESS_TOKEN>__, Get tokens from __/staff/token/__ and __/staff/telegram/token/__
+
+Web Operator endpoints: startswith __/api/admin/.../__
+/api/admin/delivery/.../ for page __Посылки__
+/api/admin/loads/.../ for page __Загрузки__
+/payment/admin/.../ for page __Модерация/Payments__
+
+Tashkent Telegram Operator endpoints: startswith __/api/operator/tashkent/.../__,
+/api/operator/tashkent/moderation/.../ for page __Модерация__
+/api/operator/tashkent/release/.../ for page __Выдать Груз__
+
+
+Customer endpoints: startswith __/api/customer/.../__ and __/payment/customer/.../__
+/api/customer/current-load/, /api/customer/own-loads/history/ for page __My Loads__
+/payment/customer/load-payment/ for page __Payment__
+"""
+
 schema_view = get_schema_view(
     openapi.Info(
         title="Cargo Swagger",
         default_version='v1',
-        description="Swagger foy Cargo project, token authorization: user __/staff/token/__ API "
-                    "then click authorize button and type __Bearer {token}__.",
+        description=swagger_description,
         terms_of_service="https://google.com/",
         contact=openapi.Contact(email=""),
         license=openapi.License(name="Cargo License"),

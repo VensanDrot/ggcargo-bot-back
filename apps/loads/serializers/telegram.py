@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.timezone import localdate
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework.generics import get_object_or_404
 
@@ -131,7 +132,7 @@ class AddLoadSerializer(serializers.ModelSerializer):
             prefix, code = split_code(customer_id)
             customer = get_object_or_404(Customer, prefix=prefix, code=code)
             l_cost = self.load_cost(customer)
-            existing_load = Load.objects.filter(customer_id=customer.id, status='CREATED')
+            existing_load = Load.objects.filter(customer_id=customer.id, is_active=True)
             if existing_load.exists():
                 existing_load = existing_load.first()
                 image.loads_id = existing_load.id
@@ -139,6 +140,7 @@ class AddLoadSerializer(serializers.ModelSerializer):
                 customer.debt += l_cost
                 customer.save()
                 existing_load.loads_count += 1
+                existing_load.cost = l_cost
                 existing_load.weight += validated_data.get('weight')
                 existing_load.products.add(*products)
                 existing_load.save()
@@ -147,6 +149,7 @@ class AddLoadSerializer(serializers.ModelSerializer):
                     product.save()
                 return existing_load
             instance = super().create(validated_data)
+            instance.cost = l_cost
             instance.customer_id = customer.id
             instance.accepted_by = self.context.get('request').user
             instance.accepted_time = timezone.now()
@@ -169,6 +172,67 @@ class AddLoadSerializer(serializers.ModelSerializer):
                   'weight',
                   'products',
                   'image', ]
+
+
+class ReleaseLoadInfoSerializer(serializers.ModelSerializer):
+    products = serializers.SerializerMethodField(allow_null=True)
+    debt = serializers.CharField(source='customer.debt', allow_null=True)
+    status = serializers.SerializerMethodField(allow_null=True)
+    status_display = serializers.SerializerMethodField(allow_null=True)
+
+    @staticmethod
+    def get_products(instance):
+        products_serializer = ProductSerializer(instance.customer.products.all(), many=True)
+        return products_serializer.data
+
+    @staticmethod
+    def get_status(obj):
+        if obj.status == 'DELIVERED':
+            return NOT_LOADED
+        return obj.status
+
+    @staticmethod
+    def get_status_display(obj):
+        if obj.status == 'DELIVERED':
+            return NOT_LOADED_DISPLAY
+        return obj.get_status_display()
+
+    class Meta:
+        model = Load
+        fields = ['id',
+                  'products',
+                  'weight',
+                  'debt',
+                  'status',
+                  'status_display', ]
+
+
+class ReleasePaymentLoadSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        load = self.context.get('load_instance')
+        request = self.context.get('request')
+        instance = Payment.objects.create(load_id=load.id, customer_id=load.customer.id, is_operator=True,
+                                          operator_id=request.user.id, status='SUCCESSFUL',
+                                          paid_amount=load.customer.debt, **validated_data)
+        instance.customer.debt = min(instance.customer.debt - instance.customer.debt, 0)
+        instance.customer.save()
+        if instance.customer.debt == 0:
+            load.status = 'PAID'
+            load.save()
+        elif instance.customer.debt == load.cost:
+            load.status = 'NOT_PAID'
+            load.save()
+        elif instance.customer.debt != load.customer:
+            load.status = 'PARTIALLY_PAID'
+            load.save()
+        return instance
+
+    class Meta:
+        model = Payment
+        fields = ['id',
+                  # 'paid_amount',
+                  'payment_type', ]
 
 
 class ModerationNotProcessedLoadSerializer(serializers.ModelSerializer):
@@ -294,19 +358,46 @@ class CustomerProductsSerializer(serializers.ModelSerializer):
 class CustomerCurrentLoadSerializer(serializers.ModelSerializer):
     products = CustomerProductsSerializer(many=True, allow_null=True)
     debt = serializers.CharField(source='customer.debt', allow_null=True)
+    status = serializers.SerializerMethodField(allow_null=True)
+    status_display = serializers.SerializerMethodField(allow_null=True)
+
+    @staticmethod
+    def get_status(obj):
+        if obj.payments.filter(status__isnull=True, is_operator=False):
+            return 'ON_MODERATION'
+        return obj.status
+
+    @staticmethod
+    def get_status_display(obj):
+        if obj.payments.filter(status__isnull=True, is_operator=False):
+            return _('On moderation')
+        return obj.get_status_display()
 
     class Meta:
         model = Load
         fields = ['id',
                   'status',
+                  'status_display',
                   'weight',
                   'debt',
                   'products', ]
 
 
 class CustomerOwnLoadsSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField(allow_null=True)
+    status_display = serializers.SerializerMethodField(allow_null=True)
+
+    @staticmethod
+    def get_status(obj):
+        return obj.status
+
+    @staticmethod
+    def get_status_display(obj):
+        return obj.get_status_display()
+
     class Meta:
         model = Load
         fields = ['id',
                   'status',
+                  'status_display',
                   'updated_at', ]

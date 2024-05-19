@@ -2,13 +2,14 @@ from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, DestroyAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.loads.filter import AdminProductFilter
-from apps.loads.models import Product
-from apps.loads.serializers.web import AdminProductListSerializer, AdminAddProductSerializer
+from apps.loads.filter import AdminProductFilter, AdminLoadFilter
+from apps.loads.models import Product, Load
+from apps.loads.serializers.web import AdminProductListSerializer, AdminAddProductSerializer, AdminLoadListSerializer, \
+    AdminLoadRetrieveSerializer, AdminLoadUpdateSerializer
 from config.core.choices import PRODUCT_STATUS_CHOICE
 from config.core.pagination import APIPagination
 from config.core.permissions.web import IsWebOperator
@@ -65,3 +66,26 @@ class AdminUpdateProduct(UpdateAPIView):
 class AdminDeleteProduct(DestroyAPIView):
     queryset = Product.objects.all()
     permission_classes = [IsWebOperator, ]
+
+
+class AdminLoadListAPIView(ListAPIView):
+    queryset = Load.objects.select_related('customer', 'accepted_by').prefetch_related('products')
+    serializer_class = AdminLoadListSerializer
+    permission_classes = [IsWebOperator, ]
+    filterset_class = AdminLoadFilter
+    filter_backends = [DjangoFilterBackend, SearchFilter, ]
+    search_fields = ['weight', 'customer__prefix', 'customer__code', 'cost']
+    pagination_class = APIPagination
+
+
+class AdminLoadRetrieveAPIView(RetrieveAPIView):
+    queryset = Load.objects.select_related('customer', 'accepted_by').prefetch_related('products')
+    serializer_class = AdminLoadRetrieveSerializer
+    permission_classes = [IsWebOperator, ]
+
+
+class AdminLoadUpdateAPIView(UpdateAPIView):
+    queryset = Load.objects.select_related('customer', 'accepted_by').prefetch_related('products')
+    serializer_class = AdminLoadUpdateSerializer
+    permission_classes = [IsWebOperator, ]
+    http_method_names = ['patch']
