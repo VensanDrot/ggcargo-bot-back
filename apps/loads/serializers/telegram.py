@@ -283,6 +283,7 @@ class ModerationProcessedLoadSerializer(serializers.ModelSerializer):
         fields = ['id',
                   'customer_id',
                   'debt',
+                  'comment',
                   'date',
                   'status',
                   'status_display', ]
