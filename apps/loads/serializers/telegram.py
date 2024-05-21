@@ -313,6 +313,7 @@ class ModerationLoadPaymentSerializer(serializers.ModelSerializer):
                   'date',
                   'debt',
                   'paid_amount',
+                  'comment',
                   'status',
                   'status_display', ]
 
