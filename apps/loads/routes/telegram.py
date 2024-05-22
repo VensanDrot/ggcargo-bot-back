@@ -172,9 +172,8 @@ class ModerationLoadPaymentAPIView(APIView):
 class ModerationLoadApplyAPIView(APIView):
     serializer_class = ModerationLoadApplySerializer
 
-    @swagger_auto_schema(request_body=ModerationLoadApplySerializer)
     def post(self, request, application_id, *args, **kwargs):
-        response = process_payment(request, ModerationLoadApplySerializer, application_id, 'SUCCESSFUL')
+        response = process_payment(request, application_id, 'SUCCESSFUL')
         return Response(response)
 
 
@@ -183,7 +182,7 @@ class ModerationLoadDeclineAPIView(APIView):
 
     @swagger_auto_schema(request_body=ModerationLoadDeclineSerializer)
     def post(self, request, application_id, *args, **kwargs):
-        response = process_payment(request, ModerationLoadDeclineSerializer, application_id, 'DECLINED')
+        response = process_payment(request, application_id, 'DECLINED', ModerationLoadDeclineSerializer)
         return Response(response)
 
 
