@@ -292,7 +292,7 @@ class ModerationProcessedLoadSerializer(serializers.ModelSerializer):
 class ModerationLoadPaymentSerializer(serializers.ModelSerializer):
     customer_id = serializers.SerializerMethodField(allow_null=True)
     date = serializers.SerializerMethodField(allow_null=True)
-    debt = serializers.CharField(source='load.cost', allow_null=True)
+    debt = serializers.FloatField(source='load.cost', allow_null=True)
     status_display = serializers.CharField(source='get_status_display', allow_null=True)
     files = FileDataSerializer(many=True, allow_null=True)
 
