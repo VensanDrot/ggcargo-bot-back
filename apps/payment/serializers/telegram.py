@@ -10,6 +10,11 @@ class CustomerLoadPaymentSerializer(serializers.ModelSerializer):
                                          queryset=File.objects.all())
 
     def create(self, validated_data):
+        user = self.context['request'].user
+        if Payment.objects.filter(status__isnull=True, customer_id=user.customer.id,
+                                  load=validated_data.get('load')).exists():
+            raise APIValidation('Payment application with status not processed exists',
+                                status_code=status.HTTP_400_BAD_REQUEST)
         try:
             customer_id = self.context.get('request').user.customer.id
             image = validated_data.pop('files')

@@ -2,6 +2,7 @@ from django.db import models
 
 from apps.loads.models import Load
 from apps.user.models import Customer, User
+from config.core.api_exceptions import APIValidation
 from config.models import BaseModel
 
 

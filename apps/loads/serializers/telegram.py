@@ -321,16 +321,21 @@ class ModerationLoadPaymentSerializer(serializers.ModelSerializer):
 class ModerationLoadApplySerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ['id',
-                  'paid_amount',
-                  'comment', ]
+        fields = [
+            'id',
+            # 'paid_amount',
+            # 'comment',
+        ]
 
 
 class ModerationLoadDeclineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ['id',
-                  'comment', ]
+        fields = [
+            'id',
+            'comment',
+            'paid_amount',
+        ]
 
 
 # CUSTOMER
