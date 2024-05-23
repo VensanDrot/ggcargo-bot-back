@@ -22,9 +22,9 @@ class Payment(BaseModel):
         (CASH, CASH),
         (CARD, CARD),
     ]
+    payment_type = models.CharField(max_length=5, choices=PAYMENT_TYPE_CHOICE, null=True, blank=True)
     is_operator = models.BooleanField(default=False)
     operator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
-    payment_type = models.CharField(max_length=5, choices=PAYMENT_TYPE_CHOICE, null=True, blank=True)
 
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
     load = models.ForeignKey(Load, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')

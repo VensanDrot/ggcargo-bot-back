@@ -31,6 +31,15 @@ PREFIX_CHOICES = [
     (GZG, 'GZG'),
 ]
 
+NONE = None
+ACCEPTED = 'ACCEPTED'
+NOT_ACCEPTED = 'NOT_ACCEPTED'
+CUSTOMER_REGISTRATION_STATUS = [
+    (None, _('Waiting')),
+    (ACCEPTED, _('Accepted')),
+    (NOT_ACCEPTED, _('Not accepted'))
+]
+
 # OPERATORS
 WEB = 'WEB'
 TELEGRAM = 'TELEGRAM'

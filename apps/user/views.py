@@ -1,18 +1,21 @@
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework.generics import CreateAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from apps.user.models import User
+from apps.user.models import User, Customer
 from apps.user.serializer import PostUserSerializer, GetUserSerializer, JWTLoginSerializer, PostCustomerSerializer, \
     GetCustomerSerializer, TelegramLoginSerializer, RetrieveCustomerSerializer, PostResponseCustomerSerializer, \
-    PostResponseUserSerializer
+    PostResponseUserSerializer, CustomerAviaRegistrationStepOneSerializer, CustomerAviaRegistrationStepTwoSerializer, \
+    CustomerAviaRegistrationStepThreeSerializer, CustomerAutoRegistrationStepTwoSerializer, \
+    CustomerAutoRegistrationStepOneSerializer
 from apps.user.utils.services import authenticate_user, authenticate_telegram_user
 from config.core.api_exceptions import APIValidation
 from config.core.pagination import APIPagination
-from config.core.permissions.telegram import IsTGAdminOperator, IsTGOperator
+from config.core.permissions.telegram import IsTGAdminOperator, IsTGOperator, IsCustomer
 from config.views import ModelViewSetPack
 
 
@@ -143,3 +146,36 @@ class CustomerIDPrefix(APIView):
             raise APIValidation("Url parameter (user_type) accepts only AUTO or AVIA",
                                 status_code=status.HTTP_400_BAD_REQUEST)
         return Response(response)
+
+
+class CustomerAviaRegistrationStepOneAPIView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = CustomerAviaRegistrationStepOneSerializer
+    permission_classes = [AllowAny, ]
+
+
+class CustomerAviaRegistrationStepTwoAPIView(UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = CustomerAviaRegistrationStepTwoSerializer
+    permission_classes = [AllowAny, ]
+    http_method_names = ['patch', ]
+
+
+class CustomerAviaRegistrationStepThreeAPIView(UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = CustomerAviaRegistrationStepThreeSerializer
+    permission_classes = [AllowAny, ]
+    http_method_names = ['patch', ]
+
+
+class CustomerAutoRegistrationStepOneAPIView(CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = CustomerAutoRegistrationStepOneSerializer
+    permission_classes = [AllowAny, ]
+
+
+class CustomerAutoRegistrationStepTwoAPIView(UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = CustomerAutoRegistrationStepTwoSerializer
+    permission_classes = [AllowAny, ]
+    http_method_names = ['patch', ]

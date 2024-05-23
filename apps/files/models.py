@@ -16,6 +16,8 @@ class File(BaseModel):
                               related_name='files')
     payments = models.ForeignKey("payment.Payment", on_delete=models.SET_NULL, null=True, blank=True,
                                  related_name='files')
+    customer_registration = models.ForeignKey("user.CustomerRegistration", on_delete=models.SET_NULL,
+                                              null=True, blank=True, related_name='files')
 
     class Meta:
         db_table = "File"

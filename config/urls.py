@@ -20,9 +20,13 @@ Tashkent Telegram Operator endpoints: startswith __/api/operator/tashkent/.../__
 /api/operator/tashkent/release/.../ for page __Выдать Груз__
 
 
-Customer endpoints: startswith __/api/customer/.../__ and __/payment/customer/.../__
+Customer endpoints: startswith __/api/customer/.../__ | __/payment/customer/.../__ | __/staff/customer/...__
 /api/customer/current-load/, /api/customer/own-loads/history/ for page __My Loads__
 /payment/customer/load-payment/ for page __Payment__
+
+Customer AUTO Registrations: STEP-1 __/staff/customer/auto/registration/step-one/__, STEP-2 __/staff/customer/auto/registration/step-two/{id}/__
+Customer AVIA Registrations: STEP-1 __/staff/customer/avia/registration/step-one/__, STEP-2 __/staff/customer/avia/registration/step-two/{id}/__, STEP-3: __/staff/customer/avia/registration/step-three/{id}/__
+<id>-provided in url's path is which returned in STEP-1 
 """
 
 schema_view = get_schema_view(

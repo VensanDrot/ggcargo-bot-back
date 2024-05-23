@@ -29,7 +29,7 @@ def next_prefix(last_prefix, user_type):
         raise APIValidation('user_type must be AUTO or AVIA')
 
 
-def generate_code(customer_data) -> tuple:
+def generate_code(customer_data: dict) -> tuple:
     user_type = customer_data.get('user_type')
     query = Customer.objects.filter(user_type=user_type)
     if query.exists():
