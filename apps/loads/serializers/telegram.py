@@ -140,7 +140,7 @@ class AddLoadSerializer(serializers.ModelSerializer):
                 customer.debt += l_cost
                 customer.save()
                 existing_load.loads_count += 1
-                existing_load.cost = l_cost
+                existing_load.cost += l_cost
                 existing_load.weight += validated_data.get('weight')
                 existing_load.products.add(*products)
                 existing_load.save()
