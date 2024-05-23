@@ -5,16 +5,18 @@ from apps.payment.models import Payment
 from config.core.api_exceptions import APIValidation
 
 
-def process_payment(request, serializer_class, application_id, payment_status):
+def process_payment(request, application_id, payment_status, serializer_class=None):
     try:
         instance = get_object_or_404(Payment, pk=application_id)
-        serializer = serializer_class(instance, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        instance: Payment = serializer.save()
-        data = serializer.data
+
+        if payment_status == 'DECLINED':
+            serializer = serializer_class(instance, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            instance: Payment = serializer.save()
         instance.status = payment_status
         if payment_status == 'SUCCESSFUL':
-            instance.customer.debt = min(instance.customer.debt - data.get('paid_amount', 0), 0)
+            instance.paid_amount = instance.customer.debt
+            instance.customer.debt = 0
             instance.customer.save()
             if instance.customer.debt == 0:
                 instance.load.status = 'PAID'
@@ -30,10 +32,10 @@ def process_payment(request, serializer_class, application_id, payment_status):
         return {
             'id': instance.id,
             'customer_id': f'{instance.customer.prefix}{instance.customer.code}',
-            'paid_amount': data.get('paid_amount'),
+            'paid_amount': instance.paid_amount,
             'debt': instance.customer.debt,
             'date': localdate(instance.updated_at),
-            'comment': data.get('comment'),
+            'comment': instance.comment,
             'status': instance.status,
             'status_display': instance.get_status_display(),
         }

@@ -140,7 +140,7 @@ class AddLoadSerializer(serializers.ModelSerializer):
                 customer.debt += l_cost
                 customer.save()
                 existing_load.loads_count += 1
-                existing_load.cost = l_cost
+                existing_load.cost += l_cost
                 existing_load.weight += validated_data.get('weight')
                 existing_load.products.add(*products)
                 existing_load.save()
@@ -292,7 +292,7 @@ class ModerationProcessedLoadSerializer(serializers.ModelSerializer):
 class ModerationLoadPaymentSerializer(serializers.ModelSerializer):
     customer_id = serializers.SerializerMethodField(allow_null=True)
     date = serializers.SerializerMethodField(allow_null=True)
-    debt = serializers.CharField(source='customer.debt', allow_null=True)
+    debt = serializers.FloatField(source='load.cost', allow_null=True)
     status_display = serializers.CharField(source='get_status_display', allow_null=True)
     files = FileDataSerializer(many=True, allow_null=True)
 
@@ -321,16 +321,21 @@ class ModerationLoadPaymentSerializer(serializers.ModelSerializer):
 class ModerationLoadApplySerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ['id',
-                  'paid_amount',
-                  'comment', ]
+        fields = [
+            'id',
+            # 'paid_amount',
+            # 'comment',
+        ]
 
 
 class ModerationLoadDeclineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
-        fields = ['id',
-                  'comment', ]
+        fields = [
+            'id',
+            'comment',
+            'paid_amount',
+        ]
 
 
 # CUSTOMER
