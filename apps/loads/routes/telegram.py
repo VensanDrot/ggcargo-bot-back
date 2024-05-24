@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.db.models import Q
-from django.utils.timezone import localdate
+from django.utils.translation import gettext_lazy as _
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, ListAPIView, get_object_or_404
@@ -12,7 +12,8 @@ from apps.loads.models import Product, Load
 from apps.loads.serializers.telegram import BarcodeConnectionSerializer, LoadInfoSerializer, AddLoadSerializer, \
     ModerationNotProcessedLoadSerializer, CustomerCurrentLoadSerializer, CustomerOwnLoadsSerializer, \
     ModerationProcessedLoadSerializer, ModerationLoadPaymentSerializer, ModerationLoadApplySerializer, \
-    ModerationLoadDeclineSerializer, ReleaseLoadInfoSerializer, ReleasePaymentLoadSerializer
+    ModerationLoadDeclineSerializer, ReleaseLoadInfoSerializer, ReleasePaymentLoadSerializer, \
+    CustomerTrackProductSerializer
 from apps.loads.utils.services import process_payment
 from apps.payment.models import Payment
 from apps.tools.utils.helpers import products_accepted_today, get_price, loads_accepted_today, split_code
@@ -211,3 +212,19 @@ class CustomerOwnLoadsHistoryAPIView(ListAPIView):
         queryset = super().get_queryset()
         queryset = queryset.filter(customer_id=self.request.user.customer.id)
         return queryset
+
+
+class CustomerTrackProductAPIView(APIView):
+    serializer_class = CustomerTrackProductSerializer
+
+    @staticmethod
+    def get_product(barcode):
+        try:
+            return Product.objects.get(barcode=barcode)
+        except Product.DoesNotExist:
+            raise APIValidation(_('Посылка с таким номером не найдена!'), status_code=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, barcode, *args, **kwargs):
+        product = self.get_product(barcode)
+        serializer = self.serializer_class(product)
+        return Response(serializer.data)

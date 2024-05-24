@@ -56,15 +56,19 @@ WAREHOUSE_CHOICE = [
 
 # PRODUCTS
 ON_WAY = 'ON_WAY'
-ON_WAY_DISPLAY = _('On the way')
+ON_WAY_DISPLAY = _('В пути')
+ON_WAY_DISPLAY_CUSTOMER = _('Получено в Китае')
 DELIVERED = 'DELIVERED'
-DELIVERED_DISPLAY = _('Delivered')
+DELIVERED_DISPLAY = _('Доставлено')
+DELIVERED_DISPLAY_CUSTOMER = _('Получено в Ташкенте')
 LOADED = 'LOADED'
-LOADED_DISPLAY = _('Loaded')
+LOADED_DISPLAY = _('Загружено')
+LOADED_DISPLAY_CUSTOMER = _('Ожидает выдачи')
 NOT_LOADED = 'NOT_LOADED'
-NOT_LOADED_DISPLAY = _('Not Loaded')
+NOT_LOADED_DISPLAY = _('Не загружено')
 DONE = 'DONE'
-DONE_DISPLAY = _('Done')
+DONE_DISPLAY = _('Готово')
+DONE_DISPLAY_CUSTOMER = _('Выдано')
 PRODUCT_STATUS_CHOICE = [
     (ON_WAY, ON_WAY_DISPLAY),
     (DELIVERED, DELIVERED_DISPLAY),

@@ -1,6 +1,6 @@
 from django.db.models import Q
 from django.utils import timezone
-from django.utils.timezone import localdate
+from django.utils.timezone import localdate, localtime
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework.generics import get_object_or_404
@@ -12,7 +12,8 @@ from apps.payment.models import Payment
 from apps.tools.utils.helpers import split_code, get_price
 from apps.user.models import Customer
 from config.core.api_exceptions import APIValidation
-from config.core.choices import NOT_LOADED, NOT_LOADED_DISPLAY
+from config.core.choices import (NOT_LOADED, NOT_LOADED_DISPLAY, DONE_DISPLAY_CUSTOMER, LOADED_DISPLAY_CUSTOMER,
+                                 DELIVERED_DISPLAY_CUSTOMER, ON_WAY_DISPLAY_CUSTOMER, LOADED, ON_WAY, DELIVERED, DONE)
 
 
 class BarcodeConnectionSerializer(serializers.ModelSerializer):
@@ -420,3 +421,37 @@ class CustomerOwnLoadsSerializer(serializers.ModelSerializer):
                   'status',
                   'status_display',
                   'updated_at', ]
+
+
+class CustomerTrackProductSerializer(serializers.ModelSerializer):
+    status_display = serializers.SerializerMethodField(allow_null=True)
+    updated_date = serializers.SerializerMethodField(allow_null=True)
+    updated_time = serializers.SerializerMethodField(allow_null=True)
+
+    @staticmethod
+    def get_status_display(obj):
+        statuses = {
+            ON_WAY: ON_WAY_DISPLAY_CUSTOMER,
+            DELIVERED: DELIVERED_DISPLAY_CUSTOMER,
+            LOADED: LOADED_DISPLAY_CUSTOMER,
+            DONE: DONE_DISPLAY_CUSTOMER
+        }
+        value = statuses[obj.status]
+        return value
+
+    @staticmethod
+    def get_updated_date(obj):
+        value = localtime(obj.updated_at)
+        return value.strftime('%Y-%m-%d')
+
+    @staticmethod
+    def get_updated_time(obj):
+        value = localtime(obj.updated_at)
+        return value.strftime('%H-%M')
+
+    class Meta:
+        model = Product
+        fields = ['status',
+                  'status_display',
+                  'updated_date',
+                  'updated_time', ]

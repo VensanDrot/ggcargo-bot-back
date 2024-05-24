@@ -123,12 +123,11 @@ AUTHENTICATION_BACKENDS = ['config.core.backends.EmailAuthenticationBackend']
 AUTH_USER_MODEL = 'user.User'
 
 # Internationalization
-LANGUAGE_CODE = 'en-us'
-# LANGUAGES = [
-#     ('en', _('English')),
-#     ('uz', _('Uzbek')),
-#     ('ru', _('Russian')),
-# ]
+LANGUAGE_CODE = 'uz-uz'
+LANGUAGES = [
+    ('uz', _('Uzbek')),
+    ('ru', _('Russian')),
+]
 
 # TIME_ZONE = 'UTC'
 TIME_ZONE = 'Asia/Tashkent'

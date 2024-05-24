@@ -2,10 +2,12 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from apps.user.views import UserModelViewSet, JWTObtainPairView, CustomerModelViewSet, CustomerIDPrefix, \
-    TelegramLoginAPIView, CustomerAviaRegistrationStepOneAPIView, CustomerAviaRegistrationStepTwoAPIView, \
+from apps.user.routes.web import UserModelViewSet, CustomerModelViewSet, CustomerIDPrefix
+from apps.user.routes.telegram import CustomerAviaRegistrationStepOneAPIView, CustomerAviaRegistrationStepTwoAPIView, \
     CustomerAviaRegistrationStepThreeAPIView, CustomerAutoRegistrationStepOneAPIView, \
-    CustomerAutoRegistrationStepTwoAPIView
+    CustomerAutoRegistrationStepTwoAPIView, CustomerSettingsPersonalUpdateAPIView, \
+    CustomerSettingsPersonalRetrieveAPIView, CustomerSettingsPasswordUpdateAPIView
+from apps.user.views import JWTObtainPairView, TelegramLoginAPIView
 
 router = DefaultRouter()
 router.register('users', UserModelViewSet, basename='users')
@@ -28,5 +30,12 @@ urlpatterns = [
          name='customer_auto_registration_step_one'),
     path('customer/auto/registration/step-two/<int:pk>/', CustomerAutoRegistrationStepTwoAPIView.as_view(),
          name='customer_auto_registration_step_two'),
+
+    path('customer/settings/personal/retrieve/', CustomerSettingsPersonalRetrieveAPIView.as_view(),
+         name='customer_settings_personal_retrieve'),
+    path('customer/settings/personal/update/', CustomerSettingsPersonalUpdateAPIView.as_view(),
+         name='customer_settings_personal_update'),
+    path('customer/settings/password/update/', CustomerSettingsPasswordUpdateAPIView.as_view(),
+         name='customer_settings_password_update'),
 ]
 urlpatterns += router.urls

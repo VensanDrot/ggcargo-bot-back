@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import AbstractUser
@@ -40,6 +41,7 @@ class Customer(BaseModel):
     code = models.CharField(max_length=255)
     debt = models.FloatField(default=0)
     phone_number = models.CharField(_("phone number"), max_length=35, null=True, blank=True)
+    language = models.CharField(max_length=2, choices=settings.LANGUAGES)
 
     user_type = models.CharField(_("user type"), max_length=4, choices=CAR_OR_AIR_CHOICE)
     passport_photo = models.ForeignKey("files.File", on_delete=models.SET_NULL,

@@ -4,7 +4,7 @@ from apps.loads.routes.telegram import BarcodeConnectionAPIView, AcceptProductAP
     LoadInfoAPIView, AddLoadAPIView, ModerationNotProcessedLoadAPIView, ModerationProcessedLoadAPIView, \
     CustomerOwnLoadsHistoryAPIView, CustomerCurrentLoadAPIView, ModerationLoadPaymentAPIView, \
     ModerationLoadApplyAPIView, ModerationLoadDeclineAPIView, ReleaseLoadInfoAPIView, ReleasePaymentLoadAPIView, \
-    ReleaseLoadAPIView
+    ReleaseLoadAPIView, CustomerTrackProductAPIView
 from apps.loads.routes.web import AdminProductListAPIView, AdminSelectProductStatus, AdminAddProduct, \
     AdminUpdateProduct, AdminDeleteProduct, AdminLoadListAPIView, AdminLoadRetrieveAPIView, AdminLoadUpdateAPIView
 
@@ -49,6 +49,7 @@ urlpatterns = [
     # bot-customer
     path('customer/current-load/', CustomerCurrentLoadAPIView.as_view(), name='customer_own_loads'),
     path('customer/own-loads/history/', CustomerOwnLoadsHistoryAPIView.as_view(), name='customer_own_loads'),
+    path('customer/track/product/<str:barcode>/', CustomerTrackProductAPIView.as_view(), name='customer_track_product')
 
     # common
 ]
