@@ -21,12 +21,33 @@ Tashkent Telegram Operator endpoints: startswith __/api/operator/tashkent/.../__
 
 
 Customer endpoints: startswith __/api/customer/.../__ | __/payment/customer/.../__ | __/staff/customer/...__
-/api/customer/current-load/, /api/customer/own-loads/history/ for page __My Loads__
-/payment/customer/load-payment/ for page __Payment__
+/api/customer/current-load/ for page __Мои загрузки (Текущая)__ 
+/api/customer/own-loads/history/ for page __Мои загрузки (История загрузок)__
+/payment/customer/load-payment/ for page __Оплата (скриншот с оплатой на модерацию)__
 
 Customer AUTO Registrations: STEP-1 __/staff/customer/auto/registration/step-one/__, STEP-2 __/staff/customer/auto/registration/step-two/{id}/__
 Customer AVIA Registrations: STEP-1 __/staff/customer/avia/registration/step-one/__, STEP-2 __/staff/customer/avia/registration/step-two/{id}/__, STEP-3: __/staff/customer/avia/registration/step-three/{id}/__
 <id>-provided in url's path is which returned in STEP-1 
+
+<br>
+<h4>UPDATES 2024-05-26</h4>
+Customer Statistics:
+__/staff/customer/stats/__  статистика кастомера
+
+Customer Настройки (Personal data):
+__/staff/customer/settings/personal/retrieve/__ to get personal data
+__/staff/customer/settings/personal/update/__ to change personal data
+__/staff/customer/settings/password/update/__ to change password
+
+Customer Найти груз вручную:
+__/api/customer/track/product/<str:barcode>/__ for page __Отслеживание посылки__
+
+
+Customer Получить груз:
+__/payment/customer/delivery/__ to send request for a delivery
+
+Customer Посылки В пути:
+__/api/customer/products-on-way/list/__ to get list of products on the way
 """
 
 schema_view = get_schema_view(

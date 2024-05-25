@@ -120,3 +120,4 @@ def authenticate_telegram_user(request, is_telegram: bool = False):
         }
     else:
         raise APIValidation('invalid username or password', status_code=403)
+

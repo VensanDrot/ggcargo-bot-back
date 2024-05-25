@@ -48,8 +48,8 @@ class ProductSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_updated_at(obj):
         if obj.updated_at:
-            return obj.updated_at.date()
-        return obj.updated_at
+            return localdate(obj.updated_at)
+        return localdate(obj.updated_at)
 
     @staticmethod
     def get_status(obj):
@@ -350,7 +350,7 @@ class CustomerProductsSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_updated_at(obj):
         if obj.updated_at:
-            return obj.updated_at.date()
+            return localdate(obj.updated_at)
         return obj.updated_at
 
     @staticmethod
@@ -406,6 +406,13 @@ class CustomerCurrentLoadSerializer(serializers.ModelSerializer):
 class CustomerOwnLoadsSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField(allow_null=True)
     status_display = serializers.SerializerMethodField(allow_null=True)
+    updated_at = serializers.SerializerMethodField(allow_null=True)
+
+    @staticmethod
+    def get_updated_at(obj):
+        if obj.updated_at:
+            return localdate(obj.updated_at)
+        return None
 
     @staticmethod
     def get_status(obj):
@@ -418,6 +425,8 @@ class CustomerOwnLoadsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Load
         fields = ['id',
+                  'weight',
+                  'cost',
                   'status',
                   'status_display',
                   'updated_at', ]

@@ -13,7 +13,7 @@ from apps.loads.serializers.telegram import BarcodeConnectionSerializer, LoadInf
     ModerationNotProcessedLoadSerializer, CustomerCurrentLoadSerializer, CustomerOwnLoadsSerializer, \
     ModerationProcessedLoadSerializer, ModerationLoadPaymentSerializer, ModerationLoadApplySerializer, \
     ModerationLoadDeclineSerializer, ReleaseLoadInfoSerializer, ReleasePaymentLoadSerializer, \
-    CustomerTrackProductSerializer
+    CustomerTrackProductSerializer, ProductSerializer
 from apps.loads.utils.services import process_payment
 from apps.payment.models import Payment
 from apps.tools.utils.helpers import products_accepted_today, get_price, loads_accepted_today, split_code
@@ -144,6 +144,10 @@ class ReleaseLoadAPIView(APIView):
                 raise APIValidation('The customer has a debt', status_code=status.HTTP_400_BAD_REQUEST)
             load_instance.is_active = False
             load_instance.status = 'DONE'
+            load_products = load_instance.products.all()
+            for product in load_products:
+                product.status = 'DONE'
+                product.save()
             load_instance.save()
             return Response({'message': 'Load successfully released'})
         raise APIValidation('Load not found', status_code=status.HTTP_404_NOT_FOUND)
@@ -204,7 +208,7 @@ class CustomerCurrentLoadAPIView(APIView):
 
 
 class CustomerOwnLoadsHistoryAPIView(ListAPIView):
-    queryset = Load.objects.select_related('customer', 'accepted_by').prefetch_related('products').filter(status='DONE')
+    queryset = Load.objects.select_related('customer', 'accepted_by').prefetch_related('products')
     serializer_class = CustomerOwnLoadsSerializer
     permission_classes = [IsCustomer, ]
 
@@ -216,11 +220,11 @@ class CustomerOwnLoadsHistoryAPIView(ListAPIView):
 
 class CustomerTrackProductAPIView(APIView):
     serializer_class = CustomerTrackProductSerializer
+    permission_classes = [IsCustomer, ]
 
-    @staticmethod
-    def get_product(barcode):
+    def get_product(self, barcode):
         try:
-            return Product.objects.get(barcode=barcode)
+            return Product.objects.get(barcode=barcode, customer__user_id=self.request.user.id)
         except Product.DoesNotExist:
             raise APIValidation(_('Посылка с таким номером не найдена!'), status_code=status.HTTP_404_NOT_FOUND)
 
@@ -228,3 +232,21 @@ class CustomerTrackProductAPIView(APIView):
         product = self.get_product(barcode)
         serializer = self.serializer_class(product)
         return Response(serializer.data)
+
+
+class CustomerProductsListAPIView(ListAPIView):
+    queryset = (
+        Product.objects
+        .select_related('customer', 'accepted_by_china', 'accepted_by_tashkent')
+        .exclude(status='DONE')
+        .order_by('-id')
+    )
+    serializer_class = ProductSerializer
+    permission_classes = [IsCustomer, ]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(customer__user_id=self.request.user.id)
+        return queryset
+
+# class

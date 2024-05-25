@@ -123,7 +123,7 @@ AUTHENTICATION_BACKENDS = ['config.core.backends.EmailAuthenticationBackend']
 AUTH_USER_MODEL = 'user.User'
 
 # Internationalization
-LANGUAGE_CODE = 'uz-uz'
+LANGUAGE_CODE = 'ru-ru'
 LANGUAGES = [
     ('uz', _('Uzbek')),
     ('ru', _('Russian')),

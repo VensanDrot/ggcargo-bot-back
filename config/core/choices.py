@@ -54,7 +54,7 @@ WAREHOUSE_CHOICE = [
     (CHINA, _('China'))
 ]
 
-# PRODUCTS
+# Loads & Products
 ON_WAY = 'ON_WAY'
 ON_WAY_DISPLAY = _('В пути')
 ON_WAY_DISPLAY_CUSTOMER = _('Получено в Китае')
@@ -74,4 +74,30 @@ PRODUCT_STATUS_CHOICE = [
     (DELIVERED, DELIVERED_DISPLAY),
     (LOADED, LOADED_DISPLAY),
     (DONE, DONE_DISPLAY),
+]
+
+NOT_PAID = 'NOT_PAID'
+PARTIALLY_PAID = 'PARTIALLY_PAID'
+PAID = 'PAID'
+DONE = 'DONE'
+CUSTOMER_DELIVERY = 'CUSTOMER_DELIVERY'
+DONE_MAIL = 'DONE_MAIL'
+STATUS_CHOICE = [
+    # (CREATED, _('Created')),
+    (NOT_PAID, _('Не оплачен')),
+    (PARTIALLY_PAID, _('Частично оплачено')),
+    (PAID, _('Оплачено')),
+    (CUSTOMER_DELIVERY, _('Запрос клиента на доставку/самовывоз')),
+    (DONE, _('Готово')),
+    (DONE_MAIL, _('Готово-почта')),
+]
+
+# Tools
+TAKE_AWAY = 'TAKE_AWAY'
+TAKE_AWAY_DISPLAY = _('Take away')
+YANDEX = 'YANDEX'
+YANDEX_DISPLAY = _('Yandex')
+DELIVERY_TYPE_CHOICE = [
+    (TAKE_AWAY, TAKE_AWAY_DISPLAY),
+    (YANDEX, YANDEX_DISPLAY),
 ]

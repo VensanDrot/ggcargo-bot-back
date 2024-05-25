@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.payment.routes.telegram import CustomerLoadPayment
+from apps.payment.routes.telegram import CustomerLoadPayment, CustomerDeliveryCreateAPIView
 from apps.payment.routes.web import AdminPaymentOpenListAPIView, AdminPaymentClosedListAPIView, \
     AdminPaymentApplyAPIView, AdminPaymentDeclineAPIView
 
@@ -14,4 +14,5 @@ urlpatterns = [
 
     # bot
     path('customer/load-payment/', CustomerLoadPayment.as_view(), name='customer_load_payment'),
+    path('customer/delivery/', CustomerDeliveryCreateAPIView.as_view(), name='customer_delivery'),
 ]

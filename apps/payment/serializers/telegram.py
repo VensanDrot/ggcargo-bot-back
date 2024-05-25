@@ -1,7 +1,9 @@
 from rest_framework import serializers, status
+from django.utils.translation import gettext_lazy as _
 
 from apps.files.models import File
 from apps.payment.models import Payment
+from apps.tools.models import Delivery
 from config.core.api_exceptions import APIValidation
 
 
@@ -30,3 +32,33 @@ class CustomerLoadPaymentSerializer(serializers.ModelSerializer):
         fields = ['id',
                   'image',
                   'load', ]
+
+
+class CustomerDeliverySerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        request = self.context['request']
+        customer = request.user.customer
+        load = customer.loads.filter(is_active=True)
+        if not load.exists():
+            raise APIValidation(_('Загрузка не найдено'), status_code=status.HTTP_400_BAD_REQUEST)
+        load = load.first()
+        if load.status != 'PAID':
+            raise APIValidation(_('Это загрузка не оплачено'), status_code=status.HTTP_400_BAD_REQUEST)
+        if hasattr(load, 'delivery'):
+            raise APIValidation(_('По этой загрузке у вас уже отправили информации доставки'),
+                                status_code=status.HTTP_400_BAD_REQUEST)
+        instance = super().create(validated_data)
+        instance.customer = customer
+        instance.load = load
+        load.status = 'CUSTOMER_DELIVERY'
+        load.save()
+        instance.save()
+        return instance
+
+    class Meta:
+        model = Delivery
+        fields = ['id',
+                  'delivery_type',
+                  'phone_number',
+                  'address',
+                  'comment', ]

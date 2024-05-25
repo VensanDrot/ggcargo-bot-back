@@ -9,6 +9,7 @@ from apps.files.serializer import FileDataSerializer
 from apps.loads.models import Product, Load
 from apps.tools.utils.helpers import split_code
 from apps.user.models import Customer
+from config.core.choices import TAKE_AWAY_DISPLAY, TAKE_AWAY, YANDEX
 
 
 class AdminProductListSerializer(serializers.ModelSerializer):
@@ -139,6 +140,17 @@ class AdminLoadRetrieveSerializer(serializers.ModelSerializer):
     debt = serializers.CharField(source='customer.debt', allow_null=True)
     products = ProductListSerializer(many=True, allow_null=True)
     files = FileDataSerializer(many=True, allow_null=True)
+    address = serializers.SerializerMethodField(allow_null=True)
+
+    @staticmethod
+    def get_address(obj):
+        if hasattr(obj, 'delivery'):
+            delivery = obj.delivery
+            if delivery.delivery_type == TAKE_AWAY:
+                return TAKE_AWAY_DISPLAY
+            elif delivery.delivery_type == YANDEX:
+                return delivery.address
+        return obj
 
     @staticmethod
     def get_customer_id(obj):
@@ -154,7 +166,8 @@ class AdminLoadRetrieveSerializer(serializers.ModelSerializer):
                   'status_display',
                   'debt',
                   'products',
-                  'files', ]
+                  'files',
+                  'address', ]
 
 
 class AdminLoadUpdateSerializer(serializers.ModelSerializer):

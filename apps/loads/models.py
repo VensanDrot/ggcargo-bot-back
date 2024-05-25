@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.user.models import Customer, Operator, User
-from config.core.choices import PRODUCT_STATUS_CHOICE, ON_WAY
+from config.core.choices import PRODUCT_STATUS_CHOICE, ON_WAY, STATUS_CHOICE, NOT_PAID
 from config.models import BaseModel
 
 
@@ -26,21 +26,7 @@ class Product(BaseModel):
 class Load(BaseModel):
     loads_count = models.IntegerField(default=1)
     weight = models.FloatField()
-    # CREATED = 'CREATED'
-    NOT_PAID = 'NOT_PAID'
-    PARTIALLY_PAID = 'PARTIALLY_PAID'
-    PAID = 'PAID'
-    DONE = 'DONE'
-    DONE_MAIL = 'DONE_MAIL'
-    STATUS_CHOICE = [
-        # (CREATED, _('Created')),
-        (NOT_PAID, _('Not paid')),
-        (PARTIALLY_PAID, _('Partially paid')),
-        (PAID, _('Paid')),
-        (DONE, _('Done')),
-        (DONE_MAIL, _('Done-mail')),
-    ]
-    status = models.CharField(choices=STATUS_CHOICE, default=NOT_PAID, max_length=14)
+    status = models.CharField(choices=STATUS_CHOICE, default=NOT_PAID, max_length=17)
     is_active = models.BooleanField(default=True)
     cost = models.FloatField(null=True, blank=True)
 

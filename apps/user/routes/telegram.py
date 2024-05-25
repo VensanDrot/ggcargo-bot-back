@@ -1,5 +1,8 @@
+from rest_framework import status
 from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from apps.user.models import User
 from apps.user.serializers.telegram import (CustomerAviaRegistrationStepOneSerializer,
@@ -77,3 +80,28 @@ class CustomerSettingsPasswordUpdateAPIView(UpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class CustomerStatAPIView(APIView):
+    def get(self, request, *args, **kwargs):
+        try:
+            customer = request.user.customer
+            customer_id = f'{customer.prefix}{customer.code}'
+
+            weight = 0
+            load = customer.loads.filter(is_active=True)
+            if load.exists():
+                load = load.first()
+                weight = load.weight
+            products_on_way = customer.products.filter(status='ON_WAY').count()
+            products_loaded = customer.products.filter(status='LOADED').count()
+            debt = customer.debt
+            return Response({
+                'customer_id': customer_id,
+                'weight': weight,
+                'products_on_way': products_on_way,
+                'products_loaded': products_loaded,
+                'debt': debt
+            })
+        except Exception as exc:
+            raise APIValidation(f'Error occurred: {exc.args}', status_code=status.HTTP_400_BAD_REQUEST)

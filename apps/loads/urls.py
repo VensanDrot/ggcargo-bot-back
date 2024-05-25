@@ -4,7 +4,7 @@ from apps.loads.routes.telegram import BarcodeConnectionAPIView, AcceptProductAP
     LoadInfoAPIView, AddLoadAPIView, ModerationNotProcessedLoadAPIView, ModerationProcessedLoadAPIView, \
     CustomerOwnLoadsHistoryAPIView, CustomerCurrentLoadAPIView, ModerationLoadPaymentAPIView, \
     ModerationLoadApplyAPIView, ModerationLoadDeclineAPIView, ReleaseLoadInfoAPIView, ReleasePaymentLoadAPIView, \
-    ReleaseLoadAPIView, CustomerTrackProductAPIView
+    ReleaseLoadAPIView, CustomerTrackProductAPIView, CustomerProductsListAPIView
 from apps.loads.routes.web import AdminProductListAPIView, AdminSelectProductStatus, AdminAddProduct, \
     AdminUpdateProduct, AdminDeleteProduct, AdminLoadListAPIView, AdminLoadRetrieveAPIView, AdminLoadUpdateAPIView
 
@@ -25,8 +25,7 @@ urlpatterns = [
     path('operator/tashkent/accept-product/<str:barcode>/', AcceptProductAPIView.as_view(), name='tashkent_accept'),
     path('operator/daily-stats/', OperatorStatisticsAPIView.as_view(), name='operator_daily_stats'),
 
-    path('operator/tashkent/load-info/', LoadInfoAPIView.as_view(),
-         name='tashkent_load_info'),
+    path('operator/tashkent/load-info/', LoadInfoAPIView.as_view(), name='tashkent_load_info'),
     path('operator/tashkent/add-load/', AddLoadAPIView.as_view(), name='tashkent_add_load'),
 
     path('operator/tashkent/release/load-info/<str:customer_id>/',
@@ -49,7 +48,8 @@ urlpatterns = [
     # bot-customer
     path('customer/current-load/', CustomerCurrentLoadAPIView.as_view(), name='customer_own_loads'),
     path('customer/own-loads/history/', CustomerOwnLoadsHistoryAPIView.as_view(), name='customer_own_loads'),
-    path('customer/track/product/<str:barcode>/', CustomerTrackProductAPIView.as_view(), name='customer_track_product')
+    path('customer/track/product/<str:barcode>/', CustomerTrackProductAPIView.as_view(), name='customer_track_product'),
+    path('customer/products-on-way/list/', CustomerProductsListAPIView.as_view(), name='customer_products_on_way_list'),
 
     # common
 ]
