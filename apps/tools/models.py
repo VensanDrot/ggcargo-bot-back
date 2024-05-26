@@ -1,26 +1,23 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from apps.files.models import File
 from apps.loads.models import Load
 from apps.user.models import Customer
-from config.core.choices import CAR_OR_AIR_CHOICE, DELIVERY_TYPE_CHOICE, TAKE_AWAY
+from config.core.choices import CAR_OR_AIR_CHOICE, DELIVERY_TYPE_CHOICE, TAKE_AWAY, NEWSLETTER_STATUS_CHOICE, \
+    NEWSLETTER_PENDING
 from config.models import BaseModel
 
 
 class Newsletter(BaseModel):
-    is_gg = models.BooleanField(default=True)
     bot_type = models.CharField("user type", max_length=4, choices=CAR_OR_AIR_CHOICE)
+    send_date = models.DateTimeField(null=True, blank=True)
     text_uz = models.TextField(null=True, blank=True)
-    photo_uz = models.FileField(null=True, blank=True)
+    photo_uz = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True, related_name='newsletter_uz')
     text_ru = models.TextField(null=True, blank=True)
-    photo_ru = models.FileField(null=True, blank=True)
-    SENT = 'SENT'
-    PENDING = 'PENDING'
-    STATUS_CHOICE = [
-        (SENT, 'Sent'),
-        (PENDING, 'Pending')
-    ]
-    status = models.CharField(choices=STATUS_CHOICE, max_length=7, default=PENDING)
+    photo_ru = models.ForeignKey(File, on_delete=models.SET_NULL, null=True, blank=True, related_name='newsletter_ru')
+
+    status = models.CharField(choices=NEWSLETTER_STATUS_CHOICE, max_length=7, default=NEWSLETTER_PENDING)
 
     class Meta:
         db_table = 'Newsletter'

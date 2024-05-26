@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from apps.files.serializer import FileDataSerializer
+from apps.tools.models import Newsletter
 from config.core.api_exceptions import APIValidation
 
 
@@ -54,3 +56,34 @@ class SettingsSerializer(serializers.Serializer):
     address = SettingToolSerializer(required=False)
     link = SettingToolSerializer(required=False)
     support = SettingToolSerializer(required=False)
+
+
+class NewsletterListSerializer(serializers.ModelSerializer):
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+
+    # photo_uz = FileDataSerializer(allow_null=True)
+    # photo_ru = FileDataSerializer(allow_null=True)
+
+    class Meta:
+        model = Newsletter
+        fields = ['id',
+                  'send_date',
+                  'bot_type',
+                  'text_uz',
+                  'text_ru',
+                  # 'photo_uz',
+                  # 'photo_ru',
+                  'status',
+                  'status_display', ]
+
+
+class NewsletterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Newsletter
+        fields = ['id',
+                  'send_date',
+                  'bot_type',
+                  'text_uz',
+                  'text_ru',
+                  'photo_uz',
+                  'photo_ru', ]

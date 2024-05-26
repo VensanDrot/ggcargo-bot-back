@@ -48,6 +48,13 @@ __/payment/customer/delivery/__ to send request for a delivery
 
 Customer Посылки В пути:
 __/api/customer/products-on-way/list/__ to get list of products on the way
+
+
+Web Admin Newsletter:
+__newsletter/list/__  to get list of newsletters
+__newsletter/create/__  to create newsletter
+__newsletter/update/<int:pk>/__  to update newsletter
+__newsletter/retrieve/<int:pk>/__  to retrieve newsletter
 """
 
 schema_view = get_schema_view(
