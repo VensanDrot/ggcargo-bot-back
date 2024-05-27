@@ -97,6 +97,7 @@ class CustomerStatAPIView(APIView):
             products_loaded = customer.products.filter(status='LOADED').count()
             debt = customer.debt
             return Response({
+                'full_name': request.user.full_name,
                 'customer_id': customer_id,
                 'weight': weight,
                 'products_on_way': products_on_way,
