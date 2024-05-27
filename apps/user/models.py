@@ -62,7 +62,7 @@ class Customer(BaseModel):
 class Operator(BaseModel):
     # Type(Telegram / Web
 
-    tg_id = models.CharField(max_length=155, null=True, blank=True)
+    tg_id = models.CharField(max_length=155, unique=True, null=True, blank=True)
     # products_accepted = models.IntegerField(default=0)
     operator_type = models.CharField(_("operator type"), max_length=8, choices=WEB_OR_TELEGRAM_CHOICE)
     warehouse = models.CharField(_("warehouse"), max_length=8, choices=WAREHOUSE_CHOICE, null=True, blank=True)
