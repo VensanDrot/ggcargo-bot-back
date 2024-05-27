@@ -136,7 +136,8 @@ class GetCustomerSerializer(serializers.ModelSerializer):
                   'phone_number',
                   'debt',
                   'accepted_by',
-                  'is_active', ]
+                  # 'is_active',
+                  ]
 
 
 class RetrieveCustomerSerializer(serializers.ModelSerializer):
@@ -267,7 +268,7 @@ class PostCustomerSerializer(serializers.ModelSerializer):
             'full_name',
             'password',
             # 'current_password',
-            'is_active',
+            # 'is_active',
             'passport_photo',
             'birth_date',
             'passport_serial_number',
