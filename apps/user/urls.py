@@ -6,7 +6,8 @@ from apps.user.routes.web import UserModelViewSet, CustomerModelViewSet, Custome
 from apps.user.routes.telegram import CustomerAviaRegistrationStepOneAPIView, CustomerAviaRegistrationStepTwoAPIView, \
     CustomerAviaRegistrationStepThreeAPIView, CustomerAutoRegistrationStepOneAPIView, \
     CustomerAutoRegistrationStepTwoAPIView, CustomerSettingsPersonalUpdateAPIView, \
-    CustomerSettingsPersonalRetrieveAPIView, CustomerSettingsPasswordUpdateAPIView, CustomerStatAPIView
+    CustomerSettingsPersonalRetrieveAPIView, CustomerSettingsPasswordUpdateAPIView, CustomerStatAPIView, \
+    CustomerPaymentCardAPIView
 from apps.user.views import JWTObtainPairView, TelegramLoginAPIView
 
 router = DefaultRouter()
@@ -37,6 +38,7 @@ urlpatterns = [
          name='customer_settings_personal_update'),
     path('customer/settings/password/update/', CustomerSettingsPasswordUpdateAPIView.as_view(),
          name='customer_settings_password_update'),
-    path('customer/stats/', CustomerStatAPIView.as_view(), name='customer_stats')
+    path('customer/stats/', CustomerStatAPIView.as_view(), name='customer_stats'),
+    path('customer/payment-card/', CustomerPaymentCardAPIView.as_view(), name='payment_card'),
 ]
 urlpatterns += router.urls

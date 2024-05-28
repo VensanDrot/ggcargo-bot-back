@@ -79,7 +79,7 @@ def authenticate_user(request, is_telegram: bool = False):
             customer_operator = 'CUSTOMER'
 
         refresh = RefreshToken.for_user(user)
-        return {
+        response = {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             'data': {
@@ -89,6 +89,9 @@ def authenticate_user(request, is_telegram: bool = False):
                 'customer_operator': customer_operator
             }
         }
+        if customer_operator == 'CUSTOMER':
+            response['data']['language'] = user.customer.language
+        return response
     else:
         raise APIValidation('invalid username or password', status_code=403)
 
@@ -120,4 +123,3 @@ def authenticate_telegram_user(request, is_telegram: bool = False):
         }
     else:
         raise APIValidation('invalid username or password', status_code=403)
-

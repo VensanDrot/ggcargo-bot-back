@@ -1,9 +1,12 @@
+import json
+
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, UpdateAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.tools.views import settings_path
 from apps.user.models import User
 from apps.user.serializers.telegram import (CustomerAviaRegistrationStepOneSerializer,
                                             CustomerAviaRegistrationStepTwoSerializer,
@@ -83,6 +86,8 @@ class CustomerSettingsPasswordUpdateAPIView(UpdateAPIView):
 
 
 class CustomerStatAPIView(APIView):
+    permission_classes = [IsCustomer, ]
+
     def get(self, request, *args, **kwargs):
         try:
             customer = request.user.customer
@@ -104,5 +109,22 @@ class CustomerStatAPIView(APIView):
                 'products_loaded': products_loaded,
                 'debt': debt
             })
+        except Exception as exc:
+            raise APIValidation(f'Error occurred: {exc.args}', status_code=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomerPaymentCardAPIView(APIView):
+    permission_classes = [IsCustomer, ]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            user_type = request.user.customer.user_type
+            with open(settings_path, 'r') as file:
+                file_data = json.load(file)
+                if user_type == 'AUTO':
+                    response = {'payment_card': file_data['payment_card']['auto']}
+                else:
+                    response = {'payment_card': file_data['payment_card']['avia']}
+                return Response(response)
         except Exception as exc:
             raise APIValidation(f'Error occurred: {exc.args}', status_code=status.HTTP_400_BAD_REQUEST)
