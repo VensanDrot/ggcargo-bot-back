@@ -60,9 +60,10 @@ class AdminAddProductSerializer(serializers.ModelSerializer):
         instance.accepted_by_tashkent = request.user
         instance.accepted_time_tashkent = datetime.now()
         instance.save()
-        file = image.get('id')
-        file.china_product_id = instance.id
-        file.save()
+        if image:
+            file = image.get('id')
+            file.china_product_id = instance.id
+            file.save()
         return instance
 
     def update(self, instance, validated_data):
