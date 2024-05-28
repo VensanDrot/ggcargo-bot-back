@@ -55,6 +55,10 @@ __newsletter/list/__  to get list of newsletters
 __newsletter/create/__  to create newsletter
 __newsletter/update/<int:pk>/__  to update newsletter
 __newsletter/retrieve/<int:pk>/__  to retrieve newsletter
+
+
+Payment Card info for Customers:
+__/staff/customer/payment-card/__ to get payment card
 """
 
 schema_view = get_schema_view(
