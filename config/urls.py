@@ -57,8 +57,9 @@ __newsletter/update/<int:pk>/__  to update newsletter
 __newsletter/retrieve/<int:pk>/__  to retrieve newsletter
 
 
-Payment Card info for Customers:
+Settings info for Customers:
 __/staff/customer/payment-card/__ to get payment card
+__/staff/customer/take-away-address/__ to get company address
 """
 
 schema_view = get_schema_view(
