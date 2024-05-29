@@ -128,3 +128,20 @@ class CustomerPaymentCardAPIView(APIView):
                 return Response(response)
         except Exception as exc:
             raise APIValidation(f'Error occurred: {exc.args}', status_code=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomerCompanyAddressAPIView(APIView):
+    permission_classes = [IsCustomer, ]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            user_type = request.user.customer.user_type
+            with open(settings_path, 'r') as file:
+                file_data = json.load(file)
+                if user_type == 'AUTO':
+                    response = {'address': file_data['address']['auto']}
+                else:
+                    response = {'address': file_data['address']['avia']}
+                return Response(response)
+        except Exception as exc:
+            raise APIValidation(f'Error occurred: {exc.args}', status_code=status.HTTP_400_BAD_REQUEST)
