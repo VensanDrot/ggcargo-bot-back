@@ -108,13 +108,25 @@ class AddLoadSerializer(serializers.ModelSerializer):
     def validate_products(self, value):
         customer_id = self.context.get('request').data.get('customer_id')
         prefix, code = split_code(customer_id)
+        customer = get_object_or_404(Customer, prefix=prefix, code=code)
+        delivered_products = customer.products.filter(status='DELIVERED').values_list('id', flat=True)
+        if len(value) != len(delivered_products):
+            raise APIValidation(_('Добавьте в загрузку все принятые товары в Ташкенту'),
+                                status_code=status.HTTP_400_BAD_REQUEST)
+        if not value:
+            raise APIValidation(_('Баркоды не отправлены'), status_code=status.HTTP_400_BAD_REQUEST)
+        non_customer_products = []
         for product in value:
             if product.status != 'DELIVERED':
-                raise APIValidation(f'Product #{product.id} was not delivered or already loaded',
+                raise APIValidation(_(f'Продукт #{product.id} не был доставлен или уже загружен'),
                                     status_code=status.HTTP_400_BAD_REQUEST)
             if product.customer.prefix != prefix or product.customer.code != code:
-                raise APIValidation(f"Customer#{customer_id} with such products not found",
-                                    status_code=status.HTTP_400_BAD_REQUEST)
+                non_customer_products.append(product.barcode)
+        if non_customer_products:
+            raise APIValidation(
+                f"Товары: {', '.join(map(str, non_customer_products))}, "
+                f"не принадлежат этому Клиенту #{customer_id}", status_code=status.HTTP_400_BAD_REQUEST
+            )
         return value
 
     def load_cost(self, customer):
@@ -144,6 +156,7 @@ class AddLoadSerializer(serializers.ModelSerializer):
                 existing_load.cost += l_cost
                 existing_load.weight += validated_data.get('weight')
                 existing_load.products.add(*products)
+                existing_load.status = 'PARTIALLY_PAID'
                 existing_load.save()
                 for product in products:
                     product.status = 'LOADED'

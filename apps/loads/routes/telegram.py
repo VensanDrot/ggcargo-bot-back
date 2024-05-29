@@ -137,7 +137,7 @@ class ReleaseLoadAPIView(APIView):
         load_instance = customer.loads.filter(is_active=True)
         if load_instance.exists():
             load_instance = load_instance.first()
-            if load_instance.products.filter(status='DELIVERED').exists():
+            if customer.products.filter(status='DELIVERED').exists():
                 raise APIValidation('Barcode with status delivered exists',
                                     status_code=status.HTTP_400_BAD_REQUEST)
             if customer.debt != 0:
@@ -216,7 +216,7 @@ class CustomerOwnLoadsHistoryAPIView(ListAPIView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        queryset = queryset.filter(customer_id=self.request.user.customer.id)
+        queryset = queryset.filter(customer_id=self.request.user.customer.id, status__in=['DONE', 'DONE_MAIL'])
         return queryset
 
 

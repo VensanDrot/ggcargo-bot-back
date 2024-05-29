@@ -43,7 +43,7 @@ urlpatterns = [
     path('operator/tashkent/moderation/apply-application/<str:application_id>/',
          ModerationLoadApplyAPIView.as_view(), name='tashkent_application_apply'),
     path('operator/tashkent/moderation/decline-application/<str:application_id>/',
-         ModerationLoadDeclineAPIView.as_view(), name='tashkent_application_apply'),
+         ModerationLoadDeclineAPIView.as_view(), name='tashkent_application_decline'),
 
     # bot-customer
     path('customer/current-load/', CustomerCurrentLoadAPIView.as_view(), name='customer_own_loads'),
