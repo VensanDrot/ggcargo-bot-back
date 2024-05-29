@@ -43,4 +43,4 @@ def process_payment(request, application_id, payment_status, serializer_class=No
             'status_display': instance.get_status_display(),
         }
     except Exception as exc:
-        raise APIValidation(f'Error occurred: {exc.args}')
+        raise APIValidation(f'Error occurred: {exc.args}', status_code=status.HTTP_400_BAD_REQUEST)
