@@ -17,6 +17,7 @@ def process_payment(request, application_id, payment_status, serializer_class=No
             serializer.is_valid(raise_exception=True)
             instance: Payment = serializer.save()
             instance.customer.debt -= instance.paid_amount
+            instance.customer.save()
         instance.status = payment_status
         if payment_status == 'SUCCESSFUL':
             instance.paid_amount = instance.customer.debt
