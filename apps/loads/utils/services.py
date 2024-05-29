@@ -9,7 +9,7 @@ from config.core.api_exceptions import APIValidation
 def process_payment(request, application_id, payment_status, serializer_class=None):
     try:
         instance = get_object_or_404(Payment, pk=application_id)
-        if not instance.status:
+        if instance.status:
             raise APIValidation('This payment was already processed', status_code=status.HTTP_400_BAD_REQUEST)
 
         if payment_status == 'DECLINED':
