@@ -251,7 +251,7 @@ class ReleasePaymentLoadSerializer(serializers.ModelSerializer):
 
 class ModerationNotProcessedLoadSerializer(serializers.ModelSerializer):
     customer_id = serializers.SerializerMethodField(allow_null=True)
-    debt = serializers.CharField(source='residue', allow_null=True)
+    debt = serializers.FloatField(source='residue', allow_null=True)
     date = serializers.SerializerMethodField(allow_null=True)
 
     @staticmethod
@@ -273,7 +273,7 @@ class ModerationNotProcessedLoadSerializer(serializers.ModelSerializer):
 
 class ModerationProcessedLoadSerializer(serializers.ModelSerializer):
     customer_id = serializers.SerializerMethodField(allow_null=True)
-    debt = serializers.CharField(source='residue', allow_null=True)
+    debt = serializers.FloatField(source='residue', allow_null=True)
     date = serializers.SerializerMethodField(allow_null=True)
     status_display = serializers.CharField(source='get_status_display', allow_null=True)
 
