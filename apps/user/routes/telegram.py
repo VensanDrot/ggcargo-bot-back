@@ -94,7 +94,7 @@ class CustomerStatAPIView(APIView):
             customer_id = f'{customer.prefix}{customer.code}'
 
             weight = 0
-            load = customer.loads.filter(is_active=True)
+            load = customer.loads.filter(is_active=True).exclude(status='PAID')
             if load.exists():
                 load = load.first()
                 weight = load.weight
