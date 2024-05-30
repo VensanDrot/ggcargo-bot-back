@@ -16,6 +16,7 @@ def process_payment(request, application_id, payment_status, serializer_class=No
             serializer = serializer_class(instance, data=request.data)
             serializer.is_valid(raise_exception=True)
             instance: Payment = serializer.save()
+            instance.residue = instance.customer.debt
             instance.customer.debt -= instance.paid_amount
             instance.customer.save()
             instance.load.status = 'PARTIALLY_PAID'
@@ -23,6 +24,7 @@ def process_payment(request, application_id, payment_status, serializer_class=No
         instance.status = payment_status
         if payment_status == 'SUCCESSFUL':
             instance.paid_amount = instance.customer.debt
+            instance.residue = instance.customer.debt
             instance.customer.debt = 0
             instance.customer.save()
             if instance.customer.debt == 0:

@@ -15,6 +15,7 @@ class Payment(BaseModel):
     ]
     status = models.CharField(choices=STATUS_CHOICE, max_length=10, null=True, blank=True)
     paid_amount = models.FloatField(null=True, blank=True)  # on moderation
+    residue = models.FloatField(null=True, blank=True)  # on moderation
     comment = models.TextField(null=True, blank=True)  # if declined
 
     CASH = 'CASH'
