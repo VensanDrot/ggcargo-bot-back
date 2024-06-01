@@ -145,3 +145,28 @@ class CustomerCompanyAddressAPIView(APIView):
                 return Response(response)
         except Exception as exc:
             raise APIValidation(f'Error occurred: {exc.args}', status_code=status.HTTP_400_BAD_REQUEST)
+
+
+class CustomerFooterAPIView(APIView):
+    permission_classes = [IsCustomer, ]
+
+    def get(self, request, *args, **kwargs):
+        try:
+            user_type = request.user.customer.user_type
+            with open(settings_path, 'r') as file:
+                file_data = json.load(file)
+                if user_type == 'AUTO':
+                    response = {
+                        'address': file_data['address']['auto'],
+                        'channel': file_data['link']['auto'],
+                        'support': file_data['support']['auto'],
+                    }
+                else:
+                    response = {
+                        'address': file_data['address']['avia'],
+                        'channel': file_data['link']['avia'],
+                        'support': file_data['support']['avia'],
+                    }
+                return Response(response)
+        except Exception as exc:
+            raise APIValidation(f'Error occurred: {exc.args}', status_code=status.HTTP_400_BAD_REQUEST)

@@ -60,6 +60,7 @@ __newsletter/retrieve/<int:pk>/__  to retrieve newsletter
 Settings info for Customers:
 __/staff/customer/payment-card/__ to get payment card
 __/staff/customer/take-away-address/__ to get company address
+__/staff/customer/footer/__ to get company address, channel link and support information
 """
 
 schema_view = get_schema_view(
