@@ -10,5 +10,5 @@ class JWTLoginSerializer(serializers.Serializer):
 
 class TelegramLoginSerializer(serializers.Serializer):
     tg_id = serializers.CharField()
-    warehouse = serializers.ChoiceField(choices=WAREHOUSE_CHOICE)
+    # warehouse = serializers.ChoiceField(choices=WAREHOUSE_CHOICE)
 

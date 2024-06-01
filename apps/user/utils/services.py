@@ -99,7 +99,6 @@ def authenticate_user(request, is_telegram: bool = False):
 def authenticate_telegram_user(request, is_telegram: bool = False):
     user = authenticate(request,
                         username=request.data['tg_id'],
-                        warehouse=request.data['warehouse'],
                         is_telegram=is_telegram)
     if user is not None:
         customer_operator = ''
