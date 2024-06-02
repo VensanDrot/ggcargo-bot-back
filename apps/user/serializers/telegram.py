@@ -39,6 +39,11 @@ class CustomerAviaRegistrationStepTwoSerializer(serializers.ModelSerializer):
                                                   write_only=True, queryset=File.objects.all())
     birth_date = serializers.DateField(source='customer.birth_date')
     passport_serial_number = serializers.CharField(source='customer.passport_serial_number')
+    customer_id = serializers.SerializerMethodField(allow_null=True, read_only=True)
+
+    @staticmethod
+    def get_customer_id(obj):
+        return f"{obj.customer.prefix}{obj.customer.code}"
 
     def update(self, instance, validated_data):
         registration_app = instance.customer.customer_registrations.filter(status=None).first()
@@ -59,7 +64,8 @@ class CustomerAviaRegistrationStepTwoSerializer(serializers.ModelSerializer):
         fields = ['id',
                   'birth_date',
                   'passport_serial_number',
-                  'passport_photo', ]
+                  'passport_photo',
+                  'customer_id', ]
 
 
 class CustomerAviaRegistrationStepThreeSerializer(serializers.ModelSerializer):
@@ -87,6 +93,11 @@ class CustomerAviaRegistrationStepThreeSerializer(serializers.ModelSerializer):
 class CustomerAutoRegistrationStepOneSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(source='customer.phone_number', required=True)
     password = serializers.CharField(write_only=True, required=True)
+    customer_id = serializers.SerializerMethodField(allow_null=True, read_only=True)
+
+    @staticmethod
+    def get_customer_id(obj):
+        return f"{obj.customer.prefix}{obj.customer.code}"
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
@@ -107,7 +118,8 @@ class CustomerAutoRegistrationStepOneSerializer(serializers.ModelSerializer):
         fields = ['id',
                   'full_name',
                   'phone_number',
-                  'password', ]
+                  'password',
+                  'customer_id', ]
 
 
 class CustomerAutoRegistrationStepTwoSerializer(serializers.ModelSerializer):
