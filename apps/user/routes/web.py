@@ -1,8 +1,11 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework.filters import SearchFilter
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.user.filter import UserStaffFilter
 from apps.user.models import User
 from apps.user.serializers.web import (PostUserSerializer, GetUserSerializer, PostCustomerSerializer,
                                        GetCustomerSerializer, RetrieveCustomerSerializer,
@@ -19,6 +22,9 @@ class UserModelViewSet(ModelViewSetPack):
     permission_classes = [IsTGAdminOperator, ]
     post_serializer_class = PostUserSerializer
     pagination_class = APIPagination
+    filterset_class = UserStaffFilter
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['full_name', 'operator__tg_id', ]
 
     def create(self, request, *args, **kwargs):
         try:
@@ -57,6 +63,9 @@ class CustomerModelViewSet(ModelViewSetPack):
     permission_classes = [IsTGOperator, ]
     post_serializer_class = PostCustomerSerializer
     pagination_class = APIPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['customer__user_type', 'customer__prefix', 'customer__code', 'full_name', 'customer__phone_number',
+                     'customer__debt']
 
     def get_serializer(self, *args, **kwargs):
         if self.action == 'retrieve':

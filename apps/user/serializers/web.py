@@ -4,6 +4,7 @@ from rest_framework import serializers, status
 
 from apps.files.models import File
 from apps.files.serializer import FileDataSerializer
+from apps.loads.serializers.telegram import CustomerOwnLoadsSerializer
 from apps.user.models import User, Operator, Customer
 from config.core.choices import WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, CAR_OR_AIR_CHOICE
 
@@ -150,6 +151,24 @@ class RetrieveCustomerSerializer(serializers.ModelSerializer):
     birth_date = serializers.CharField(source='customer.birth_date')
     passport_serial_number = serializers.CharField(source='customer.passport_serial_number')
     accepted_by = serializers.CharField(source='customer.accepted_by.full_name', allow_null=True)
+    about_customer = serializers.CharField(source='customer.about_customer', allow_null=True)
+    loads = serializers.SerializerMethodField(allow_null=True)
+    customer_info = serializers.SerializerMethodField(allow_null=True)
+
+    @staticmethod
+    def get_loads(obj: User):
+        queryset = obj.customer.loads.all()
+        loads_serializer = CustomerOwnLoadsSerializer(queryset, many=True)
+        data = loads_serializer.data
+        return data
+
+    @staticmethod
+    def get_customer_info(obj: User):
+        return {
+            'on_way': obj.customer.products.filter(status='ON_WAY').count(),
+            'loads': obj.customer.loads.count(),
+            'debt': obj.customer.debt,
+        }
 
     class Meta:
         model = User
@@ -166,6 +185,9 @@ class RetrieveCustomerSerializer(serializers.ModelSerializer):
                   'passport_serial_number',
                   'debt',
                   'accepted_by',
+                  'about_customer',
+                  'loads',
+                  'customer_info',
                   'is_active', ]
 
 
@@ -178,6 +200,24 @@ class PostResponseCustomerSerializer(serializers.ModelSerializer):
     birth_date = serializers.CharField(source='customer.birth_date')
     passport_serial_number = serializers.CharField(source='customer.passport_serial_number')
     accepted_by = serializers.CharField(source='customer.accepted_by.full_name', allow_null=True)
+    about_customer = serializers.CharField(source='customer.about_customer', allow_null=True)
+    loads = serializers.SerializerMethodField(allow_null=True)
+    customer_info = serializers.SerializerMethodField(allow_null=True)
+
+    @staticmethod
+    def get_loads(obj: User):
+        queryset = obj.customer.loads.all()
+        loads_serializer = CustomerOwnLoadsSerializer(queryset, many=True)
+        data = loads_serializer.data
+        return data
+
+    @staticmethod
+    def get_customer_info(obj: User):
+        return {
+            'on_way': obj.customer.products.filter(status='ON_WAY').count(),
+            'loads': obj.customer.loads.count(),
+            'debt': obj.customer.debt,
+        }
 
     @staticmethod
     def get_customer_code(obj):
@@ -198,6 +238,9 @@ class PostResponseCustomerSerializer(serializers.ModelSerializer):
                   'passport_serial_number',
                   'debt',
                   'accepted_by',
+                  'about_customer',
+                  'loads',
+                  'customer_info',
                   'is_active', ]
 
 
@@ -208,6 +251,7 @@ class PostCustomerSerializer(serializers.ModelSerializer):
     user_type = serializers.ChoiceField(source='customer.user_type', choices=CAR_OR_AIR_CHOICE, allow_null=True,
                                         required=False)
     phone_number = serializers.CharField(source='customer.phone_number', allow_null=True, required=False)
+    about_customer = serializers.CharField(source='customer.about_customer', allow_null=True, required=False)
     passport_photo = serializers.PrimaryKeyRelatedField(source='customer.passport_photo', required=False,
                                                         queryset=File.objects.all(), allow_null=True)
     birth_date = serializers.DateField(source='customer.birth_date', required=False, allow_null=True)
@@ -272,4 +316,5 @@ class PostCustomerSerializer(serializers.ModelSerializer):
             'passport_photo',
             'birth_date',
             'passport_serial_number',
+            'about_customer',
         ]

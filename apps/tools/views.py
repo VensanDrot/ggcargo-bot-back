@@ -2,14 +2,17 @@ import json
 from os.path import join as join_path
 
 from django.conf import settings
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.tools.models import Newsletter
 from apps.tools.serializer import SettingsSerializer, NewsletterListSerializer, NewsletterSerializer
+from config.core.pagination import APIPagination
 
 settings_path = join_path(settings.BASE_DIR, 'apps', 'tools', 'settings.json')
 
@@ -46,6 +49,9 @@ class PostSettingsAPIView(APIView):
 class NewsletterListAPIView(ListAPIView):
     queryset = Newsletter.objects.all()
     serializer_class = NewsletterListSerializer
+    pagination_class = APIPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['text_uz', 'text_ru', ]
 
 
 class NewsletterCreateAPIView(CreateAPIView):

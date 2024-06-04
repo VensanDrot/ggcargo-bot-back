@@ -51,12 +51,19 @@ class Customer(BaseModel):
     accepted_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='customers_accepted_by',
                                     null=True, blank=True)
     accepted_time = models.DateTimeField(null=True, blank=True)
+    about_customer = models.TextField(null=True, blank=True)
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
 
     class Meta:
-        unique_together = ['prefix', 'code']
+        # unique_together = ['prefix', 'code']
         db_table = 'Customer'
+        constraints = [
+            models.UniqueConstraint(fields=['prefix', 'code'], name='unique_prefix_code'),
+            models.UniqueConstraint(
+                fields=['user_type', 'phone_number'], name='unique_user_type_phone_number'
+            ),
+        ]
 
 
 class Operator(BaseModel):

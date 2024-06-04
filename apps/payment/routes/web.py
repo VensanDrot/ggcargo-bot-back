@@ -19,7 +19,6 @@ class AdminPaymentOpenListAPIView(ListAPIView):
     serializer_class = AdminPaymentOpenListSerializer
     permission_classes = [IsWebOperator, ]
     pagination_class = APIPagination
-    filterset_class = AdminPaymentFilter
     filter_backends = [DjangoFilterBackend, SearchFilter, ]
     search_fields = ['customer__prefix', 'customer__code', ]
 
