@@ -61,6 +61,13 @@ Settings info for Customers:
 __/staff/customer/payment-card/__ to get payment card
 __/staff/customer/take-away-address/__ to get company address
 __/staff/customer/footer/__ to get company address, channel link and support information
+
+
+Moderation of Customer's registrations:
+__/staff/customer-moderation/list/__ to get list of registration applications
+__/staff/customer-moderation/retrieve/{id}/__ to retrieve registration application | get {id} from url /list/ endpoint
+__/staff/customer-moderation/accept/{id}/__ to accept registration application
+__/staff/customer-moderation/decline/{id}/__ to decline registration application
 """
 
 schema_view = get_schema_view(
