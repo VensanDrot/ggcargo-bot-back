@@ -31,13 +31,13 @@ PREFIX_CHOICES = [
     (GZG, 'GZG'),
 ]
 
-NONE = None
+WAITING = 'WAITING'
 ACCEPTED = 'ACCEPTED'
 NOT_ACCEPTED = 'NOT_ACCEPTED'
 CUSTOMER_REGISTRATION_STATUS = [
-    (None, _('Waiting')),
-    (ACCEPTED, _('Accepted')),
-    (NOT_ACCEPTED, _('Not accepted'))
+    (WAITING, _('Ожидание')),
+    (ACCEPTED, _('Одобрен')),
+    (NOT_ACCEPTED, _('Отказано'))
 ]
 
 # OPERATORS

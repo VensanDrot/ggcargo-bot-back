@@ -81,6 +81,7 @@ class CustomerAviaRegistrationStepThreeSerializer(serializers.ModelSerializer):
         instance = super().update(instance, validated_data)
         registration_app.files.add(*customer_data['files'])
         registration_app.step = 3
+        registration_app.done = True
         registration_app.save()
         return instance
 
@@ -135,6 +136,7 @@ class CustomerAutoRegistrationStepTwoSerializer(serializers.ModelSerializer):
         instance = super().update(instance, validated_data)
         registration_app.files.add(*customer_data['files'])
         registration_app.step = 3
+        registration_app.done = True
         registration_app.save()
         return instance
 

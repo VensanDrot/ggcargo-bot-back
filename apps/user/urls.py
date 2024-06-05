@@ -2,7 +2,9 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from apps.user.routes.web import UserModelViewSet, CustomerModelViewSet, CustomerIDPrefix
+from apps.user.routes.web import UserModelViewSet, CustomerModelViewSet, CustomerIDPrefix, \
+    CustomerModerationListAPIView, CustomerModerationRetrieveAPIView, CustomerModerationDeclineAPIView, \
+    CustomerModerationAcceptAPIView
 from apps.user.routes.telegram import CustomerAviaRegistrationStepOneAPIView, CustomerAviaRegistrationStepTwoAPIView, \
     CustomerAviaRegistrationStepThreeAPIView, CustomerAutoRegistrationStepOneAPIView, \
     CustomerAutoRegistrationStepTwoAPIView, CustomerSettingsPersonalUpdateAPIView, \
@@ -16,6 +18,14 @@ router.register('customers', CustomerModelViewSet, basename='customers')
 
 app_name = 'staff'
 urlpatterns = [
+    path('customer-moderation/list/', CustomerModerationListAPIView.as_view(), name='customer_moderation_list'),
+    path('customer-moderation/retrieve/<int:pk>/', CustomerModerationRetrieveAPIView.as_view(),
+         name='customer_moderation_retrieve'),
+    path('customer-moderation/decline/<int:pk>/', CustomerModerationDeclineAPIView.as_view(),
+         name='customer_moderation_decline'),
+    path('customer-moderation/accept/<int:pk>/', CustomerModerationAcceptAPIView.as_view(),
+         name='customer_moderation_accept'),
+
     path('token/', JWTObtainPairView.as_view(), name='admin_token_obtain_pair'),
     path('telegram/token/', TelegramLoginAPIView.as_view(), name='telegram_token'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

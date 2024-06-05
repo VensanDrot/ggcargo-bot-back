@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from config.core.choices import COMPANY_TYPE_CHOICES, GG, CAR_OR_AIR_CHOICE, WEB_OR_TELEGRAM_CHOICE, \
-    WAREHOUSE_CHOICE, PREFIX_CHOICES, CUSTOMER_REGISTRATION_STATUS, NONE
+    WAREHOUSE_CHOICE, PREFIX_CHOICES, CUSTOMER_REGISTRATION_STATUS, WAITING
 from config.models import BaseModel
 
 username_validator = UnicodeUsernameValidator()
@@ -84,7 +84,8 @@ class Operator(BaseModel):
 class CustomerRegistration(BaseModel):
     reject_message = models.TextField(null=True, blank=True)
     step = models.SmallIntegerField(default=1)
-    status = models.CharField(choices=CUSTOMER_REGISTRATION_STATUS, default=NONE, null=True, blank=True)
+    done = models.BooleanField(default=False)
+    status = models.CharField(choices=CUSTOMER_REGISTRATION_STATUS, default=WAITING)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, related_name='customer_registrations',
                                  null=True, blank=True)
 

@@ -1,5 +1,22 @@
 from rest_framework import permissions
 
+from apps.user.models import User
+
+
+class IsOperator(permissions.BasePermission):
+    """
+    Allow if user has web operator relation
+    """
+
+    def has_permission(self, request, view):
+        user: User = request.user
+        if user.is_superuser:
+            return True
+        if user.is_authenticated:
+            if hasattr(user, 'operator'):
+                return True
+        return False
+
 
 class LandingPage(permissions.BasePermission):
     """

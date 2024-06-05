@@ -1,6 +1,6 @@
 from django_filters import FilterSet, ChoiceFilter
 
-from apps.user.models import User
+from apps.user.models import User, CustomerRegistration
 from config.core.choices import WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE
 
 
@@ -20,3 +20,9 @@ class UserStaffFilter(FilterSet):
         model = User
         fields = ['operator_type',
                   'warehouse', ]
+
+
+class CustomerModerationFilter(FilterSet):
+    class Meta:
+        model = CustomerRegistration
+        fields = ['status']

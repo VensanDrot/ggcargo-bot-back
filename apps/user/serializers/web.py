@@ -5,7 +5,7 @@ from rest_framework import serializers, status
 from apps.files.models import File
 from apps.files.serializer import FileDataSerializer
 from apps.loads.serializers.telegram import CustomerOwnLoadsSerializer
-from apps.user.models import User, Operator, Customer
+from apps.user.models import User, Operator, Customer, CustomerRegistration
 from config.core.choices import WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE, CAR_OR_AIR_CHOICE
 
 from apps.user.utils.services import generate_code
@@ -318,3 +318,72 @@ class PostCustomerSerializer(serializers.ModelSerializer):
             'passport_serial_number',
             'about_customer',
         ]
+
+
+class CustomerModerationListSerializer(serializers.ModelSerializer):
+    customer_code = serializers.SerializerMethodField(allow_null=True)
+    accepted_by = serializers.CharField(source='customer.accepted_by.full_name', allow_null=True)
+    user_type = serializers.CharField(source='customer.user_type', allow_null=True)
+    user_type_display = serializers.CharField(source='customer.get_user_type_display', allow_null=True)
+    photo = FileDataSerializer(source='files', many=True)
+    full_name = serializers.CharField(source='customer.user.full_name', allow_null=True)
+    phone_number = serializers.CharField(source='customer.phone_number', allow_null=True)
+    status_display = serializers.CharField(source='get_status_display', allow_null=True)
+
+
+
+    @staticmethod
+    def get_customer_code(obj: CustomerRegistration):
+        return f'{obj.customer.prefix}{obj.customer.code}'
+
+    class Meta:
+        model = CustomerRegistration
+        fields = ['id',
+                  'customer_code',
+                  'user_type',
+                  'user_type_display',
+                  'photo',
+                  'full_name',
+                  'phone_number',
+                  'status',
+                  'status_display',
+                  'accepted_by', ]
+
+
+class CustomerModerationRetrieveSerializer(serializers.ModelSerializer):
+    customer_code = serializers.SerializerMethodField(allow_null=True)
+    accepted_by = serializers.CharField(source='customer.accepted_by.full_name', allow_null=True)
+    user_type = serializers.CharField(source='customer.user_type', allow_null=True)
+    user_type_display = serializers.CharField(source='customer.get_user_type_display', allow_null=True)
+    photo = FileDataSerializer(source='files', many=True)
+    full_name = serializers.CharField(source='customer.user.full_name', allow_null=True)
+    phone_number = serializers.CharField(source='customer.phone_number', allow_null=True)
+    status_display = serializers.CharField(source='get_status_display', allow_null=True)
+    passport_photo = FileDataSerializer(source='customer.passport_photo', allow_null=True)
+    birth_date = serializers.CharField(source='customer.birth_date', allow_null=True)
+    passport_serial_number = serializers.CharField(source='customer.passport_serial_number', allow_null=True)
+
+    @staticmethod
+    def get_customer_code(obj: CustomerRegistration):
+        return f'{obj.customer.prefix}{obj.customer.code}'
+
+    class Meta:
+        model = CustomerRegistration
+        fields = ['id',
+                  'reject_message',
+                  'customer_code',
+                  'user_type',
+                  'user_type_display',
+                  'photo',
+                  'full_name',
+                  'phone_number',
+                  'status',
+                  'status_display',
+                  'passport_photo',
+                  'birth_date',
+                  'passport_serial_number',
+                  'accepted_by', ]
+
+
+class CustomerModerationDeclineSerializer(serializers.Serializer):
+    reject_message = serializers.CharField(required=True)
