@@ -8,7 +8,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.user.filter import UserStaffFilter, CustomerModerationFilter
+from apps.user.filter import UserStaffFilter, CustomerModerationFilter, CustomerSearchFilter
 from apps.user.models import User, Customer, CustomerRegistration
 from apps.user.serializers.web import (PostUserSerializer, GetUserSerializer, PostCustomerSerializer,
                                        GetCustomerSerializer, RetrieveCustomerSerializer,
@@ -29,7 +29,7 @@ class UserModelViewSet(ModelViewSetPack):
     pagination_class = APIPagination
     filterset_class = UserStaffFilter
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    search_fields = ['full_name', 'operator__tg_id', ]
+    search_fields = ['full_name', 'operator__tg_id', 'email']
 
     def create(self, request, *args, **kwargs):
         try:
@@ -63,12 +63,12 @@ class UserModelViewSet(ModelViewSetPack):
 
 
 class CustomerModelViewSet(ModelViewSetPack):
-    queryset = User.objects.filter(customer__isnull=False)
+    queryset = User.objects.filter(customer__isnull=False, is_active=True)
     serializer_class = GetCustomerSerializer
     permission_classes = [IsOperator, ]
     post_serializer_class = PostCustomerSerializer
     pagination_class = APIPagination
-    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filter_backends = [DjangoFilterBackend, CustomerSearchFilter]
     search_fields = ['customer__user_type', 'customer__prefix', 'customer__code', 'full_name', 'customer__phone_number',
                      'customer__debt']
 

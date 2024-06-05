@@ -6,7 +6,7 @@ from rest_framework.generics import CreateAPIView, ListAPIView, UpdateAPIView, D
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.loads.filter import AdminProductFilter, AdminLoadFilter
+from apps.loads.filter import AdminProductFilter, AdminLoadFilter, ProductSearchFilter, LoadSearchFilter
 from apps.loads.models import Product, Load
 from apps.loads.serializers.web import AdminProductListSerializer, AdminAddProductSerializer, AdminLoadListSerializer, \
     AdminLoadRetrieveSerializer, AdminLoadUpdateSerializer
@@ -21,17 +21,8 @@ class AdminProductListAPIView(ListAPIView):
     permission_classes = [IsWebOperator, ]
     pagination_class = APIPagination
     filterset_class = AdminProductFilter
-    filter_backends = [DjangoFilterBackend, SearchFilter, ]
+    filter_backends = [DjangoFilterBackend, ProductSearchFilter, ]
     search_fields = ['barcode', 'customer__prefix', 'customer__code', 'accepted_by_china__full_name', ]
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        search = self.request.query_params.get('search')
-        if search:
-            queryset = queryset.filter(
-                Q(customer__prefix__startswith=search[:3]) | Q(customer__code__startswith=search[3:])
-            )
-        return queryset
 
 
 class AdminSelectProductStatus(APIView):
@@ -73,7 +64,7 @@ class AdminLoadListAPIView(ListAPIView):
     serializer_class = AdminLoadListSerializer
     permission_classes = [IsWebOperator, ]
     filterset_class = AdminLoadFilter
-    filter_backends = [DjangoFilterBackend, SearchFilter, ]
+    filter_backends = [DjangoFilterBackend, LoadSearchFilter, ]
     search_fields = ['weight', 'customer__prefix', 'customer__code', 'cost']
     pagination_class = APIPagination
 

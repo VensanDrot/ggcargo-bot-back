@@ -53,11 +53,13 @@ class AcceptProductAPIView(APIView):
         try:
             return Product.objects.get(barcode=self.kwargs['barcode'])
         except Product.DoesNotExist:
-            raise APIValidation("Product does not exist or barcode was not provided",
+            raise APIValidation("Продукт не существует или штрих-код не был предоставлен",
                                 status_code=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request, *args, **kwargs):
         instance = self.get_object()
+        if instance.status != 'ON_WAY':
+            raise APIValidation(_('Этот продукт уже был принят'), status_code=status.HTTP_400_BAD_REQUEST)
         instance.status = 'DELIVERED'
         instance.accepted_by_tashkent = request.user
         instance.accepted_time_tashkent = datetime.now()

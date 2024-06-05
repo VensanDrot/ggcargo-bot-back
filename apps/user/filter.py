@@ -1,5 +1,8 @@
+from django.db.models import Q
 from django_filters import FilterSet, ChoiceFilter
+from rest_framework.filters import BaseFilterBackend
 
+from apps.tools.utils.helpers import split_code
 from apps.user.models import User, CustomerRegistration
 from config.core.choices import WEB_OR_TELEGRAM_CHOICE, WAREHOUSE_CHOICE
 
@@ -26,3 +29,21 @@ class CustomerModerationFilter(FilterSet):
     class Meta:
         model = CustomerRegistration
         fields = ['status']
+
+
+class CustomerSearchFilter(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        search_param = request.query_params.get('search', '')
+        if search_param:
+            prefix, code = split_code(search_param)
+            queryset = queryset.filter(
+                Q(customer__prefix__icontains=search_param) |
+                Q(customer__code__icontains=search_param) |
+                Q(customer__phone_number__icontains=search_param) |
+                Q(full_name__icontains=search_param) |
+                Q(
+                    Q(customer__prefix__icontains=prefix) &
+                    Q(customer__code__icontains=code)
+                )
+            )
+        return queryset
