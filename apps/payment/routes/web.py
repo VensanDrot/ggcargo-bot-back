@@ -3,10 +3,11 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.filters import SearchFilter
 
 from rest_framework.generics import ListAPIView, get_object_or_404
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.payment.filter import AdminPaymentFilter
+from apps.payment.filter import AdminPaymentFilter, PaymentSearchFilter
 from apps.payment.models import Payment
 from apps.payment.serializers.web import AdminPaymentOpenListSerializer, AdminPaymentClosedListSerializer, \
     AdminPaymentDeclineSerializer, AdminPaymentApplySerializer
@@ -19,7 +20,7 @@ class AdminPaymentOpenListAPIView(ListAPIView):
     serializer_class = AdminPaymentOpenListSerializer
     permission_classes = [IsWebOperator, ]
     pagination_class = APIPagination
-    filter_backends = [DjangoFilterBackend, SearchFilter, ]
+    filter_backends = [DjangoFilterBackend, PaymentSearchFilter, ]
     search_fields = ['customer__prefix', 'customer__code', ]
 
 
@@ -29,8 +30,8 @@ class AdminPaymentClosedListAPIView(ListAPIView):
     permission_classes = [IsWebOperator, ]
     pagination_class = APIPagination
     filterset_class = AdminPaymentFilter
-    filter_backends = [DjangoFilterBackend, SearchFilter, ]
-    search_fields = ['customer__prefix', 'customer__code', ]
+    filter_backends = [DjangoFilterBackend, PaymentSearchFilter, ]
+    search_fields = ['customer__prefix', 'customer__code', 'paid_amount']
 
 
 class AdminPaymentApplyAPIView(APIView):
