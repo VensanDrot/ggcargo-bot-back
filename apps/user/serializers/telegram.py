@@ -20,9 +20,24 @@ class CustomerAviaRegistrationStepOneSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         customer_data = validated_data.pop('customer', {})
-        if Customer.objects.filter(phone_number=customer_data.get('phone_number'), user_type='AUTO').exists():
-            raise APIValidation('Customer with this phone number already exists',
-                                status_code=status.HTTP_400_BAD_REQUEST)
+        existing_customer = Customer.objects.filter(phone_number=customer_data.get('phone_number'), user_type='AVIA')
+        if existing_customer.exists():
+            existing_customer = existing_customer.first()
+            if not existing_customer.customer_registrations.filter(done=False).exists():
+                raise APIValidation('Customer with this phone number already exists',
+                                    status_code=status.HTTP_400_BAD_REQUEST)
+        if existing_customer.exists():
+            existing_customer = existing_customer.first()
+            customer_registration = existing_customer.customer_registrations.filter(done=False)
+            if customer_registration:
+                customer_registration = customer_registration.first()
+                customer_registration.step = 1
+                instance = existing_customer.user
+                instance.full_name = validated_data.get('full_name')
+                instance.set_password(password)
+                instance.save()
+                customer_registration.save()
+                return instance
         instance = super().create(validated_data)
         prefix, code = generate_code({'user_type': 'AVIA'})
         customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
@@ -106,9 +121,24 @@ class CustomerAutoRegistrationStepOneSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         customer_data = validated_data.pop('customer', {})
-        if Customer.objects.filter(phone_number=customer_data.get('phone_number'), user_type='AUTO').exists():
-            raise APIValidation('Customer with this phone number already exists',
-                                status_code=status.HTTP_400_BAD_REQUEST)
+        existing_customer = Customer.objects.filter(phone_number=customer_data.get('phone_number'), user_type='AUTO')
+        if existing_customer.exists():
+            existing_customer = existing_customer.first()
+            if not existing_customer.customer_registrations.filter(done=False).exists():
+                raise APIValidation('Customer with this phone number already exists',
+                                    status_code=status.HTTP_400_BAD_REQUEST)
+        if existing_customer.exists():
+            existing_customer = existing_customer.first()
+            customer_registration = existing_customer.customer_registrations.filter(done=False)
+            if customer_registration:
+                customer_registration = customer_registration.first()
+                customer_registration.step = 1
+                instance = existing_customer.user
+                instance.full_name = validated_data.get('full_name')
+                instance.set_password(password)
+                instance.save()
+                customer_registration.save()
+                return instance
         instance = super().create(validated_data)
         prefix, code = generate_code({'user_type': 'AUTO'})
         customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
