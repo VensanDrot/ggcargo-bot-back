@@ -18,21 +18,21 @@ class CustomerAviaRegistrationStepOneSerializer(serializers.ModelSerializer):
         return f"{obj.customer.prefix}{obj.customer.code}"
 
     def create(self, validated_data):
-        try:
-            password = validated_data.pop('password', None)
-            customer_data = validated_data.pop('customer', {})
-            instance = super().create(validated_data)
-            prefix, code = generate_code({'user_type': 'AVIA'})
-            customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
-                                               user_type='AVIA', **customer_data)
-            instance.customer_id = customer.id
-            instance.is_active = False
-            instance.set_password(password)
-            instance.save()
-            CustomerRegistration.objects.create(customer=customer, step=1)
-            return instance
-        except Exception as exc:
-            raise APIValidation(f'Уведомление: {exc.args}')
+        password = validated_data.pop('password', None)
+        customer_data = validated_data.pop('customer', {})
+        if Customer.objects.filter(phone_number=customer_data.get('phone_number'), user_type='AUTO').exists():
+            raise APIValidation('Customer with this phone number already exists',
+                                status_code=status.HTTP_400_BAD_REQUEST)
+        instance = super().create(validated_data)
+        prefix, code = generate_code({'user_type': 'AVIA'})
+        customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
+                                           user_type='AVIA', **customer_data)
+        instance.customer_id = customer.id
+        instance.is_active = False
+        instance.set_password(password)
+        instance.save()
+        CustomerRegistration.objects.create(customer=customer, step=1)
+        return instance
 
     class Meta:
         model = User
@@ -104,21 +104,21 @@ class CustomerAutoRegistrationStepOneSerializer(serializers.ModelSerializer):
         return f"{obj.customer.prefix}{obj.customer.code}"
 
     def create(self, validated_data):
-        try:
-            password = validated_data.pop('password', None)
-            customer_data = validated_data.pop('customer', {})
-            instance = super().create(validated_data)
-            prefix, code = generate_code({'user_type': 'AUTO'})
-            customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
-                                               user_type='AUTO', **customer_data)
-            instance.customer_id = customer.id
-            instance.is_active = False
-            instance.set_password(password)
-            instance.save()
-            CustomerRegistration.objects.create(customer=customer, step=1)
-            return instance
-        except Exception as exc:
-            raise APIValidation(f'Уведомление: {exc.args}')
+        password = validated_data.pop('password', None)
+        customer_data = validated_data.pop('customer', {})
+        if Customer.objects.filter(phone_number=customer_data.get('phone_number'), user_type='AUTO').exists():
+            raise APIValidation('Customer with this phone number already exists',
+                                status_code=status.HTTP_400_BAD_REQUEST)
+        instance = super().create(validated_data)
+        prefix, code = generate_code({'user_type': 'AUTO'})
+        customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
+                                           user_type='AUTO', **customer_data)
+        instance.customer_id = customer.id
+        instance.is_active = False
+        instance.set_password(password)
+        instance.save()
+        CustomerRegistration.objects.create(customer=customer, step=1)
+        return instance
 
     class Meta:
         model = User
