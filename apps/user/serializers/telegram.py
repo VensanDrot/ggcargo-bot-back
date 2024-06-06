@@ -31,12 +31,14 @@ class CustomerAviaRegistrationStepOneSerializer(serializers.ModelSerializer):
             if customer_registration:
                 customer_registration = customer_registration.first()
                 customer_registration.step = 1
-                instance = existing_customer.user
-                instance.full_name = validated_data.get('full_name')
-                instance.set_password(password)
-                instance.save()
                 customer_registration.save()
-                return instance
+            else:
+                CustomerRegistration.objects.create(customer=existing_customer, step=1)
+            instance = existing_customer.user
+            instance.full_name = validated_data.get('full_name')
+            instance.set_password(password)
+            instance.save()
+            return instance
         instance = super().create(validated_data)
         prefix, code = generate_code({'user_type': 'AVIA'})
         customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
@@ -64,7 +66,7 @@ class CustomerAviaRegistrationStepTwoSerializer(serializers.ModelSerializer):
     passport_serial_number = serializers.CharField(source='customer.passport_serial_number')
 
     def update(self, instance, validated_data):
-        registration_app = instance.customer.customer_registrations.filter(status=None).first()
+        registration_app = instance.customer.customer_registrations.filter(status='WAITING').first()
         if registration_app.step > 1:
             raise APIValidation(_('This step of registration has been already done'),
                                 status_code=status.HTTP_400_BAD_REQUEST)
@@ -90,7 +92,8 @@ class CustomerAviaRegistrationStepThreeSerializer(serializers.ModelSerializer):
                                          queryset=File.objects.all(), required=False)
 
     def update(self, instance, validated_data):
-        registration_app: CustomerRegistration = instance.customer.customer_registrations.filter(status=None).first()
+        registration_app: CustomerRegistration = instance.customer.customer_registrations.filter(
+            status='WAITING').first()
         if registration_app.step > 2:
             raise APIValidation('Registration was already done, wait operators response',
                                 status_code=status.HTTP_400_BAD_REQUEST)
@@ -131,12 +134,14 @@ class CustomerAutoRegistrationStepOneSerializer(serializers.ModelSerializer):
             if customer_registration:
                 customer_registration = customer_registration.first()
                 customer_registration.step = 1
-                instance = existing_customer.user
-                instance.full_name = validated_data.get('full_name')
-                instance.set_password(password)
-                instance.save()
                 customer_registration.save()
-                return instance
+            else:
+                CustomerRegistration.objects.create(customer=existing_customer, step=1)
+            instance = existing_customer.user
+            instance.full_name = validated_data.get('full_name')
+            instance.set_password(password)
+            instance.save()
+            return instance
         instance = super().create(validated_data)
         prefix, code = generate_code({'user_type': 'AUTO'})
         customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
@@ -162,7 +167,8 @@ class CustomerAutoRegistrationStepTwoSerializer(serializers.ModelSerializer):
                                          queryset=File.objects.all(), required=False)
 
     def update(self, instance, validated_data):
-        registration_app: CustomerRegistration = instance.customer.customer_registrations.filter(status=None).first()
+        registration_app: CustomerRegistration = instance.customer.customer_registrations.filter(
+            status='WAITING').first()
         if registration_app.step > 2:
             raise APIValidation('Registration was already done, wait operators response',
                                 status_code=status.HTTP_400_BAD_REQUEST)
