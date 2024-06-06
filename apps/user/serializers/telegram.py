@@ -22,8 +22,7 @@ class CustomerAviaRegistrationStepOneSerializer(serializers.ModelSerializer):
         customer_data = validated_data.pop('customer', {})
         existing_customer = Customer.objects.filter(phone_number=customer_data.get('phone_number'), user_type='AVIA')
         if existing_customer.exists():
-            existing_customer = existing_customer.first()
-            if not existing_customer.customer_registrations.filter(done=False).exists():
+            if not existing_customer.first().customer_registrations.filter(done=False).exists():
                 raise APIValidation('Customer with this phone number already exists',
                                     status_code=status.HTTP_400_BAD_REQUEST)
         if existing_customer.exists():
@@ -123,8 +122,7 @@ class CustomerAutoRegistrationStepOneSerializer(serializers.ModelSerializer):
         customer_data = validated_data.pop('customer', {})
         existing_customer = Customer.objects.filter(phone_number=customer_data.get('phone_number'), user_type='AUTO')
         if existing_customer.exists():
-            existing_customer = existing_customer.first()
-            if not existing_customer.customer_registrations.filter(done=False).exists():
+            if not existing_customer.first().customer_registrations.filter(done=False).exists():
                 raise APIValidation('Customer with this phone number already exists',
                                     status_code=status.HTTP_400_BAD_REQUEST)
         if existing_customer.exists():
