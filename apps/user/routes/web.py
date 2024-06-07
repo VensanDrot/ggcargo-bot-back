@@ -155,13 +155,14 @@ class CustomerModerationDeclineAPIView(APIView):
         data = serializer.data
         customer_registration = get_object_or_404(CustomerRegistration, pk=pk)
         if customer_registration.status != 'WAITING':
-            raise APIValidation(_('Это заявку уже была обработано'), status_code=status.HTTP_400_BAD_REQUEST)
+            raise APIValidation(_('Эта заявка уже была обработана'), status_code=status.HTTP_400_BAD_REQUEST)
         customer_registration.reject_message = data.get('reject_message')
         customer_registration.customer.accepted_by = request.user
         customer_registration.status = 'NOT_ACCEPTED'
         customer_registration.save()
         customer_registration.customer.save()
-        return Response({'reject_message': customer_registration.reject_message,
+        return Response({'accepted_by': request.user.full_name,
+                         'reject_message': customer_registration.reject_message,
                          'status': customer_registration.status,
                          'status_display': customer_registration.get_status_display(),
                          'id': customer_registration.id})
@@ -173,13 +174,14 @@ class CustomerModerationAcceptAPIView(APIView):
     def post(self, request, pk, *args, **kwargs):
         customer_registration = get_object_or_404(CustomerRegistration, pk=pk)
         if customer_registration.status != 'WAITING':
-            raise APIValidation(_('Это заявку уже была обработано'), status_code=status.HTTP_400_BAD_REQUEST)
+            raise APIValidation(_('Эта заявка уже была обработана'), status_code=status.HTTP_400_BAD_REQUEST)
         customer_registration.status = 'ACCEPTED'
         customer_registration.customer.user.is_active = True
         customer_registration.customer.accepted_by = request.user
         customer_registration.save()
         customer_registration.customer.user.save()
         customer_registration.customer.save()
-        return Response({'status': customer_registration.status,
+        return Response({'accepted_by': request.user.full_name,
+                         'status': customer_registration.status,
                          'status_display': customer_registration.get_status_display(),
                          'id': customer_registration.id})
