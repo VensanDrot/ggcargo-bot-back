@@ -391,5 +391,5 @@ class CustomerModerationAcceptSerializer(serializers.Serializer):
     full_name = serializers.CharField(required=False)
     phone_number = serializers.CharField(required=False)
     passport_photo = serializers.IntegerField(required=False)
-    birth_date = serializers.DateField (required=False)
+    birth_date = serializers.DateField(required=False)
     passport_serial_number = serializers.CharField(required=False)

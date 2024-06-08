@@ -162,11 +162,10 @@ class CustomerModerationDeclineAPIView(APIView):
         customer_registration.status = 'NOT_ACCEPTED'
         customer_registration.save()
         customer_registration.customer.save()
-        return Response({'accepted_by': request.user.full_name,
-                         'reject_message': customer_registration.reject_message,
-                         'status': customer_registration.status,
-                         'status_display': customer_registration.get_status_display(),
-                         'id': customer_registration.id})
+
+        response_serializer = CustomerModerationRetrieveSerializer(instance=customer_registration)
+        response = response_serializer.data
+        return Response(response)
 
 
 class CustomerModerationAcceptAPIView(APIView):
@@ -197,14 +196,7 @@ class CustomerModerationAcceptAPIView(APIView):
         user.save()
         customer.save()
         customer_registration.save()
-        return Response({
-            'id': customer_registration.id,
-            'accepted_by': request.user.full_name,
-            'full_name': user.full_name,
-            'phone_number': customer.phone_number,
-            'passport_photo': customer.passport_photo_id,
-            'birth_date': customer.birth_date,
-            'passport_serial_number': customer.passport_serial_number,
-            'status': customer_registration.status,
-            'status_display': customer_registration.get_status_display(),
-        })
+
+        response_serializer = CustomerModerationRetrieveSerializer(instance=customer_registration)
+        response = response_serializer.data
+        return Response(response)
