@@ -1,6 +1,6 @@
 from django.db.models import Q
 from django_filters import FilterSet, ChoiceFilter
-from rest_framework.filters import BaseFilterBackend
+from rest_framework.filters import SearchFilter
 
 from apps.tools.utils.helpers import split_code
 from apps.user.models import User, CustomerRegistration
@@ -31,7 +31,7 @@ class CustomerModerationFilter(FilterSet):
         fields = ['status']
 
 
-class CustomerSearchFilter(BaseFilterBackend):
+class CustomerSearchFilter(SearchFilter):
     def filter_queryset(self, request, queryset, view):
         search_param = request.query_params.get('search', '')
         if search_param:
@@ -47,7 +47,7 @@ class CustomerSearchFilter(BaseFilterBackend):
         return queryset
 
 
-class CustomerModerationSearchFilter(BaseFilterBackend):
+class CustomerModerationSearchFilter(SearchFilter):
     def filter_queryset(self, request, queryset, view):
         search_param = request.query_params.get('search', '')
         if search_param:
