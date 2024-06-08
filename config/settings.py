@@ -7,7 +7,6 @@ from datetime import timedelta
 
 from django.utils.translation import gettext_lazy as _
 
-
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -47,6 +46,7 @@ INSTALLED_APPS = [
     'apps.tools',
     'apps.files',
     'apps.payment',
+    'apps.integrations',
 ]
 
 MIDDLEWARE = [
@@ -174,6 +174,17 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'EXCEPTION_HANDLER': 'config.core.api_exceptions.uni_exception_handler',
+}
+
+# Integrations
+INTEGRATIONS = {
+    'EMU': {
+        'credentials': {
+            'username': getenv('EMU_USERNAME'),
+            'password': getenv('EMU_PASSWORD'),
+        },
+        'extra': getenv('EMU_EXTRA')
+    }
 }
 
 # Swagger

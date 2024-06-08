@@ -9,7 +9,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.files.models import File
-from apps.user.filter import UserStaffFilter, CustomerModerationFilter, CustomerSearchFilter
+from apps.user.filter import UserStaffFilter, CustomerModerationFilter, CustomerSearchFilter, \
+    CustomerModerationSearchFilter
 from apps.user.models import User, Customer, CustomerRegistration
 from apps.user.serializers.web import (PostUserSerializer, GetUserSerializer, PostCustomerSerializer,
                                        GetCustomerSerializer, RetrieveCustomerSerializer,
@@ -134,7 +135,7 @@ class CustomerModerationListAPIView(ListAPIView):
     permission_classes = [IsOperator, ]
     pagination_class = APIPagination
     filterset_class = CustomerModerationFilter
-    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filter_backends = [DjangoFilterBackend, CustomerModerationSearchFilter, ]
     search_fields = ['customer__user_type', 'customer__prefix', 'customer__code', 'customer__user__full_name',
                      'customer__phone_number', 'customer__accepted_by__full_name']
 

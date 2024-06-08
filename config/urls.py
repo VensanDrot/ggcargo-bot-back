@@ -94,6 +94,7 @@ urlpatterns = [
     path('tool/', include('apps.tools.urls')),
     path('file/', include('apps.files.urls')),
     path('payment/', include('apps.payment.urls')),
+    path('integration/', include('apps.integrations.urls')),
 ]
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

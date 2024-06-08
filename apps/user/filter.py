@@ -37,10 +37,27 @@ class CustomerSearchFilter(BaseFilterBackend):
         if search_param:
             prefix, code = split_code(search_param)
             queryset = queryset.filter(
-                Q(customer__prefix__icontains=search_param) |
-                Q(customer__code__icontains=search_param) |
                 Q(customer__phone_number__icontains=search_param) |
                 Q(full_name__icontains=search_param) |
+                Q(
+                    Q(customer__prefix__icontains=prefix) &
+                    Q(customer__code__icontains=code)
+                )
+            )
+        return queryset
+
+
+class CustomerModerationSearchFilter(BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        search_param = request.query_params.get('search', '')
+        if search_param:
+            prefix, code = split_code(search_param)
+            queryset = queryset.filter(
+                Q(customer__user_type__icontains=search_param) |
+                Q(customer__phone_number__icontains=search_param) |
+                Q(customer__debt__icontains=search_param) |
+                Q(customer__user__full_name__icontains=search_param) |
+                Q(customer__accepted_by__full_name__icontains=search_param) |
                 Q(
                     Q(customer__prefix__icontains=prefix) &
                     Q(customer__code__icontains=code)
