@@ -8,13 +8,14 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.files.models import File
 from apps.user.filter import UserStaffFilter, CustomerModerationFilter, CustomerSearchFilter
 from apps.user.models import User, Customer, CustomerRegistration
 from apps.user.serializers.web import (PostUserSerializer, GetUserSerializer, PostCustomerSerializer,
                                        GetCustomerSerializer, RetrieveCustomerSerializer,
                                        PostResponseCustomerSerializer, PostResponseUserSerializer,
                                        CustomerModerationListSerializer, CustomerModerationRetrieveSerializer,
-                                       CustomerModerationDeclineSerializer)
+                                       CustomerModerationDeclineSerializer, CustomerModerationAcceptSerializer)
 from config.core.api_exceptions import APIValidation
 from config.core.pagination import APIPagination
 from config.core.permissions import IsOperator
@@ -169,19 +170,41 @@ class CustomerModerationDeclineAPIView(APIView):
 
 
 class CustomerModerationAcceptAPIView(APIView):
+    serializer_class = CustomerModerationAcceptSerializer
     permission_classes = [IsOperator, ]
 
+    @swagger_auto_schema(request_body=CustomerModerationAcceptSerializer)
     def post(self, request, pk, *args, **kwargs):
         customer_registration = get_object_or_404(CustomerRegistration, pk=pk)
         if customer_registration.status != 'WAITING':
             raise APIValidation(_('Эта заявка уже была обработана'), status_code=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data: dict = serializer.validated_data
+        if data.get('passport_photo'):
+            get_object_or_404(File, pk=data.get('passport_photo'))
+
+        customer = customer_registration.customer
+        user = customer.user
         customer_registration.status = 'ACCEPTED'
-        customer_registration.customer.user.is_active = True
-        customer_registration.customer.accepted_by = request.user
+        user.is_active = True
+        user.full_name = data.get('full_name', user.full_name)
+        customer.accepted_by = request.user
+        customer.phone_number = data.get('phone_number', customer.phone_number)
+        customer.birth_date = data.get('birth_date', customer.birth_date)
+        customer.passport_serial_number = data.get('passport_serial_number', customer.passport_serial_number)
+        customer.passport_photo_id = data.get('passport_photo', customer.passport_photo_id)
+        user.save()
+        customer.save()
         customer_registration.save()
-        customer_registration.customer.user.save()
-        customer_registration.customer.save()
-        return Response({'accepted_by': request.user.full_name,
-                         'status': customer_registration.status,
-                         'status_display': customer_registration.get_status_display(),
-                         'id': customer_registration.id})
+        return Response({
+            'id': customer_registration.id,
+            'accepted_by': request.user.full_name,
+            'full_name': user.full_name,
+            'phone_number': customer.phone_number,
+            'passport_photo': customer.passport_photo_id,
+            'birth_date': customer.birth_date,
+            'passport_serial_number': customer.passport_serial_number,
+            'status': customer_registration.status,
+            'status_display': customer_registration.get_status_display(),
+        })

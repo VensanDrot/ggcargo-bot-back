@@ -330,8 +330,6 @@ class CustomerModerationListSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(source='customer.phone_number', allow_null=True)
     status_display = serializers.CharField(source='get_status_display', allow_null=True)
 
-
-
     @staticmethod
     def get_customer_code(obj: CustomerRegistration):
         return f'{obj.customer.prefix}{obj.customer.code}'
@@ -387,3 +385,11 @@ class CustomerModerationRetrieveSerializer(serializers.ModelSerializer):
 
 class CustomerModerationDeclineSerializer(serializers.Serializer):
     reject_message = serializers.CharField(required=True)
+
+
+class CustomerModerationAcceptSerializer(serializers.Serializer):
+    full_name = serializers.CharField(required=False)
+    phone_number = serializers.CharField(required=False)
+    passport_photo = serializers.IntegerField(required=False)
+    birth_date = serializers.DateField (required=False)
+    passport_serial_number = serializers.CharField(required=False)
