@@ -9,4 +9,5 @@ python-dotenv
 pyTelegramBotAPI
 psycopg2-binary
 pytz
+xmltodict
 requests
