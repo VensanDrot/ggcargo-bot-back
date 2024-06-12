@@ -31,10 +31,11 @@ def emu_order(order_id, customer, data):
         </order>
         <receiver>
             <person>{customer['full_name']}</person>
-            <phone>{customer['phone_number']}</phone>
+            <phone>{data['phone_number']}</phone>
             <town>{data['town']}</town>
-            <address>Адрес получателя</address>
+            <address>{data['address']}</address>
         </receiver>
+        <service>{data['service']}</service>
     </neworder>
     """
 

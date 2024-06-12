@@ -108,3 +108,11 @@ NEWSLETTER_STATUS_CHOICE = [
     (NEWSLETTER_SENT, _('Опубликован')),
     (NEWSLETTER_PENDING, _('В ожидании'))
 ]
+
+# Integrations
+OFFICE_OFFICE = 1
+TO_RECEIVER = 3
+EMU_SERVICE_CHOICE = [
+    (OFFICE_OFFICE, _('От офиса до офиса')),
+    (TO_RECEIVER, _('На руки получателю')),
+]

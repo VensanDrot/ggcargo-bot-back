@@ -1,11 +1,12 @@
 import xmltodict
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.integrations.emu.data import emu_auth
-from apps.integrations.models import RegionEMU
-from apps.integrations.serializer import DistrictEMUSerializer
+from apps.integrations.emu.data import emu_auth, emu_order
+from apps.integrations.models import RegionEMU, OrderEMU
+from apps.integrations.serializer import DistrictEMUSerializer, OrderEMUSerializer
 
 
 class EMUAuthAPIView(APIView):
@@ -32,3 +33,14 @@ class DistrictEMUListAPIView(ListAPIView):
         queryset = super().get_queryset()
         queryset = queryset.filter(region=self.kwargs['region'])
         return queryset
+
+
+class OrderEMUAPIView(APIView):
+    serializer_class = OrderEMUSerializer
+
+    @swagger_auto_schema(request_body=OrderEMUSerializer)
+    def get(self, request, *args, **kwargs):
+        order_serializer = self.serializer_class(data=request.data)
+        order_serializer.is_valid(raise_exception=True)
+        order_instance = order_serializer.save()
+        order_response = emu_order(order_id=order_instance.id, )
