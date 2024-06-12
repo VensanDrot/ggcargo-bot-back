@@ -16,4 +16,5 @@ class OrderEMUSerializer(serializers.ModelSerializer):
         fields = ['phone_number',
                   'address',
                   'town',
-                  'service', ]
+                  'service',
+                  'customer', ]

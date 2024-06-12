@@ -39,8 +39,12 @@ class OrderEMUAPIView(APIView):
     serializer_class = OrderEMUSerializer
 
     @swagger_auto_schema(request_body=OrderEMUSerializer)
-    def get(self, request, *args, **kwargs):
-        order_serializer = self.serializer_class(data=request.data)
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        data['customer'] = request.user.customer.id
+        order_serializer = self.serializer_class(data=data)
         order_serializer.is_valid(raise_exception=True)
         order_instance = order_serializer.save()
-        order_response = emu_order(order_id=order_instance.id, )
+        order_response = emu_order(order_id=order_instance.id, customer_full_name=request.user.full_name,
+                                   order_instance=order_instance)
+        return Response(order_response.text)

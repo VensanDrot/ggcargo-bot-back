@@ -2,6 +2,7 @@ import uuid
 
 from django.db import models
 
+from apps.user.models import Customer
 from config.core.choices import EMU_SERVICE_CHOICE
 from config.models import BaseModel
 
@@ -14,6 +15,8 @@ class OrderEMU(BaseModel):
     service = models.IntegerField(choices=EMU_SERVICE_CHOICE, null=True, blank=True)
 
     tracking_link = models.URLField(null=True, blank=True)
+
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         db_table = 'OrderEMU'

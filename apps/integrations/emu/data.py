@@ -16,7 +16,7 @@ def emu_auth():
     return response
 
 
-def emu_order(order_id, customer, data):
+def emu_order(order_id, customer_full_name, order_instance):
     url = 'https://home.courierexe.ru/api/'
 
     emu_creds = emu_integration['credentials']
@@ -30,12 +30,12 @@ def emu_order(order_id, customer, data):
             <barcode>{order_id}</barcode>
         </order>
         <receiver>
-            <person>{customer['full_name']}</person>
-            <phone>{data['phone_number']}</phone>
-            <town>{data['town']}</town>
-            <address>{data['address']}</address>
+            <person>{customer_full_name}</person>
+            <phone>{order_instance.phone_number}</phone>
+            <town>{order_instance.town}</town>
+            <address>{order_instance.address}</address>
         </receiver>
-        <service>{data['service']}</service>
+        <service>{order_instance.service}</service>
     </neworder>
     """
 
@@ -74,3 +74,13 @@ def emu_streets(town):
     headers = {'Content-Type': 'application/xml'}
     response = requests.post(url, data=xml, headers=headers)
     return response
+
+
+def emu_tracking():
+    xml = f"""
+    <?xml version="1.0" encoding="UTF-8"?>
+    <tracking>
+        <extra>8</extra>
+        <orderno>1234</orderno>
+    </tracking>
+    """
