@@ -9,7 +9,7 @@ class AdminPaymentOpenListSerializer(serializers.ModelSerializer):
     customer_id = serializers.SerializerMethodField(allow_null=True)
     date = serializers.SerializerMethodField(allow_null=True)
     files = FileDataSerializer(many=True, allow_null=True)
-    debt = serializers.FloatField(source='customer.debt', allow_null=True)
+    debt = serializers.FloatField(source='residue', allow_null=True)
 
     @staticmethod
     def get_date(obj):
@@ -33,7 +33,7 @@ class AdminPaymentClosedListSerializer(serializers.ModelSerializer):
     customer_id = serializers.SerializerMethodField(allow_null=True)
     date = serializers.SerializerMethodField(allow_null=True)
     files = FileDataSerializer(many=True, allow_null=True)
-    debt = serializers.FloatField(source='customer.debt', allow_null=True)
+    debt = serializers.FloatField(source='residue', allow_null=True)
 
     @staticmethod
     def get_date(obj):

@@ -46,6 +46,7 @@ class AdminPaymentApplyAPIView(APIView):
         if instance.status:
             raise APIValidation(_('Это заявка уже была обработана'))
         instance.paid_amount = instance.customer.debt
+        instance.residue = instance.customer.debt
         instance.customer.debt = 0
         instance.load.status = 'PAID'
         instance.status = 'SUCCESSFUL'
@@ -81,6 +82,7 @@ class AdminPaymentDeclineAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         data = serializer.data
+        instance.residue = instance.customer.debt
         instance.customer.debt = instance.customer.debt - data.get('paid_amount', 0)
         instance.customer.save()
         if instance.customer.debt == 0:
