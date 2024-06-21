@@ -11,6 +11,12 @@ class CustomerLoadPaymentSerializer(serializers.ModelSerializer):
     image = serializers.SlugRelatedField(source='files', slug_field='id', required=True, write_only=True,
                                          queryset=File.objects.all())
 
+    @staticmethod
+    def validate_load(obj):
+        if obj.status == 'PAID':
+            raise APIValidation(_('Это загрузка уже оплачено'), status_code=status.HTTP_400_BAD_REQUEST)
+        return obj
+
     def create(self, validated_data):
         user = self.context['request'].user
         if Payment.objects.filter(status__isnull=True, customer_id=user.customer.id,
