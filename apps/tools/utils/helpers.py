@@ -33,9 +33,9 @@ def products_accepted_today(user):
 
 def loads_accepted_today(user):
     count = (
-        user.loads
+        user.load_accepted
         .filter(accepted_time__date=timezone.now().date())
-        .aggregate(loads_count=Sum('loads_count'))['loads_count']
+        .count()
     )
     return count if count else 0
 
