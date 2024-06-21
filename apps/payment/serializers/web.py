@@ -51,7 +51,9 @@ class AdminPaymentClosedListSerializer(serializers.ModelSerializer):
                   'files',
                   'status',
                   'status_display',
-                  'debt']
+                  'debt',
+                  'paid_amount',
+                  'comment', ]
 
 
 class AdminPaymentApplySerializer(serializers.ModelSerializer):

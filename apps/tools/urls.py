@@ -13,5 +13,5 @@ urlpatterns = [
     path('newsletter/retrieve/<int:pk>/', NewsletterRetrieveAPIView.as_view(), name='newsletter_retrieve'),
 
     # Dashboard
-    path('dashboard/registration-chart/', DashboardRegistrationAPIView.as_view(), name='newsletter_retrieve'),
+    path('dashboard/registration-chart/', DashboardRegistrationAPIView.as_view(), name='dashboard_registrations'),
 ]
