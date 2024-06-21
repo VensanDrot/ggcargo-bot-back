@@ -23,11 +23,13 @@ from apps.tools.serializer import SettingsSerializer, NewsletterListSerializer, 
 from apps.user.models import Customer
 from config.core.api_exceptions import APIValidation
 from config.core.pagination import APIPagination
+from config.core.permissions.web import IsWebOperator
 
 settings_path = join_path(settings.BASE_DIR, 'apps', 'tools', 'settings.json')
 
 
 class GetSettingsAPIView(APIView):
+    permission_classes = [IsWebOperator, ]
     serializer_class = SettingsSerializer
 
     @swagger_auto_schema(responses={status.HTTP_200_OK: SettingsSerializer})
@@ -40,6 +42,7 @@ class GetSettingsAPIView(APIView):
 
 
 class PostSettingsAPIView(APIView):
+    permission_classes = [IsWebOperator, ]
     serializer_class = SettingsSerializer
 
     @swagger_auto_schema(request_body=SettingsSerializer)
@@ -57,6 +60,7 @@ class PostSettingsAPIView(APIView):
 
 
 class NewsletterListAPIView(ListAPIView):
+    permission_classes = [IsWebOperator, ]
     queryset = Newsletter.objects.all()
     serializer_class = NewsletterListSerializer
     pagination_class = APIPagination
@@ -65,22 +69,26 @@ class NewsletterListAPIView(ListAPIView):
 
 
 class NewsletterCreateAPIView(CreateAPIView):
+    permission_classes = [IsWebOperator, ]
     queryset = Newsletter.objects.all()
     serializer_class = NewsletterSerializer
 
 
 class NewsletterUpdateAPIView(UpdateAPIView):
+    permission_classes = [IsWebOperator, ]
     queryset = Newsletter.objects.all()
     serializer_class = NewsletterSerializer
     http_method_names = ['patch', ]
 
 
 class NewsletterRetrieveAPIView(RetrieveAPIView):
+    permission_classes = [IsWebOperator, ]
     queryset = Newsletter.objects.all()
     serializer_class = NewsletterSerializer
 
 
 class FirstDashboardAPIView(APIView):
+    permission_classes = [IsWebOperator, ]
     @swagger_auto_schema(manual_parameters=[
         Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING),
         Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING),
@@ -121,6 +129,7 @@ class FirstDashboardAPIView(APIView):
 
 
 class SecondDashboardAPIView(APIView):
+    permission_classes = [IsWebOperator, ]
     @swagger_auto_schema(manual_parameters=[
         Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING),
         Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING),
@@ -161,6 +170,7 @@ class SecondDashboardAPIView(APIView):
 
 
 class ThirdDashboardAPIView(APIView):
+    permission_classes = [IsWebOperator, ]
     @swagger_auto_schema(manual_parameters=[
         Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING),
         Parameter('payment_type', IN_QUERY, description="Type of Payment: CASH or CARD", type=TYPE_STRING),
@@ -198,6 +208,7 @@ class ThirdDashboardAPIView(APIView):
 
 
 class FourthDashboardAPIView(APIView):
+    permission_classes = [IsWebOperator, ]
     @swagger_auto_schema(manual_parameters=[
         Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING),
         Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING),
@@ -225,6 +236,53 @@ class FourthDashboardAPIView(APIView):
             result = {
                 'line1': line1,
                 'labels': labels
+            }
+        else:
+            raise APIValidation('Some of query params was missed', status_code=status.HTTP_400_BAD_REQUEST)
+        return Response(result)
+
+
+class FifthDashboardAPIView(APIView):
+    permission_classes = [IsWebOperator, ]
+    @swagger_auto_schema(manual_parameters=[
+        Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING),
+        Parameter('to', IN_QUERY, description="To, Date format: 2024-01-25", type=TYPE_STRING),
+    ])
+    # @method_decorator(cache_page(60 * 60 * 1))  # cache for an hour
+    # @method_decorator(vary_on_cookie)
+    def get(self, request, *args, **kwargs):
+        from_date = request.query_params.get('from')
+        to_date = request.query_params.get('to')
+        if from_date and to_date:
+            china = (
+                Product.objects
+                .select_related('customer', 'accepted_by_china', 'accepted_by_tashkent')
+                .filter(status='ON_WAY')
+                .count()
+            )
+            tashkent = (
+                Product.objects
+                .select_related('customer', 'accepted_by_china', 'accepted_by_tashkent')
+                .filter(status='DELIVERED')
+                .count()
+            )
+            waiting_delivery = (
+                Product.objects
+                .select_related('customer', 'accepted_by_china', 'accepted_by_tashkent')
+                .filter(status='LOADED')
+                .count()
+            )
+            done = (
+                Product.objects
+                .select_related('customer', 'accepted_by_china', 'accepted_by_tashkent')
+                .filter(status='DONE')
+                .count()
+            )
+            result = {
+                'china': china,
+                'tashkent': tashkent,
+                'waiting_delivery': waiting_delivery,
+                'done': done
             }
         else:
             raise APIValidation('Some of query params was missed', status_code=status.HTTP_400_BAD_REQUEST)

@@ -68,6 +68,15 @@ __/staff/customer-moderation/list/__ to get list of registration applications
 __/staff/customer-moderation/retrieve/{id}/__ to retrieve registration application | get {id} from url /list/ endpoint
 __/staff/customer-moderation/accept/{id}/__ to accept registration application
 __/staff/customer-moderation/decline/{id}/__ to decline registration application
+
+<br>
+<h4>UPDATES 2024-06-21</h4>
+Analytics dashboard data:
+__/tool/admin/dashboard/first-chart/__  -  first chart
+__/tool/admin/dashboard/second-chart/__  -  second chart
+__/tool/admin/dashboard/third-chart/__  -  third chart
+__/tool/admin/dashboard/fourth-chart/__  -  fourth chart
+__/tool/admin/dashboard/fifth-chart/__  -  fifth chart
 """
 
 schema_view = get_schema_view(
