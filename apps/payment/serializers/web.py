@@ -68,4 +68,5 @@ class AdminPaymentDeclineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ['id',
-                  'comment', ]
+                  'comment',
+                  'paid_amount', ]
