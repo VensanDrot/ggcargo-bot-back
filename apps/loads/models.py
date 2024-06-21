@@ -40,6 +40,8 @@ class Load(BaseModel):
 
 
 class LoadAccepted(models.Model):
+    accepted_by = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='load_accepted',
+                                    null=True, blank=True)
     accepted_time = models.DateTimeField(null=True, blank=True)
     load = models.ForeignKey(Load, on_delete=models.CASCADE, related_name='load_accepted')
 
