@@ -43,6 +43,9 @@ class AdminPaymentApplyAPIView(APIView):
     # @swagger_auto_schema(request_body=AdminPaymentApplySerializer)
     def patch(self, request, payment_id, *args, **kwargs):
         instance = get_object_or_404(Payment, pk=payment_id)
+        if instance.status:
+            raise APIValidation(_('Это заявка уже была обработана'))
+        instance.paid_amount = instance.customer.debt
         instance.customer.debt = 0
         instance.load.status = 'PAID'
         instance.status = 'SUCCESSFUL'
@@ -70,6 +73,8 @@ class AdminPaymentDeclineAPIView(APIView):
     @swagger_auto_schema(request_body=AdminPaymentDeclineSerializer)
     def patch(self, request, payment_id, *args, **kwargs):
         instance = get_object_or_404(Payment, pk=payment_id)
+        if instance.status:
+            raise APIValidation(_('Это заявка уже была обработана'))
         if instance.customer.debt < request.data.get('paid_amount'):
             raise APIValidation(_('Выплаченная сумма больше долга клиента'), status_code=status.HTTP_400_BAD_REQUEST)
         serializer = self.serializer_class(instance, data=request.data, partial=True)
