@@ -17,6 +17,7 @@ class AdminProductListSerializer(serializers.ModelSerializer):
     status_display = serializers.CharField(source='get_status_display', read_only=True, allow_null=True)
     last_update = serializers.DateTimeField(source='updated_at', read_only=True)
     responsible = serializers.SerializerMethodField(allow_null=True)
+    files = FileDataSerializer(source='china_files', many=True)
 
     @staticmethod
     def get_responsible(obj):
@@ -40,7 +41,8 @@ class AdminProductListSerializer(serializers.ModelSerializer):
                   'barcode',
                   'customer_id',
                   'last_update',
-                  'responsible', ]
+                  'responsible',
+                  'files', ]
 
 
 class AdminAddProductSerializer(serializers.ModelSerializer):

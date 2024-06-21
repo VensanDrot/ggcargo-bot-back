@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.translation import gettext_lazy as _
 
 from apps.user.models import Customer, Operator, User
 from config.core.choices import PRODUCT_STATUS_CHOICE, PRODUCT_ON_WAY, LOAD_STATUS_CHOICE, LOAD_NOT_PAID
@@ -38,3 +37,11 @@ class Load(BaseModel):
 
     class Meta:
         db_table = "Load"
+
+
+class LoadAccepted(models.Model):
+    accepted_time = models.DateTimeField(null=True, blank=True)
+    load = models.ForeignKey(Load, on_delete=models.CASCADE, related_name='load_accepted')
+
+    class Meta:
+        db_table = 'LoadAccepted'

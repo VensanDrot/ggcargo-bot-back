@@ -7,13 +7,15 @@ from rest_framework.generics import get_object_or_404
 
 from apps.files.models import File
 from apps.files.serializer import FileDataSerializer
-from apps.loads.models import Product, Load
+from apps.loads.models import Product, Load, LoadAccepted
 from apps.payment.models import Payment
 from apps.tools.utils.helpers import split_code, get_price
 from apps.user.models import Customer
 from config.core.api_exceptions import APIValidation
-from config.core.choices import (PRODUCT_NOT_LOADED, PRODUCT_NOT_LOADED_DISPLAY, PRODUCT_DONE_DISPLAY_CUSTOMER, PRODUCT_LOADED_DISPLAY_CUSTOMER,
-                                 PRODUCT_DELIVERED_DISPLAY_CUSTOMER, PRODUCT_ON_WAY_DISPLAY_CUSTOMER, PRODUCT_LOADED, PRODUCT_ON_WAY, PRODUCT_DELIVERED, PRODUCT_DONE)
+from config.core.choices import (PRODUCT_NOT_LOADED, PRODUCT_NOT_LOADED_DISPLAY, PRODUCT_DONE_DISPLAY_CUSTOMER,
+                                 PRODUCT_LOADED_DISPLAY_CUSTOMER,
+                                 PRODUCT_DELIVERED_DISPLAY_CUSTOMER, PRODUCT_ON_WAY_DISPLAY_CUSTOMER, PRODUCT_LOADED,
+                                 PRODUCT_ON_WAY, PRODUCT_DELIVERED, PRODUCT_DONE)
 
 
 class BarcodeConnectionSerializer(serializers.ModelSerializer):
@@ -156,8 +158,14 @@ class AddLoadSerializer(serializers.ModelSerializer):
                 existing_load.cost += l_cost
                 existing_load.weight += validated_data.get('weight')
                 existing_load.products.add(*products)
-                existing_load.status = 'PARTIALLY_PAID'
+                if existing_load.status == 'NOT_PAID':
+                    existing_load.status = 'NOT_PAID'
+                else:
+                    existing_load.status = 'PARTIALLY_PAID'
+                existing_load.accepted_by = self.context.get('request').user
+                existing_load.accepted_time = timezone.now()
                 existing_load.save()
+                LoadAccepted.objects.create(load_id=existing_load.id, accepted_time=timezone.now())
                 for product in products:
                     product.status = 'LOADED'
                     product.save()
@@ -170,6 +178,7 @@ class AddLoadSerializer(serializers.ModelSerializer):
             instance.save()
             image.loads_id = instance.id
             image.save()
+            LoadAccepted.objects.create(load_id=existing_load.id, accepted_time=timezone.now())
             customer.debt += l_cost
             customer.save()
             for product in products:
