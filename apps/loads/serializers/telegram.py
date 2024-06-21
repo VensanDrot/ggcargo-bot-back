@@ -12,8 +12,8 @@ from apps.payment.models import Payment
 from apps.tools.utils.helpers import split_code, get_price
 from apps.user.models import Customer
 from config.core.api_exceptions import APIValidation
-from config.core.choices import (NOT_LOADED, NOT_LOADED_DISPLAY, DONE_DISPLAY_CUSTOMER, LOADED_DISPLAY_CUSTOMER,
-                                 DELIVERED_DISPLAY_CUSTOMER, ON_WAY_DISPLAY_CUSTOMER, LOADED, ON_WAY, DELIVERED, DONE)
+from config.core.choices import (PRODUCT_NOT_LOADED, PRODUCT_NOT_LOADED_DISPLAY, PRODUCT_DONE_DISPLAY_CUSTOMER, PRODUCT_LOADED_DISPLAY_CUSTOMER,
+                                 PRODUCT_DELIVERED_DISPLAY_CUSTOMER, PRODUCT_ON_WAY_DISPLAY_CUSTOMER, PRODUCT_LOADED, PRODUCT_ON_WAY, PRODUCT_DELIVERED, PRODUCT_DONE)
 
 
 class BarcodeConnectionSerializer(serializers.ModelSerializer):
@@ -54,13 +54,13 @@ class ProductSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_status(obj):
         if obj.status == 'DELIVERED':
-            return NOT_LOADED
+            return PRODUCT_NOT_LOADED
         return obj.status
 
     @staticmethod
     def get_status_display(obj):
         if obj.status == 'DELIVERED':
-            return NOT_LOADED_DISPLAY
+            return PRODUCT_NOT_LOADED_DISPLAY
         return obj.get_status_display()
 
     class Meta:
@@ -202,13 +202,13 @@ class ReleaseLoadInfoSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_status(obj):
         if obj.status == 'DELIVERED':
-            return NOT_LOADED
+            return PRODUCT_NOT_LOADED
         return obj.status
 
     @staticmethod
     def get_status_display(obj):
         if obj.status == 'DELIVERED':
-            return NOT_LOADED_DISPLAY
+            return PRODUCT_NOT_LOADED_DISPLAY
         return obj.get_status_display()
 
     class Meta:
@@ -369,13 +369,13 @@ class CustomerProductsSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_status(obj):
         if obj.status == 'DELIVERED':
-            return NOT_LOADED
+            return PRODUCT_NOT_LOADED
         return obj.status
 
     @staticmethod
     def get_status_display(obj):
         if obj.status == 'DELIVERED':
-            return NOT_LOADED_DISPLAY
+            return PRODUCT_NOT_LOADED_DISPLAY
         return obj.get_status_display()
 
     class Meta:
@@ -453,10 +453,10 @@ class CustomerTrackProductSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_status_display(obj):
         statuses = {
-            ON_WAY: ON_WAY_DISPLAY_CUSTOMER,
-            DELIVERED: DELIVERED_DISPLAY_CUSTOMER,
-            LOADED: LOADED_DISPLAY_CUSTOMER,
-            DONE: DONE_DISPLAY_CUSTOMER
+            PRODUCT_ON_WAY: PRODUCT_ON_WAY_DISPLAY_CUSTOMER,
+            PRODUCT_DELIVERED: PRODUCT_DELIVERED_DISPLAY_CUSTOMER,
+            PRODUCT_LOADED: PRODUCT_LOADED_DISPLAY_CUSTOMER,
+            PRODUCT_DONE: PRODUCT_DONE_DISPLAY_CUSTOMER
         }
         value = statuses[obj.status]
         return value

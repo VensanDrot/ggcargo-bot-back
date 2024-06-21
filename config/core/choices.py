@@ -55,41 +55,41 @@ WAREHOUSE_CHOICE = [
 ]
 
 # Loads & Products
-ON_WAY = 'ON_WAY'
-ON_WAY_DISPLAY = _('В пути')
-ON_WAY_DISPLAY_CUSTOMER = _('Получено в Китае')
-DELIVERED = 'DELIVERED'
-DELIVERED_DISPLAY = _('Доставлено')
-DELIVERED_DISPLAY_CUSTOMER = _('Получено в Ташкенте')
-LOADED = 'LOADED'
-LOADED_DISPLAY = _('Загружено')
-LOADED_DISPLAY_CUSTOMER = _('Ожидает выдачи')
-NOT_LOADED = 'NOT_LOADED'
-NOT_LOADED_DISPLAY = _('Не загружено')
-DONE = 'DONE'
-DONE_DISPLAY = _('Готово')
-DONE_DISPLAY_CUSTOMER = _('Выдано')
+PRODUCT_ON_WAY = 'ON_WAY'
+PRODUCT_ON_WAY_DISPLAY = _('В пути')
+PRODUCT_ON_WAY_DISPLAY_CUSTOMER = _('Получено в Китае')
+PRODUCT_DELIVERED = 'DELIVERED'
+PRODUCT_DELIVERED_DISPLAY = _('Доставлено')
+PRODUCT_DELIVERED_DISPLAY_CUSTOMER = _('Получено в Ташкенте')
+PRODUCT_LOADED = 'LOADED'
+PRODUCT_LOADED_DISPLAY = _('Загружено')
+PRODUCT_LOADED_DISPLAY_CUSTOMER = _('Ожидает выдачи')
+PRODUCT_NOT_LOADED = 'NOT_LOADED'
+PRODUCT_NOT_LOADED_DISPLAY = _('Не загружено')
+PRODUCT_DONE = 'DONE'
+PRODUCT_DONE_DISPLAY = _('Готово')
+PRODUCT_DONE_DISPLAY_CUSTOMER = _('Выдано')
 PRODUCT_STATUS_CHOICE = [
-    (ON_WAY, ON_WAY_DISPLAY),
-    (DELIVERED, DELIVERED_DISPLAY),
-    (LOADED, LOADED_DISPLAY),
-    (DONE, DONE_DISPLAY),
+    (PRODUCT_ON_WAY, PRODUCT_ON_WAY_DISPLAY),
+    (PRODUCT_DELIVERED, PRODUCT_DELIVERED_DISPLAY),
+    (PRODUCT_LOADED, PRODUCT_LOADED_DISPLAY),
+    (PRODUCT_DONE, PRODUCT_DONE_DISPLAY),
 ]
 
-NOT_PAID = 'NOT_PAID'
-PARTIALLY_PAID = 'PARTIALLY_PAID'
-PAID = 'PAID'
-DONE = 'DONE'
-CUSTOMER_DELIVERY = 'CUSTOMER_DELIVERY'
-DONE_MAIL = 'DONE_MAIL'
-STATUS_CHOICE = [
+LOAD_NOT_PAID = 'NOT_PAID'
+LOAD_PARTIALLY_PAID = 'PARTIALLY_PAID'
+LOAD_PAID = 'PAID'
+LOAD_DONE = 'DONE'
+LOAD_CUSTOMER_DELIVERY = 'CUSTOMER_DELIVERY'
+LOAD_DONE_MAIL = 'DONE_MAIL'
+LOAD_STATUS_CHOICE = [
     # (CREATED, _('Created')),
-    (NOT_PAID, _('Не оплачен')),
-    (PARTIALLY_PAID, _('Частично оплачено')),
-    (PAID, _('Оплачено')),
-    (CUSTOMER_DELIVERY, _('Запрос клиента на доставку/самовывоз')),
-    (DONE, _('Готово')),
-    (DONE_MAIL, _('Готово-почта')),
+    (LOAD_NOT_PAID, _('Не оплачен')),
+    (LOAD_PARTIALLY_PAID, _('Частично оплачено')),
+    (LOAD_PAID, _('Оплачено')),
+    (LOAD_CUSTOMER_DELIVERY, _('Запрос клиента на доставку/самовывоз')),
+    (LOAD_DONE, _('Готово')),
+    (LOAD_DONE_MAIL, _('Готово-почта')),
 ]
 
 # Tools

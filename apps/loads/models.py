@@ -2,12 +2,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from apps.user.models import Customer, Operator, User
-from config.core.choices import PRODUCT_STATUS_CHOICE, ON_WAY, STATUS_CHOICE, NOT_PAID
+from config.core.choices import PRODUCT_STATUS_CHOICE, PRODUCT_ON_WAY, LOAD_STATUS_CHOICE, LOAD_NOT_PAID
 from config.models import BaseModel
 
 
 class Product(BaseModel):
-    status = models.CharField(choices=PRODUCT_STATUS_CHOICE, default=ON_WAY, max_length=10)
+    status = models.CharField(choices=PRODUCT_STATUS_CHOICE, default=PRODUCT_ON_WAY, max_length=10)
     barcode = models.CharField(max_length=155, unique=True)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, related_name='products',
                                  null=True, blank=True)
@@ -26,7 +26,7 @@ class Product(BaseModel):
 class Load(BaseModel):
     loads_count = models.IntegerField(default=1)
     weight = models.FloatField()
-    status = models.CharField(choices=STATUS_CHOICE, default=NOT_PAID, max_length=17)
+    status = models.CharField(choices=LOAD_STATUS_CHOICE, default=LOAD_NOT_PAID, max_length=17)
     is_active = models.BooleanField(default=True)
     cost = models.FloatField(null=True, blank=True)
 
