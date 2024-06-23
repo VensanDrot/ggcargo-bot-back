@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.utils.timezone import localdate
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
@@ -100,6 +101,7 @@ class AdminLoadListSerializer(serializers.ModelSerializer):
     updated_at = serializers.SerializerMethodField(allow_null=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True, allow_null=True)
     customer_id = serializers.SerializerMethodField(allow_null=True)
+    files = FileDataSerializer(many=True, allow_null=True)
 
     @staticmethod
     def get_customer_id(obj):
@@ -119,7 +121,8 @@ class AdminLoadListSerializer(serializers.ModelSerializer):
                   'cost',
                   'status',
                   'status_display',
-                  'updated_at', ]
+                  'updated_at',
+                  'files', ]
 
 
 class ProductListSerializer(serializers.ModelSerializer):
@@ -153,7 +156,7 @@ class AdminLoadRetrieveSerializer(serializers.ModelSerializer):
                 return TAKE_AWAY_DISPLAY
             elif delivery.delivery_type == YANDEX:
                 return delivery.address
-        return obj
+        return _('Нет информации о доставки')
 
     @staticmethod
     def get_customer_id(obj):

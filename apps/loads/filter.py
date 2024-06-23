@@ -1,6 +1,6 @@
 from django.db.models import Q
 from django_filters import FilterSet, DateFilter
-from rest_framework.filters import BaseFilterBackend
+from rest_framework.filters import BaseFilterBackend, SearchFilter
 
 from apps.loads.models import Product, Load
 from apps.tools.utils.helpers import split_code
@@ -32,7 +32,7 @@ class AdminLoadFilter(FilterSet):
                   'date', ]
 
 
-class ProductSearchFilter(BaseFilterBackend):
+class ProductSearchFilter(SearchFilter):
     def filter_queryset(self, request, queryset, view):
         search_param = request.query_params.get('search', '')
         if search_param:
@@ -48,7 +48,7 @@ class ProductSearchFilter(BaseFilterBackend):
         return queryset
 
 
-class LoadSearchFilter(BaseFilterBackend):
+class LoadSearchFilter(SearchFilter):
     def filter_queryset(self, request, queryset, view):
         search_param = request.query_params.get('search', '')
         if search_param:

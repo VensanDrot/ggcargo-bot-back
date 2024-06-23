@@ -1,12 +1,10 @@
 import json
 from collections import defaultdict
+from datetime import datetime
 from os.path import join as join_path
 
 from django.conf import settings
-from django.utils.decorators import method_decorator
 from django.utils.timezone import localdate
-from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_cookie
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.openapi import Parameter, IN_QUERY, TYPE_STRING
 from drf_yasg.utils import swagger_auto_schema
@@ -20,6 +18,7 @@ from apps.loads.models import Load, Product
 from apps.payment.models import Payment
 from apps.tools.models import Newsletter
 from apps.tools.serializer import SettingsSerializer, NewsletterListSerializer, NewsletterSerializer
+from apps.tools.utils.helpers import dashboard_chart_maker
 from apps.user.models import Customer
 from config.core.api_exceptions import APIValidation
 from config.core.pagination import APIPagination
@@ -89,10 +88,11 @@ class NewsletterRetrieveAPIView(RetrieveAPIView):
 
 class FirstDashboardAPIView(APIView):
     permission_classes = [IsWebOperator, ]
+
     @swagger_auto_schema(manual_parameters=[
-        Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING),
-        Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING),
-        Parameter('to', IN_QUERY, description="To, Date format: 2024-01-25", type=TYPE_STRING),
+        Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING, required=True),
+        Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING, required=True),
+        Parameter('to', IN_QUERY, description="To, Date format: 2024-01-25", type=TYPE_STRING, required=True),
     ])
     # @method_decorator(cache_page(60 * 60 * 1))  # cache for an hour
     # @method_decorator(vary_on_cookie)
@@ -101,39 +101,35 @@ class FirstDashboardAPIView(APIView):
         from_date = request.query_params.get('from')
         to_date = request.query_params.get('to')
         if user_type and from_date and to_date:
+            start_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(to_date, '%Y-%m-%d').date()
+            comparing_start_date = start_date - (end_date - start_date)
+            comparing_end_date = end_date - (end_date - start_date)
             loads = (Load.objects
                      .select_related('customer', 'accepted_by')
                      .prefetch_related('products')
                      .filter(created_at__date__gte=from_date, created_at__date__lte=to_date,
                              customer__user_type=user_type))
+            comparing_loads = (Load.objects
+                               .select_related('customer', 'accepted_by')
+                               .prefetch_related('products')
+                               .filter(created_at__date__gte=comparing_start_date,
+                                       created_at__date__lte=comparing_end_date,
+                                       customer__user_type=user_type))
 
-            date_counts = defaultdict(int)
-            date_weight = defaultdict(int)
-            for load in loads:
-                local_date = localdate(load.created_at)
-                date_counts[local_date] += 1
-                date_weight[local_date] += load.weight
-            sorted_dates = sorted(date_counts.keys())
-
-            labels = [date.strftime('%Y-%m-%d') for date in sorted_dates]
-            line1 = [date_counts[date] for date in sorted_dates]
-            line2 = [date_weight[date] for date in sorted_dates]
-            result = {
-                'line1': line1,
-                'line2': line2,
-                'labels': labels
-            }
+            chart, totals = dashboard_chart_maker(loads, comparing_loads, start_date, end_date, date_weight_exists=True)
         else:
             raise APIValidation('Some of query params was missed', status_code=status.HTTP_400_BAD_REQUEST)
-        return Response({'data': result})
+        return Response({'chart': chart, 'totals': totals})
 
 
 class SecondDashboardAPIView(APIView):
     permission_classes = [IsWebOperator, ]
+
     @swagger_auto_schema(manual_parameters=[
-        Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING),
-        Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING),
-        Parameter('to', IN_QUERY, description="To, Date format: 2024-01-25", type=TYPE_STRING),
+        Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING, required=True),
+        Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING, required=True),
+        Parameter('to', IN_QUERY, description="To, Date format: 2024-01-25", type=TYPE_STRING, required=True),
     ])
     # @method_decorator(cache_page(60 * 60 * 1))  # cache for an hour
     # @method_decorator(vary_on_cookie)
@@ -142,40 +138,37 @@ class SecondDashboardAPIView(APIView):
         from_date = request.query_params.get('from')
         to_date = request.query_params.get('to')
         if user_type and from_date and to_date:
+            start_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(to_date, '%Y-%m-%d').date()
+            comparing_start_date = start_date - (end_date - start_date)
+            comparing_end_date = end_date - (end_date - start_date)
             loads = (Load.objects
                      .select_related('customer', 'accepted_by')
                      .prefetch_related('products')
                      .filter(created_at__date__gte=from_date, created_at__date__lte=to_date,
                              customer__user_type=user_type, status__in=['DONE', 'DONE_MAIL']))
+            comparing_loads = (Load.objects
+                               .select_related('customer', 'accepted_by')
+                               .prefetch_related('products')
+                               .filter(created_at__date__gte=comparing_start_date,
+                                       created_at__date__lte=comparing_end_date,
+                                       customer__user_type=user_type, status__in=['DONE', 'DONE_MAIL']))
 
-            date_counts = defaultdict(int)
-            date_weight = defaultdict(int)
-            for load in loads:
-                local_date = localdate(load.created_at)
-                date_counts[local_date] += 1
-                date_weight[local_date] += load.weight
-            sorted_dates = sorted(date_counts.keys())
-
-            labels = [date.strftime('%Y-%m-%d') for date in sorted_dates]
-            line1 = [date_counts[date] for date in sorted_dates]
-            line2 = [date_weight[date] for date in sorted_dates]
-            result = {
-                'line1': line1,
-                'line2': line2,
-                'labels': labels
-            }
+            chart, totals = dashboard_chart_maker(loads, comparing_loads, start_date, end_date, date_weight_exists=True)
         else:
             raise APIValidation('Some of query params was missed', status_code=status.HTTP_400_BAD_REQUEST)
-        return Response({'data': result})
+        return Response({'chart': chart, 'totals': totals})
 
 
 class ThirdDashboardAPIView(APIView):
     permission_classes = [IsWebOperator, ]
+
     @swagger_auto_schema(manual_parameters=[
-        Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING),
-        Parameter('payment_type', IN_QUERY, description="Type of Payment: CASH or CARD", type=TYPE_STRING),
-        Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING),
-        Parameter('to', IN_QUERY, description="To, Date format: 2024-01-25", type=TYPE_STRING),
+        Parameter('payment_type', IN_QUERY, description="Type of Payment: CASH or CARD", type=TYPE_STRING,
+                  required=True),
+        Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING, required=True),
+        Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING, required=True),
+        Parameter('to', IN_QUERY, description="To, Date format: 2024-01-25", type=TYPE_STRING, required=True),
     ])
     # @method_decorator(cache_page(60 * 60 * 1))  # cache for an hour
     # @method_decorator(vary_on_cookie)
@@ -185,34 +178,34 @@ class ThirdDashboardAPIView(APIView):
         from_date = request.query_params.get('from')
         to_date = request.query_params.get('to')
         if user_type and from_date and to_date and payment_type:
+            start_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(to_date, '%Y-%m-%d').date()
+            comparing_start_date = start_date - (end_date - start_date)
+            comparing_end_date = end_date - (end_date - start_date)
             payments = (Payment.objects
                         .select_related('customer', 'operator', 'load')
                         .filter(created_at__date__gte=from_date, created_at__date__lte=to_date,
                                 customer__user_type=user_type, payment_type=payment_type))
+            comparing_payments = (Payment.objects
+                                  .select_related('customer', 'operator', 'load')
+                                  .filter(created_at__date__gte=comparing_start_date,
+                                          created_at__date__lte=comparing_end_date,
+                                          customer__user_type=user_type, payment_type=payment_type))
 
-            date_counts = defaultdict(int)
-            for payment in payments:
-                local_date = localdate(payment.created_at)
-                date_counts[local_date] += payment.paid_amount
-            sorted_dates = sorted(date_counts.keys())
-
-            labels = [date.strftime('%Y-%m-%d') for date in sorted_dates]
-            line1 = [date_counts[date] for date in sorted_dates]
-            result = {
-                'line1': line1,
-                'labels': labels
-            }
+            chart, totals = dashboard_chart_maker(payments, comparing_payments, start_date, end_date,
+                                                  date_weight_exists=False, date_payment_exists=True)
         else:
             raise APIValidation('Some of query params was missed', status_code=status.HTTP_400_BAD_REQUEST)
-        return Response({'data': result})
+        return Response({'chart': chart, 'totals': totals})
 
 
 class FourthDashboardAPIView(APIView):
     permission_classes = [IsWebOperator, ]
+
     @swagger_auto_schema(manual_parameters=[
-        Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING),
-        Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING),
-        Parameter('to', IN_QUERY, description="To, Date format: 2024-01-25", type=TYPE_STRING),
+        Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING, required=True),
+        Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING, required=True),
+        Parameter('to', IN_QUERY, description="To, Date format: 2024-01-25", type=TYPE_STRING, required=True),
     ])
     # @method_decorator(cache_page(60 * 60 * 1))  # cache for an hour
     # @method_decorator(vary_on_cookie)
@@ -221,64 +214,66 @@ class FourthDashboardAPIView(APIView):
         from_date = request.query_params.get('from')
         to_date = request.query_params.get('to')
         if user_type and from_date and to_date:
+            start_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(to_date, '%Y-%m-%d').date()
+            comparing_start_date = start_date - (end_date - start_date)
+            comparing_end_date = end_date - (end_date - start_date)
             customers = (Customer.objects
                          .select_related('passport_photo', 'accepted_by', 'user')
                          .filter(created_at__date__gte=from_date, created_at__date__lte=to_date, user_type=user_type))
+            comparing_customers = (Customer.objects
+                                   .select_related('passport_photo', 'accepted_by', 'user')
+                                   .filter(created_at__date__gte=comparing_start_date,
+                                           created_at__date__lte=comparing_end_date, user_type=user_type))
 
-            date_counts = defaultdict(int)
-            for customer in customers:
-                local_date = localdate(customer.created_at)
-                date_counts[local_date] += 1
-            sorted_dates = sorted(date_counts.keys())
-
-            labels = [date.strftime('%Y-%m-%d') for date in sorted_dates]
-            line1 = [date_counts[date] for date in sorted_dates]
-            result = {
-                'line1': line1,
-                'labels': labels
-            }
+            chart, totals = dashboard_chart_maker(customers, comparing_customers, start_date, end_date,
+                                                  date_weight_exists=False)
         else:
             raise APIValidation('Some of query params was missed', status_code=status.HTTP_400_BAD_REQUEST)
-        return Response(result)
+        return Response({'chart': chart, 'totals': totals})
 
 
 class FifthDashboardAPIView(APIView):
     permission_classes = [IsWebOperator, ]
+
     @swagger_auto_schema(manual_parameters=[
-        Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING),
-        Parameter('to', IN_QUERY, description="To, Date format: 2024-01-25", type=TYPE_STRING),
+        Parameter('user_type', IN_QUERY, description="Type of User: AVIA or AUTO", type=TYPE_STRING, required=True),
+        Parameter('from', IN_QUERY, description="From, Date format: 2024-01-25", type=TYPE_STRING, required=True),
+        Parameter('to', IN_QUERY, description="To, Date format: 2024-01-25", type=TYPE_STRING, required=True),
     ])
     # @method_decorator(cache_page(60 * 60 * 1))  # cache for an hour
     # @method_decorator(vary_on_cookie)
     def get(self, request, *args, **kwargs):
+        user_type = request.query_params.get('user_type')
         from_date = request.query_params.get('from')
         to_date = request.query_params.get('to')
-        if from_date and to_date:
-            china = (
+        if from_date and to_date and user_type:
+            products = (
                 Product.objects
                 .select_related('customer', 'accepted_by_china', 'accepted_by_tashkent')
+                .filter(customer__user_type=user_type, created_at__date__gte=from_date, created_at__date__lte=to_date)
+            )
+            china = (
+                products
                 .filter(status='ON_WAY')
                 .count()
             )
             tashkent = (
-                Product.objects
-                .select_related('customer', 'accepted_by_china', 'accepted_by_tashkent')
+                products
                 .filter(status='DELIVERED')
                 .count()
             )
             waiting_delivery = (
-                Product.objects
-                .select_related('customer', 'accepted_by_china', 'accepted_by_tashkent')
+                products
                 .filter(status='LOADED')
                 .count()
             )
             done = (
-                Product.objects
-                .select_related('customer', 'accepted_by_china', 'accepted_by_tashkent')
+                products
                 .filter(status='DONE')
                 .count()
             )
-            result = {
+            chart = {
                 'china': china,
                 'tashkent': tashkent,
                 'waiting_delivery': waiting_delivery,
@@ -286,4 +281,4 @@ class FifthDashboardAPIView(APIView):
             }
         else:
             raise APIValidation('Some of query params was missed', status_code=status.HTTP_400_BAD_REQUEST)
-        return Response(result)
+        return Response(chart)
