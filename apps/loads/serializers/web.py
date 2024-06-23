@@ -2,14 +2,15 @@ from datetime import datetime
 
 from django.utils.timezone import localdate
 from django.utils.translation import gettext_lazy as _
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.generics import get_object_or_404
 
 from apps.files.models import File
 from apps.files.serializer import FileDataSerializer
 from apps.loads.models import Product, Load
-from apps.tools.utils.helpers import split_code
+from apps.tools.utils.helpers import split_code, get_price
 from apps.user.models import Customer
+from config.core.api_exceptions import APIValidation
 from config.core.choices import TAKE_AWAY_DISPLAY, TAKE_AWAY, YANDEX
 
 
@@ -177,17 +178,45 @@ class AdminLoadRetrieveSerializer(serializers.ModelSerializer):
 
 
 class AdminLoadUpdateSerializer(serializers.ModelSerializer):
-    customer_id = serializers.CharField(allow_null=True)
+    customer_id = serializers.CharField(required=True)
+
+    def load_cost(self, customer):
+        weight = self.validated_data.get('weight')
+        price = get_price().get('auto') if customer.user_type == 'AUTO' else get_price().get('avia')
+        if price:
+            return float(price) * weight
+        raise APIValidation('Configure price in settings', status_code=status.HTTP_400_BAD_REQUEST)
 
     def update(self, instance, validated_data):
         customer_id = validated_data.pop('customer_id', '')
+        if not customer_id:
+            raise APIValidation(_('customer_id - обязательное поле'), status_code=status.HTTP_400_BAD_REQUEST)
+
         prefix, code = split_code(customer_id)
+        customer = get_object_or_404(Customer, prefix=prefix, code=code)
+        if validated_data.get('weight'):
+            new_cost = self.load_cost(customer)
+            old_cost = instance.cost
+            debt = customer.debt
+            cost_diff = old_cost - new_cost
+            debt += cost_diff
+            customer.debt = debt
+            customer.save()
+            instance.cost = new_cost
         if customer_id:
-            customer = get_object_or_404(Customer, prefix=prefix, code=code)
             instance.customer = customer
-            instance.save()
+        instance.save()
         instance = super().update(instance, validated_data)
         return instance
+
+    def to_representation(self, instance: Load):
+        representation = super().to_representation(instance)
+        representation['status_display'] = instance.get_status_display()
+        representation['updated_at'] = localdate(instance.updated_at)
+        representation['cost'] = instance.cost
+        representation['customer_id'] = f"{instance.customer.prefix}{instance.customer.code}"
+        representation['files'] = FileDataSerializer(instance.files.all(), many=True).data
+        return representation
 
     class Meta:
         model = Load
