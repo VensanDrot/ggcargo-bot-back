@@ -235,6 +235,7 @@ class CustomerTrackProductAPIView(APIView):
     def get(self, request, barcode, *args, **kwargs):
         product = self.get_product(barcode)
         serializer = self.serializer_class(product)
+
         return Response(serializer.data)
 
 

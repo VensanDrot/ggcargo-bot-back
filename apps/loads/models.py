@@ -8,6 +8,7 @@ from config.models import BaseModel
 class Product(BaseModel):
     status = models.CharField(choices=PRODUCT_STATUS_CHOICE, default=PRODUCT_ON_WAY, max_length=10)
     barcode = models.CharField(max_length=155, unique=True)
+    is_homeless = models.BooleanField(default=False)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, related_name='products',
                                  null=True, blank=True)
     accepted_by_china = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='products_china',

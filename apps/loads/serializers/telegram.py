@@ -27,9 +27,14 @@ class BarcodeConnectionSerializer(serializers.ModelSerializer):
 
         code = validated_data.pop('customer', '')
         prefix, code = split_code(code.get('code'))
-        customer = get_object_or_404(Customer, code=code, prefix=prefix)
         instance: Product = super().create(validated_data)
-        instance.customer_id = customer.id
+        if prefix == '' and code == '0':
+            is_homeless = True
+        else:
+            is_homeless = False
+            customer = get_object_or_404(Customer, code=code, prefix=prefix)
+            instance.customer_id = customer.id
+        instance.is_homeless = is_homeless
         instance.accepted_by_china = request.user
         instance.accepted_time_china = timezone.now()
         instance.save()
