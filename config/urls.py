@@ -77,6 +77,11 @@ __/tool/admin/dashboard/second-chart/__  -  second chart
 __/tool/admin/dashboard/third-chart/__  -  third chart
 __/tool/admin/dashboard/fourth-chart/__  -  fourth chart
 __/tool/admin/dashboard/fifth-chart/__  -  fifth chart
+
+<br>
+<h4>UPDATES 2024-06-24</h4>
+Open API to check barcode's status:
+__/api/open/product/{barcode}/__
 """
 
 schema_view = get_schema_view(

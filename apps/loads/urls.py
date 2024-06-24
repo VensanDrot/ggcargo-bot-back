@@ -7,10 +7,13 @@ from apps.loads.routes.telegram import BarcodeConnectionAPIView, AcceptProductAP
     ReleaseLoadAPIView, CustomerTrackProductAPIView, CustomerProductsListAPIView
 from apps.loads.routes.web import AdminProductListAPIView, AdminSelectProductStatus, AdminAddProduct, \
     AdminUpdateProduct, AdminDeleteProduct, AdminLoadListAPIView, AdminLoadRetrieveAPIView, AdminLoadUpdateAPIView
+from apps.loads.views import OpenProductBarcodeAPIView
 
 app_name = 'api'
 urlpatterns = [
     # admin
+    path('open/product/<str:barcode>/', OpenProductBarcodeAPIView.as_view(), name='open_product_barcode'),
+
     path('admin/delivery/products/', AdminProductListAPIView.as_view(), name='admin_delivery_products'),
     path('admin/delivery/product-statuses/', AdminSelectProductStatus.as_view(), name='admin_select_status'),
     path('admin/delivery/product-add/', AdminAddProduct.as_view(), name='admin_add_product'),
