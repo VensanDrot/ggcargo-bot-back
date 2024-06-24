@@ -228,14 +228,17 @@ class CustomerTrackProductAPIView(APIView):
 
     def get_product(self, barcode):
         try:
-            return Product.objects.get(barcode=barcode, customer__user_id=self.request.user.id)
+            return Product.objects.get(barcode=barcode)
         except Product.DoesNotExist:
             raise APIValidation(_('Посылка с таким номером не найдена!'), status_code=status.HTTP_404_NOT_FOUND)
 
     def get(self, request, barcode, *args, **kwargs):
         product = self.get_product(barcode)
         serializer = self.serializer_class(product)
-
+        if product.is_homeless:
+            product.customer_id = request.user.customer.id
+            product.is_homeless = False
+            product.save()
         return Response(serializer.data)
 
 

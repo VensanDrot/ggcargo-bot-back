@@ -19,7 +19,7 @@ from config.core.choices import (PRODUCT_NOT_LOADED, PRODUCT_NOT_LOADED_DISPLAY,
 
 
 class BarcodeConnectionSerializer(serializers.ModelSerializer):
-    customer_id = serializers.CharField(source='customer.code')
+    customer_id = serializers.CharField(source='customer.code', allow_null=True)
     china_files = serializers.SlugRelatedField(slug_field='id', many=True, queryset=File.objects.all(), required=False)
 
     def create(self, validated_data):
