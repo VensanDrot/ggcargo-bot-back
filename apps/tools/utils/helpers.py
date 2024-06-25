@@ -3,6 +3,7 @@ import locale
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+from django.conf import settings
 from django.utils import timezone
 from django.utils.timezone import localdate
 
@@ -101,8 +102,7 @@ def dashboard_chart_maker(objects, comparing_objects, start_date, end_date,
     else:
         sorted_dates = sorted(date_payment.keys())
 
-    locale.setlocale(locale.LC_TIME, 'ru_RU')
-    # locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+    locale.setlocale(locale.LC_TIME, settings.SET_LOCAL_LANGUAGE)
     labels = [date.strftime('%b-%d').capitalize() for date in sorted_dates]
     if not date_payment_exists:
         line1 = [date_counts[date] for date in sorted_dates]

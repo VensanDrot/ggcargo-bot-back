@@ -128,6 +128,7 @@ LANGUAGES = [
     ('uz', _('Uzbek')),
     ('ru', _('Russian')),
 ]
+SET_LOCAL_LANGUAGE = getenv('SET_LOCAL_LANGUAGE')
 
 # TIME_ZONE = 'UTC'
 TIME_ZONE = 'Asia/Tashkent'
