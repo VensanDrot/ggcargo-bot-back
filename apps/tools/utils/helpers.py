@@ -94,14 +94,15 @@ def dashboard_chart_maker(objects, comparing_objects, start_date, end_date,
                     date_weight[date] = 0
         else:
             if date not in date_payment:
-                date_counts[date] = 0
+                date_payment[date] = 0
 
     if not date_payment_exists:
         sorted_dates = sorted(date_counts.keys())
     else:
         sorted_dates = sorted(date_payment.keys())
 
-    locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+    locale.setlocale(locale.LC_TIME, 'ru_RU')
+    # locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
     labels = [date.strftime('%b-%d').capitalize() for date in sorted_dates]
     if not date_payment_exists:
         line1 = [date_counts[date] for date in sorted_dates]
