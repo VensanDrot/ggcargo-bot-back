@@ -48,7 +48,7 @@ class PostSettingsAPIView(APIView):
     def post(self, request, *args, **kwargs):
         with open(settings_path, 'r') as file:
             existing_settings = json.load(file)
-            serializer = self.serializer_class(data=request.data)
+            serializer = self.serializer_class(data=request.data, context={'settings_data': existing_settings})
             serializer.is_valid(raise_exception=True)
         with open(settings_path, 'w') as new_file:
             new_settings = dict(serializer.data)

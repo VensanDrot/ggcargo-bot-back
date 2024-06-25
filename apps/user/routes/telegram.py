@@ -121,11 +121,29 @@ class CustomerPaymentCardAPIView(APIView):
             user_type = request.user.customer.user_type
             with open(settings_path, 'r') as file:
                 file_data = json.load(file)
+                avia_selector = file_data['payment_card']['avia_selector']
+                auto_selector = file_data['payment_card']['auto_selector']
                 if user_type == 'AUTO':
-                    response = {'payment_card': file_data['payment_card']['auto']}
+                    try:
+                        auto_selector = file_data['payment_card']['auto_selector']
+                        returning_card = file_data['payment_card']['auto'].split(',')[auto_selector]
+                    except IndexError:
+                        auto_selector = 0
+                        returning_card = file_data['payment_card']['auto'].split(',')[auto_selector]
+                    auto_selector += 1
                 else:
-                    response = {'payment_card': file_data['payment_card']['avia']}
-                return Response(response)
+                    try:
+                        avia_selector = file_data['payment_card']['avia_selector']
+                        returning_card = file_data['payment_card']['avia'].split(',')[avia_selector]
+                    except IndexError:
+                        avia_selector = 0
+                        returning_card = file_data['payment_card']['avia'].split(',')[avia_selector]
+                    avia_selector += 1
+            with open(settings_path, 'w') as new_file:
+                file_data['payment_card']['avia_selector'] = avia_selector
+                file_data['payment_card']['auto_selector'] = auto_selector
+                json.dump(file_data, new_file, indent=2)
+            return Response({'payment_card': returning_card})
         except Exception as exc:
             raise APIValidation(f'Error occurred: {exc.args}', status_code=status.HTTP_400_BAD_REQUEST)
 
