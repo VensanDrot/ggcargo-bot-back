@@ -8,7 +8,7 @@ from config.models import BaseModel
 
 
 class OrderEMU(BaseModel):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     phone_number = models.CharField(max_length=30, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     town = models.CharField(max_length=55, null=True, blank=True)
