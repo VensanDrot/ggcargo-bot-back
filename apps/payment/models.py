@@ -25,6 +25,7 @@ class Payment(BaseModel):
         (CARD, CARD),
     ]
     payment_type = models.CharField(max_length=5, choices=PAYMENT_TYPE_CHOICE, default=CARD)
+    payment_card = models.CharField(max_length=16, null=True, blank=True)
     is_operator = models.BooleanField(default=False)
     operator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='payments')
 

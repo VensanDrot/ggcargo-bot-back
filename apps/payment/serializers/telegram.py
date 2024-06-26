@@ -27,7 +27,8 @@ class CustomerLoadPaymentSerializer(serializers.ModelSerializer):
             customer_id = self.context.get('request').user.customer.id
             image = validated_data.pop('files')
             load = validated_data.pop('load')
-            instance = Payment.objects.create(customer_id=customer_id, load=load)
+            payment_card = validated_data.pop('payment_card', '').replace(' ', '')
+            instance = Payment.objects.create(customer_id=customer_id, load=load, payment_card=payment_card)
             instance.files.add(image)
             return instance
         except Exception as exc:
@@ -36,6 +37,7 @@ class CustomerLoadPaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ['id',
+                  'payment_card',
                   'image',
                   'load', ]
 
