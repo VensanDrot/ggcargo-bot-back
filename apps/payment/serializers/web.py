@@ -22,6 +22,7 @@ class AdminPaymentOpenListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ['id',
+                  'payment_card',
                   'customer_id',
                   'date',
                   'files',
@@ -46,6 +47,7 @@ class AdminPaymentClosedListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = ['id',
+                  'payment_card',
                   'customer_id',
                   'date',
                   'files',
