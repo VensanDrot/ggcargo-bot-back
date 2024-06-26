@@ -10,6 +10,7 @@ from config.core.api_exceptions import APIValidation
 class CustomerLoadPaymentSerializer(serializers.ModelSerializer):
     image = serializers.SlugRelatedField(source='files', slug_field='id', required=True, write_only=True,
                                          queryset=File.objects.all())
+    payment_card = serializers.CharField(required=True)
 
     @staticmethod
     def validate_load(obj):
