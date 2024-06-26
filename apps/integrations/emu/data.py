@@ -45,7 +45,7 @@ def emu_order(order_id, customer_full_name, order_instance: OrderEMU):
         </receiver>
         <service>{order_instance.service}</service>
         <items>
-            {''.join(f'<item length="0" height="0" width="0" quantity="1" mass="0" retprice="0" barcode="{item.barcode}">{item}</item>' for item in order_instance.load.products.all())}
+            {''.join(f'<item length="0" height="0" width="0" quantity="1" mass="0" retprice="0" barcode="{item.barcode}">Посылка Express cargo</item>\n            ' for item in order_instance.load.products.all())}
         </items>
     </neworder>
     """
