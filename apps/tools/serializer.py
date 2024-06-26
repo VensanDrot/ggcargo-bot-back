@@ -68,6 +68,9 @@ class NewsletterListSerializer(serializers.ModelSerializer):
 
 
 class NewsletterSerializer(serializers.ModelSerializer):
+    photo_uz = FileDataSerializer(allow_null=True)
+    photo_ru = FileDataSerializer(allow_null=True)
+
     class Meta:
         model = Newsletter
         fields = ['id',
