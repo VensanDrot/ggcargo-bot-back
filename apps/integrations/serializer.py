@@ -17,4 +17,5 @@ class OrderEMUSerializer(serializers.ModelSerializer):
                   'address',
                   'town',
                   'service',
-                  'customer', ]
+                  'customer',
+                  'load', ]
