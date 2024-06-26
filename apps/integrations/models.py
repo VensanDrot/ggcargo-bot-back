@@ -7,7 +7,7 @@ from config.core.choices import EMU_SERVICE_CHOICE
 from config.models import BaseModel
 
 
-# class OrderEMU(BaseModel):
+class OrderEMU(BaseModel):
 #     # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 #     phone_number = models.CharField(max_length=30, null=True, blank=True)
 #     address = models.TextField(null=True, blank=True)
@@ -18,8 +18,9 @@ from config.models import BaseModel
 #
 #     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True)
 #
-#     class Meta:
-#         db_table = 'OrderEMU'
+    class Meta:
+        abstract = True
+        db_table = 'OrderEMU'
 
 
 class RegionEMU(BaseModel):
