@@ -80,3 +80,15 @@ class NewsletterSerializer(serializers.ModelSerializer):
                   'text_ru',
                   'photo_uz',
                   'photo_ru', ]
+
+
+class NewsletterPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Newsletter
+        fields = ['id',
+                  'send_date',
+                  'bot_type',
+                  'text_uz',
+                  'text_ru',
+                  'photo_uz',
+                  'photo_ru', ]

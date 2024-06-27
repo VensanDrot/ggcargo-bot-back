@@ -17,7 +17,8 @@ from rest_framework.views import APIView
 from apps.loads.models import Load, Product
 from apps.payment.models import Payment
 from apps.tools.models import Newsletter
-from apps.tools.serializer import SettingsSerializer, NewsletterListSerializer, NewsletterSerializer
+from apps.tools.serializer import SettingsSerializer, NewsletterListSerializer, NewsletterSerializer, \
+    NewsletterPostSerializer
 from apps.tools.utils.helpers import dashboard_chart_maker
 from apps.user.models import Customer
 from config.core.api_exceptions import APIValidation
@@ -70,13 +71,13 @@ class NewsletterListAPIView(ListAPIView):
 class NewsletterCreateAPIView(CreateAPIView):
     permission_classes = [IsWebOperator, ]
     queryset = Newsletter.objects.all()
-    serializer_class = NewsletterSerializer
+    serializer_class = NewsletterPostSerializer
 
 
 class NewsletterUpdateAPIView(UpdateAPIView):
     permission_classes = [IsWebOperator, ]
     queryset = Newsletter.objects.all()
-    serializer_class = NewsletterSerializer
+    serializer_class = NewsletterPostSerializer
     http_method_names = ['patch', ]
 
 
