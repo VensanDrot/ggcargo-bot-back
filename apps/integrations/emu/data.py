@@ -19,16 +19,17 @@ def emu_auth():
 
 
 def emu_order(order_id, customer_full_name, order_instance: OrderEMU):
+    load = order_instance.load
     url = 'https://home.courierexe.ru/api/'
 
     emu_creds = emu_integration['credentials']
     emu_extra = emu_integration['extra']
 
-    items = []
-    newline = '\n                '
-    for item in order_instance.load.products.all():
-        items.append(f'<item length="0" height="0" width="0" quantity="1" mass="0" retprice="0" barcode="{item.barcode}">Посылка Express cargo</item>')
-
+    # items = []
+    # newline = '\n                '
+    # for item in order_instance.load.products.all():
+    #     items.append(f'<item length="0" height="0" width="0" quantity="1" mass="0" retprice="0"
+    #     barcode="{item.barcode}">Посылка Express cargo</item>')
     xml = f"""
     <?xml version="1.0" encoding="UTF-8"?>
     <neworder newfolder="NO">
@@ -49,12 +50,11 @@ def emu_order(order_id, customer_full_name, order_instance: OrderEMU):
             </receiver>
             <service>{order_instance.service}</service>
             <items>
-                {f'{newline}'.join(items)}
+                <item length="0" height="0" width="0" quantity="{load.products.count()}" mass="{load.weight}" retprice="0">Посылка Express cargo</item>
             </items>
         </order>
     </neworder>
     """
-    # <item length="0" height="0" width="0" quantity="1" mass="0" retprice="0" barcode="{}">Посылка Express cargo</item>
 
     headers = {'Content-Type': 'application/xml'}
     response = requests.post(url, data=xml, headers=headers)
