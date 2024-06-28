@@ -83,6 +83,13 @@ class NewsletterSerializer(serializers.ModelSerializer):
 
 
 class NewsletterPostSerializer(serializers.ModelSerializer):
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['photo_uz'] = FileDataSerializer(instance.photo_uz, read_only=True).data
+        representation['photo_ru'] = FileDataSerializer(instance.photo_ru, read_only=True).data
+        return representation
+
     class Meta:
         model = Newsletter
         fields = ['id',
