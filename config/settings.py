@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'drf_yasg',
+    'django_crontab',
     'django_filters',
     'corsheaders',
 
@@ -176,6 +177,11 @@ REST_FRAMEWORK = {
     ],
     'EXCEPTION_HANDLER': 'config.core.api_exceptions.uni_exception_handler',
 }
+
+# CRONJOB
+CRONJOBS = [
+    # ('*/30 * * * *', "apps.tools.cron.test"),
+]
 
 # Integrations
 INTEGRATIONS = {

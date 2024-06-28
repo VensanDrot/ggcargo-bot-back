@@ -2,6 +2,7 @@ django
 django-filter
 djangorestframework
 django-cors-headers
+django-crontab
 djangorestframework-simplejwt
 drf-yasg
 gunicorn

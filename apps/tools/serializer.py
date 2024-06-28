@@ -88,6 +88,8 @@ class NewsletterPostSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['photo_uz'] = FileDataSerializer(instance.photo_uz, read_only=True).data
         representation['photo_ru'] = FileDataSerializer(instance.photo_ru, read_only=True).data
+        representation['status'] = instance.status
+        representation['status_display'] = instance.get_status_display()
         return representation
 
     class Meta:

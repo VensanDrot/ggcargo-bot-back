@@ -31,24 +31,33 @@ def next_prefix(last_prefix, user_type):
 
 def generate_code(customer_data: dict) -> tuple:
     user_type = customer_data.get('user_type')
-    query = Customer.objects.filter(user_type=user_type)
+    query = Customer.objects.filter(user_type=user_type).order_by('id')
     if query.exists():
         last_prefix = query.last().prefix
     else:
         last_prefix = start_prefix(user_type)
 
+    customers_with_last_prefix = query.filter(prefix=last_prefix).order_by('code')
+    codes = [int(c.code) for c in customers_with_last_prefix]
+    max_code = max(codes) if codes else 0
+    next_code = None
+    for i in range(1, max_code + 2):
+        if i not in codes:
+            next_code = str(i).zfill(4)
+            break
+
     customers_count = query.filter(prefix=last_prefix).count()
     if customers_count > 3000:
         prefix = last_prefix
-        code = str(customers_count).zfill(4)
+        code = next_code if next_code else str(customers_count).zfill(4)
         return prefix, code
     elif customers_count == 3000 and last_prefix not in ['ZRD', 'GZG']:
-        prefix = next_prefix(last_prefix, user_type)
+        prefix = next_code if next_code else next_prefix(last_prefix, user_type)
         code = str(1).zfill(4)
         return prefix, code
 
     prefix = last_prefix
-    code = str(customers_count + 1).zfill(4)
+    code = next_code if next_code else str(customers_count + 1).zfill(4)
     return prefix, code
 
 
