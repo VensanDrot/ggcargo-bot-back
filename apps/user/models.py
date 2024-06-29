@@ -54,8 +54,8 @@ class Customer(BaseModel):
     about_customer = models.TextField(null=True, blank=True)
 
     is_data_transferred = models.BooleanField(default=False)
-    ex_prefix = models.CharField("prefix", max_length=6, choices=PREFIX_CHOICES)
-    ex_code = models.CharField(max_length=255)
+    ex_prefix = models.CharField("prefix", max_length=6, choices=PREFIX_CHOICES, null=True, blank=True)
+    ex_code = models.CharField(max_length=255, null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
 
     class Meta:
