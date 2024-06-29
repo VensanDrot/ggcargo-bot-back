@@ -22,6 +22,7 @@ ZRD = 'ZRD'
 HVP = 'HVP'
 LXE = 'LXE'
 GZG = 'GZG'
+DELETE = 'DELETE'
 PREFIX_CHOICES = [
     (WSC, 'WSC'),
     (YDQ, 'YDQ'),
@@ -29,6 +30,7 @@ PREFIX_CHOICES = [
     (HVP, 'HVP'),
     (LXE, 'LXE'),
     (GZG, 'GZG'),
+    (DELETE, 'DELETE'),
 ]
 
 WAITING = 'WAITING'

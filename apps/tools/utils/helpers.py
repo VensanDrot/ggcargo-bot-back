@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.utils.timezone import localdate
 
 from apps.tools.serializer import SettingsSerializer
+from apps.user.models import Customer
 
 
 def division_return_zero(a, b):
@@ -126,3 +127,16 @@ def dashboard_chart_maker(objects, comparing_objects, start_date, end_date,
         totals_percent['line2'] = sum(line2)
         totals_percent['line2_percent'] = division_return_zero(line2, c_line2)
     return chart, totals_percent
+
+
+def generate_non_active_id() -> tuple:
+    prefix = 'DELETE'
+    customers = Customer.objects.filter(prefix=prefix).order_by('code')
+    codes = [int(c.code) for c in customers]
+    max_code = max(codes) if codes else 0
+    code = str(customers.count() + 1).zfill(4)
+    for i in range(1, max_code + 2):
+        if i not in codes:
+            code = str(i).zfill(4)
+            break
+    return prefix, code

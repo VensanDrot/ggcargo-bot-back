@@ -37,7 +37,7 @@ class User(AbstractUser):
 
 
 class Customer(BaseModel):
-    prefix = models.CharField("prefix", max_length=4, choices=PREFIX_CHOICES)
+    prefix = models.CharField("prefix", max_length=6, choices=PREFIX_CHOICES)
     code = models.CharField(max_length=255)
     debt = models.FloatField(default=0)
     phone_number = models.CharField(_("phone number"), max_length=35, null=True, blank=True)
@@ -53,6 +53,7 @@ class Customer(BaseModel):
     accepted_time = models.DateTimeField(null=True, blank=True)
     about_customer = models.TextField(null=True, blank=True)
 
+    is_data_transferred = models.BooleanField(default=False)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='customer')
 
     class Meta:
