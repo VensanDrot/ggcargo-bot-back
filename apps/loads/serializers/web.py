@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.utils.timezone import localdate
+from django.utils.timezone import localdate, localtime
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers, status
 from rest_framework.generics import get_object_or_404
@@ -50,7 +50,17 @@ class AdminProductListSerializer(serializers.ModelSerializer):
 class AdminAddProductSerializer(serializers.ModelSerializer):
     customer_id = serializers.CharField(source='customer.code')
     image = serializers.SlugRelatedField(source='china_files.id', slug_field='id', queryset=File.objects.all(),
-                                         required=False)
+                                         required=False, write_only=True)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['customer_id'] = f'{instance.customer.prefix}{instance.customer.code}'
+        # representation['status'] = instance.status
+        representation['status_display'] = instance.get_status_display()
+        representation['last_update'] = localtime(instance.updated_at)
+        representation['responsible'] = instance.accepted_by_china.full_name or instance.accepted_by_tashkent.full_name
+        representation['files'] = FileDataSerializer(instance.china_files.all(), many=True).data
+        return representation
 
     def create(self, validated_data):
         request = self.context.get('request')
