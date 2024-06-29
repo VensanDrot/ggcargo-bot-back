@@ -40,9 +40,24 @@ class CustomerAviaRegistrationStepOneSerializer(serializers.ModelSerializer):
             instance.save()
             return instance
         instance = super().create(validated_data)
-        prefix, code = generate_code({'user_type': 'AVIA'})
-        customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
-                                           user_type='AVIA', **customer_data)
+        deleted_customer = Customer.objects.filter(prefix='DELETE', is_data_transferred=False)
+        if deleted_customer.exists():
+            deleted_customer = deleted_customer.first()
+            prefix, code = deleted_customer.ex_prefix, deleted_customer.ex_code
+            transferred_customer_products = deleted_customer.products.filter(status='DONE')
+            transferred_customer_loads = deleted_customer.loads.filter(status__in=['DONE', 'DONE_MAIL'])
+            other_products = deleted_customer.products.filter(status__in=['ON_WAY', 'DELIVERED', ])
+            customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
+                                               user_type='AVIA', **customer_data)
+            transferred_customer_products.update(customer_id=customer.id)
+            transferred_customer_loads.update(customer_id=customer.id)
+            other_products.update(customer_id=None, is_homeless=True)
+            deleted_customer.is_data_transferred = True
+            deleted_customer.save()
+        else:
+            prefix, code = generate_code({'user_type': 'AVIA'})
+            customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
+                                               user_type='AVIA', **customer_data)
         instance.customer_id = customer.id
         instance.is_active = False
         instance.set_password(password)
@@ -143,9 +158,24 @@ class CustomerAutoRegistrationStepOneSerializer(serializers.ModelSerializer):
             instance.save()
             return instance
         instance = super().create(validated_data)
-        prefix, code = generate_code({'user_type': 'AUTO'})
-        customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
-                                           user_type='AUTO', **customer_data)
+        deleted_customer = Customer.objects.filter(prefix='DELETE', is_data_transferred=False)
+        if deleted_customer.exists():
+            deleted_customer = deleted_customer.first()
+            prefix, code = deleted_customer.ex_prefix, deleted_customer.ex_code
+            transferred_customer_products = deleted_customer.products.filter(status='DONE')
+            transferred_customer_loads = deleted_customer.loads.filter(status__in=['DONE', 'DONE_MAIL'])
+            other_products = deleted_customer.products.filter(status__in=['ON_WAY', 'DELIVERED', ])
+            customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
+                                               user_type='AUTO', **customer_data)
+            transferred_customer_products.update(customer_id=customer.id)
+            transferred_customer_loads.update(customer_id=customer.id)
+            other_products.update(customer_id=None, is_homeless=True)
+            deleted_customer.is_data_transferred = True
+            deleted_customer.save()
+        else:
+            prefix, code = generate_code({'user_type': 'AUTO'})
+            customer = Customer.objects.create(user_id=instance.id, prefix=prefix, code=code,
+                                               user_type='AUTO', **customer_data)
         instance.customer_id = customer.id
         instance.is_active = False
         instance.set_password(password)

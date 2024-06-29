@@ -180,7 +180,7 @@ REST_FRAMEWORK = {
 
 # CRONJOB
 CRONJOBS = [
-    # ('*/30 * * * *', "apps.tools.cron.test"),
+    ('0 0 * * *', "apps.tools.cron.non_active_customers"),
 ]
 
 # Integrations
