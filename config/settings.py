@@ -194,6 +194,12 @@ INTEGRATIONS = {
     }
 }
 
+# TG bot tokens
+BOT_TOKENS = {
+    'avia_customer': getenv('AVIA_BOT_TOKEN'),
+    'auto_customer': getenv('AUTO_BOT_TOKEN'),
+}
+
 # Swagger
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {

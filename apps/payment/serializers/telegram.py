@@ -1,6 +1,11 @@
+from django.utils import timezone
+from django.utils.timezone import localdate
 from rest_framework import serializers, status
 from django.utils.translation import gettext_lazy as _
 
+from apps.bot.templates.text import delivery_text, request_location
+from apps.bot.utils.keyboards import location_keyboard
+from apps.bot.views import avia_customer_bot, auto_customer_bot
 from apps.files.models import File
 from apps.payment.models import Payment
 from apps.tools.models import Delivery
@@ -62,6 +67,21 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
         load.status = 'CUSTOMER_DELIVERY'
         load.save()
         instance.save()
+        message = delivery_text.format(date=localdate(timezone.now()).strftime("%d.%m.%Y"), weight=load.weight,
+                                       delivery_type=instance.get_delivery_type_display(), comment=instance.comment,
+                                       phone_number=customer.phone_number,
+                                       customer_id=f'{customer.prefix}{customer.code}')
+        if instance.delivery_type != 'TAKE_AWAY':
+            if customer.user_type == 'AVIA':
+                avia_customer_bot.send_message(chat_id=-1002187675934, text=message, parse_mode='HTML')
+                if instance.delivery_type == 'YANDEX':
+                    avia_customer_bot.send_message(chat_id=customer.tg_id, text=request_location,
+                                                   reply_markup=location_keyboard())
+            elif customer.user_type == 'AUTO':
+                auto_customer_bot.send_message(chat_id=-1002187675934, text=message, parse_mode='HTML')
+                if instance.delivery_type == 'YANDEX':
+                    auto_customer_bot.send_message(chat_id=customer.tg_id, text=request_location,
+                                                   reply_markup=location_keyboard())
         return instance
 
     class Meta:

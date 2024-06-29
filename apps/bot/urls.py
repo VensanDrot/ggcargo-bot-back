@@ -1,8 +1,8 @@
 from django.urls import path
 
-from apps.bot.views import CargoBotWebhook
+from apps.bot.views import BotWebhook
 
 app_name = 'bot'
 urlpatterns = [
-    # path('webhook/', CargoBotWebhook.as_view())
+    path('webhook/', BotWebhook.as_view())
 ]

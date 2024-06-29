@@ -41,8 +41,9 @@ class Customer(BaseModel):
     code = models.CharField(max_length=255)
     debt = models.FloatField(default=0)
     phone_number = models.CharField(_("phone number"), max_length=35, null=True, blank=True)
-    tg_id = models.CharField(max_length=155, null=True, blank=True)
+    tg_id = models.CharField(max_length=155, unique=True, null=True, blank=True)
     language = models.CharField(max_length=2, choices=settings.LANGUAGES, default='uz')
+    location = models.TextField(null=True, blank=True)
 
     user_type = models.CharField(_("user type"), max_length=4, choices=CAR_OR_AIR_CHOICE)
     passport_photo = models.ForeignKey("files.File", on_delete=models.SET_NULL,
