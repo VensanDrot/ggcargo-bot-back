@@ -26,13 +26,8 @@ def emu_order(order_id, customer_full_name, order_instance: OrderEMU):
     emu_creds = emu_integration['credentials']
     emu_extra = emu_integration['extra']
 
-    # items = []
-    # newline = '\n                '
-    # for item in order_instance.load.products.all():
-    #     items.append(f'<item length="0" height="0" width="0" quantity="1" mass="0" retprice="0"
-    #     barcode="{item.barcode}">Посылка Express cargo</item>')
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
-<neworder newfolder="NO">
+<neworder>
     <auth extra="{emu_extra}" login="{emu_creds['username']}" pass="{emu_creds['password']}"></auth>
     <order orderno="{order_id}">
         <barcode>{order_id}</barcode>
@@ -53,11 +48,10 @@ def emu_order(order_id, customer_full_name, order_instance: OrderEMU):
             <item length="0" height="0" width="0" quantity="{load.products.count()}" mass="{load.weight}" retprice="0">Посылка Express cargo</item>
         </items>
     </order>
-</neworder>
-    """
+</neworder>"""
 
     headers = {'Content-Type': 'application/xml'}
-    response = requests.post(url, data=xml, headers=headers)
+    response = requests.post(url, data=xml.encode('utf-8'), headers=headers)
     return response
 
 
