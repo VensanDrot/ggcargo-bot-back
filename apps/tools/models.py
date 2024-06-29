@@ -29,6 +29,7 @@ class Delivery(BaseModel):
     phone_number = models.CharField("phone number", max_length=30, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     comment = models.TextField(null=True, blank=True)
+    telegram_message_id = models.IntegerField(null=True, blank=True)
 
     load = models.OneToOneField(Load, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery')
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True, related_name='deliveries')

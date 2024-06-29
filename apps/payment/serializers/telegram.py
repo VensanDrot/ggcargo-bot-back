@@ -66,22 +66,26 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
         instance.load = load
         load.status = 'CUSTOMER_DELIVERY'
         load.save()
-        instance.save()
         message = delivery_text.format(date=localdate(timezone.now()).strftime("%d.%m.%Y"), weight=load.weight,
                                        delivery_type=instance.get_delivery_type_display(), comment=instance.comment,
                                        phone_number=customer.phone_number,
                                        customer_id=f'{customer.prefix}{customer.code}')
         if instance.delivery_type != 'TAKE_AWAY':
             if customer.user_type == 'AVIA':
-                avia_customer_bot.send_message(chat_id=-1002187675934, text=message, parse_mode='HTML')
+                delivery_message = avia_customer_bot.send_message(chat_id=-1002187675934, text=message,
+                                                                  parse_mode='HTML')
+                instance.telegram_message_id = delivery_message.message_id
                 if instance.delivery_type == 'YANDEX':
                     avia_customer_bot.send_message(chat_id=customer.tg_id, text=request_location,
                                                    reply_markup=location_keyboard())
             elif customer.user_type == 'AUTO':
-                auto_customer_bot.send_message(chat_id=-1002187675934, text=message, parse_mode='HTML')
+                delivery_message = auto_customer_bot.send_message(chat_id=-1002187675934, text=message,
+                                                                  parse_mode='HTML')
+                instance.telegram_message_id = delivery_message.message_id
                 if instance.delivery_type == 'YANDEX':
                     auto_customer_bot.send_message(chat_id=customer.tg_id, text=request_location,
                                                    reply_markup=location_keyboard())
+        instance.save()
         return instance
 
     class Meta:
