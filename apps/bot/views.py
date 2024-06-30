@@ -29,20 +29,28 @@ class BotWebhook(APIView):
 
 
 @avia_customer_bot.message_handler(content_types=['location'])
-@auto_customer_bot.message_handler(content_types=['location'])
-def handle_message(message: types.Message):
-    tg_id = message.chat.id
-    customer = get_object_or_404(Customer, tg_id=tg_id)
-    location = message.location.to_dict()
-    customer.location = location
-    customer.save()
-    delivery = customer.deliveries.order_by('-id').first()
+def handle_content_avia(message: types.Message):
     if avia_customer_bot.user.id == message.reply_to_message.from_user.id:
+        tg_id = message.chat.id
+        customer = get_object_or_404(Customer, tg_id=tg_id)
+        location = message.location.to_dict()
+        customer.location = location
+        customer.save()
+        delivery = customer.deliveries.order_by('-id').first()
         avia_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
         avia_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
                                         latitude=location['latitude'], longitude=location['longitude'])
 
-    else:
+
+@auto_customer_bot.message_handler(content_types=['location'])
+def handle_content_auto(message: types.Message):
+    if auto_customer_bot.user.id == message.reply_to_message.from_user.id:
+        tg_id = message.chat.id
+        customer = get_object_or_404(Customer, tg_id=tg_id)
+        location = message.location.to_dict()
+        customer.location = location
+        customer.save()
+        delivery = customer.deliveries.order_by('-id').first()
         auto_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
         auto_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
                                         latitude=location['latitude'], longitude=location['longitude'])
