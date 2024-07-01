@@ -2,7 +2,7 @@ from django.urls import path
 
 from apps.tools.views import GetSettingsAPIView, PostSettingsAPIView, NewsletterListAPIView, NewsletterCreateAPIView, \
     NewsletterUpdateAPIView, NewsletterRetrieveAPIView, FourthDashboardAPIView, FirstDashboardAPIView, \
-    SecondDashboardAPIView, ThirdDashboardAPIView, FifthDashboardAPIView
+    SecondDashboardAPIView, ThirdDashboardAPIView, FifthDashboardAPIView, NewsletterTestAPIView
 
 app_name = 'tool'
 urlpatterns = [
@@ -12,6 +12,7 @@ urlpatterns = [
     path('newsletter/create/', NewsletterCreateAPIView.as_view(), name='newsletter_create'),
     path('newsletter/update/<int:pk>/', NewsletterUpdateAPIView.as_view(), name='newsletter_update'),
     path('newsletter/retrieve/<int:pk>/', NewsletterRetrieveAPIView.as_view(), name='newsletter_retrieve'),
+    path('newsletter/test/', NewsletterTestAPIView.as_view(), name='newsletter_retrieve'),
 
     # Dashboard
     path('admin/dashboard/first-chart/', FirstDashboardAPIView.as_view(), name='dashboard_first'),

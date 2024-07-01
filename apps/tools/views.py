@@ -19,6 +19,7 @@ from apps.payment.models import Payment
 from apps.tools.models import Newsletter
 from apps.tools.serializer import SettingsSerializer, NewsletterListSerializer, NewsletterSerializer, \
     NewsletterPostSerializer
+from apps.tools.tasks import send_newsletter
 from apps.tools.utils.helpers import dashboard_chart_maker
 from apps.user.models import Customer
 from config.core.api_exceptions import APIValidation
@@ -283,3 +284,9 @@ class FifthDashboardAPIView(APIView):
         else:
             raise APIValidation('Some of query params was missed', status_code=status.HTTP_400_BAD_REQUEST)
         return Response(chart)
+
+
+class NewsletterTestAPIView(APIView):
+    def get(self, request):
+        send_newsletter(newsletter_id=1)
+        return Response('OK')
