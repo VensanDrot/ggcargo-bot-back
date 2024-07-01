@@ -1,8 +1,9 @@
+from django.utils.timezone import localtime
 from rest_framework import serializers
 
 from apps.files.serializer import FileDataSerializer
 from apps.tools.models import Newsletter
-from config.core.api_exceptions import APIValidation
+from apps.tools.tasks import create_newsletter_task
 
 
 class SettingToolSerializer(serializers.Serializer):
@@ -90,6 +91,8 @@ class NewsletterPostSerializer(serializers.ModelSerializer):
         representation['photo_ru'] = FileDataSerializer(instance.photo_ru, read_only=True).data
         representation['status'] = instance.status
         representation['status_display'] = instance.get_status_display()
+
+        create_newsletter_task(instance.id, localtime(instance.send_date))
         return representation
 
     class Meta:

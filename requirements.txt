@@ -2,6 +2,7 @@ celery
 django
 django-filter
 djangorestframework
+django-celery-beat
 django-cors-headers
 django-crontab
 djangorestframework-simplejwt
