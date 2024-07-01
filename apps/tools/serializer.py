@@ -92,7 +92,7 @@ class NewsletterPostSerializer(serializers.ModelSerializer):
         representation['status'] = instance.status
         representation['status_display'] = instance.get_status_display()
 
-        create_newsletter_task(instance.id, localtime(instance.send_date))
+        create_newsletter_task(instance.id, instance.send_date)
         return representation
 
     class Meta:
