@@ -47,7 +47,7 @@ def create_newsletter_task(newsletter_id, schedule_time):
     )
     PeriodicTask.objects.create(
         clocked=clocked_schedule,
-        name='send-newsletter-task',
+        name=f'send-newsletter-task-{newsletter_id}',
         task='apps.tools.tasks.send_newsletter',
         args=json.dumps([newsletter_id]),
         one_off=True,
