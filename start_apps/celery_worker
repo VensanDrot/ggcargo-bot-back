@@ -3,4 +3,4 @@
 set -o errexit
 set -o nounset
 
-celery -A config worker --beat -S django --loglevel=info
+celery -A config worker -l INFO
