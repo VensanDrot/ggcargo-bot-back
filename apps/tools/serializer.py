@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from apps.files.serializer import FileDataSerializer
 from apps.tools.models import Newsletter
-from apps.tools.tasks import create_newsletter_task
+from apps.tools.utils.helpers import create_newsletter_task
 
 
 class SettingToolSerializer(serializers.Serializer):

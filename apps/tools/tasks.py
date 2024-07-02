@@ -2,7 +2,6 @@ import json
 import logging
 
 from celery import shared_task
-from django_celery_beat.models import ClockedSchedule, PeriodicTask
 from rest_framework.generics import get_object_or_404
 
 from apps.bot.views import avia_customer_bot, auto_customer_bot
@@ -46,14 +45,3 @@ def send_newsletter(newsletter_id):
     #     pass
 
 
-def create_newsletter_task(newsletter_id, schedule_time):
-    clocked_schedule, created = ClockedSchedule.objects.get_or_create(
-        clocked_time=schedule_time
-    )
-    PeriodicTask.objects.create(
-        clocked=clocked_schedule,
-        name=f'send-newsletter-task-{newsletter_id}',
-        task='apps.tools.tasks.send_newsletter',
-        args=json.dumps([newsletter_id]),
-        one_off=True
-    )
