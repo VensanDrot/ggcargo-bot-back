@@ -7,6 +7,7 @@ django-cors-headers
 django-crontab
 djangorestframework-simplejwt
 drf-yasg
+flower
 gunicorn
 python-dotenv
 pyTelegramBotAPI
