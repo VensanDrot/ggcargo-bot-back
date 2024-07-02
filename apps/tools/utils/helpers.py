@@ -9,6 +9,7 @@ from django.utils.timezone import localdate
 from django_celery_beat.models import ClockedSchedule, PeriodicTask
 
 from apps.tools.serializer import SettingsSerializer
+from apps.tools.tasks import send_newsletter
 from apps.user.models import Customer
 
 
@@ -144,16 +145,19 @@ def generate_non_active_id() -> tuple:
 
 
 def create_newsletter_task(newsletter_id, schedule_time):
-    # schedule_time = datetime.utcnow() + timedelta(minutes=2)
-    clocked_schedule, created = ClockedSchedule.objects.get_or_create(
-        clocked_time=schedule_time
-    )
-    PeriodicTask.objects.create(
-        clocked=clocked_schedule,
-        name=f'send-newsletter-task-{newsletter_id}',
-        # task='apps.tools.tasks.send_newsletter',
-        task='send_newsletter',
-        args=json.dumps([newsletter_id]),
-        one_off=True
-    )
 
+    # schedule_time = datetime.utcnow() + timedelta(minutes=2)
+    # clocked_schedule, created = ClockedSchedule.objects.get_or_create(
+    #     clocked_time=schedule_time
+    # )
+    # PeriodicTask.objects.create(
+    #     clocked=clocked_schedule,
+    #     name=f'send-newsletter-task-{newsletter_id}',
+    #     # task='apps.tools.tasks.send_newsletter',
+    #     task='send_newsletter',
+    #     args=json.dumps([newsletter_id]),
+    #     one_off=True
+    # )
+    run_time = timezone.make_aware(schedule_time)
+
+    send_newsletter.apply_async(eta=run_time)
