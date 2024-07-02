@@ -144,7 +144,7 @@ def generate_non_active_id() -> tuple:
 
 
 def create_newsletter_task(newsletter_id, schedule_time):
-    schedule_time = datetime.utcnow() + timedelta(minutes=2)
+    # schedule_time = datetime.utcnow() + timedelta(minutes=2)
     clocked_schedule, created = ClockedSchedule.objects.get_or_create(
         clocked_time=schedule_time
     )
