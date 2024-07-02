@@ -6,7 +6,7 @@ from celery import shared_task
 logger = logging.getLogger()
 
 
-@shared_task
+@shared_task(name='send_newsletter')
 def send_newsletter():
     from rest_framework.generics import get_object_or_404
 
