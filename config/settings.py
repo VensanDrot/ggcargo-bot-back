@@ -1,11 +1,15 @@
 from os import getenv
 from os.path import join as join_path
+
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 from pathlib import Path
 from datetime import timedelta
 
 from django.utils.translation import gettext_lazy as _
+
+import apps.tools.tasks
 
 load_dotenv()
 
@@ -157,13 +161,13 @@ FILE_UPLOAD_DIR = join_path(MEDIA_ROOT, 'uploads')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # EMAIL
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = 'smtp.mail.ru'
-EMAIL_HOST_USER = getenv('EMAIL_USER')
-EMAIL_HOST_PASSWORD = getenv('EMAIL_PASSWORD')
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
+# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+# EMAIL_HOST = 'smtp.mail.ru'
+# EMAIL_HOST_USER = getenv('EMAIL_USER')
+# EMAIL_HOST_PASSWORD = getenv('EMAIL_PASSWORD')
+# EMAIL_PORT = 465
+# EMAIL_USE_TLS = False
+# EMAIL_USE_SSL = True
 
 # Celery
 CELERY_BROKER_URL = 'redis://localhost:6379'
@@ -172,6 +176,12 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Tashkent'
+CELERY_BEAT_SCHEDULE = {
+    "sample_task": {
+        "task": "apps.tools.tasks.send_newsletter",
+        "schedule": crontab(minute="*/1"),
+    },
+}
 
 # RestFramework
 REST_FRAMEWORK = {
