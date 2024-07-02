@@ -1,18 +1,18 @@
-import json
 import logging
 
 from celery import shared_task
-from rest_framework.generics import get_object_or_404
 
-from apps.bot.views import avia_customer_bot, auto_customer_bot
-from apps.tools.models import Newsletter
-from apps.user.models import Customer
 
 logger = logging.getLogger()
 
 
 @shared_task
 def send_newsletter(newsletter_id):
+    from rest_framework.generics import get_object_or_404
+
+    from apps.bot.views import avia_customer_bot, auto_customer_bot
+    from apps.tools.models import Newsletter
+    from apps.user.models import Customer
     print(newsletter_id)
     logger.debug(f'Task for newsletter: {newsletter_id}')
     # try:

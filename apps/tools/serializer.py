@@ -3,7 +3,6 @@ from rest_framework import serializers
 
 from apps.files.serializer import FileDataSerializer
 from apps.tools.models import Newsletter
-from apps.tools.utils.helpers import create_newsletter_task
 
 
 class SettingToolSerializer(serializers.Serializer):
@@ -86,6 +85,8 @@ class NewsletterSerializer(serializers.ModelSerializer):
 class NewsletterPostSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
+        from apps.tools.utils.helpers import create_newsletter_task
+
         representation = super().to_representation(instance)
         representation['photo_uz'] = FileDataSerializer(instance.photo_uz, read_only=True).data
         representation['photo_ru'] = FileDataSerializer(instance.photo_ru, read_only=True).data
