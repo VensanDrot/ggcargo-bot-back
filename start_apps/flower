@@ -14,5 +14,5 @@ done
 >&2 echo 'Celery workers is available'
 
 celery -A config  \
-    --broker="redis://localhost:6379/0" \
+    --broker="redis://localhost:6379" \
     flower
