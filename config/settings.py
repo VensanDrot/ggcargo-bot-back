@@ -176,12 +176,12 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Tashkent'
-CELERY_BEAT_SCHEDULE = {
-    "sample_task": {
-        "task": "apps.tools.tasks.send_newsletter",
-        "schedule": crontab(minute="*/1"),
-    },
-}
+# CELERY_BEAT_SCHEDULE = {
+#     "sample_task": {
+#         "task": "apps.tools.tasks.send_newsletter",
+#         "schedule": crontab(minute="*/1"),
+#     },
+# }
 
 # RestFramework
 REST_FRAMEWORK = {
