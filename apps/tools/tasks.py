@@ -55,5 +55,5 @@ def create_newsletter_task(newsletter_id, schedule_time):
         name=f'send-newsletter-task-{newsletter_id}',
         task='apps.tools.tasks.send_newsletter',
         args=json.dumps([newsletter_id]),
-        one_off=True,
+        one_off=True
     )
