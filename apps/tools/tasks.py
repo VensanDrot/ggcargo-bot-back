@@ -1,4 +1,5 @@
 import json
+import logging
 
 from celery import shared_task
 from django_celery_beat.models import ClockedSchedule, PeriodicTask
@@ -8,9 +9,13 @@ from apps.bot.views import avia_customer_bot, auto_customer_bot
 from apps.tools.models import Newsletter
 from apps.user.models import Customer
 
+logger = logging.getLogger()
+
 
 @shared_task
 def send_newsletter(newsletter_id):
+    print(newsletter_id)
+    logger.debug(f'Task for newsletter: {newsletter_id}')
     try:
         newsletter = get_object_or_404(Newsletter, pk=newsletter_id)
         if newsletter.status == 'SENT':
