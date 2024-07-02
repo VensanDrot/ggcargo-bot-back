@@ -147,4 +147,4 @@ def create_newsletter_task(newsletter_id, schedule_time):
     schedule_time = schedule_time.replace(tzinfo=None)
     run_time = timezone.make_aware(schedule_time)
 
-    send_newsletter.apply_async(eta=run_time)
+    send_newsletter.apply_async(args=[newsletter_id], eta=run_time)
