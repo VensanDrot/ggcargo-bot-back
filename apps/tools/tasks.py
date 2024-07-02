@@ -7,14 +7,14 @@ logger = logging.getLogger()
 
 
 @shared_task
-def send_newsletter(newsletter_id):
+def send_newsletter():
     from rest_framework.generics import get_object_or_404
 
     from apps.bot.views import avia_customer_bot, auto_customer_bot
     from apps.tools.models import Newsletter
     from apps.user.models import Customer
-    print(newsletter_id)
-    logger.debug(f'Task for newsletter: {newsletter_id}')
+    print('Test print')
+    logger.debug(f'Task for newsletter: {1}')
     # try:
     #     newsletter = get_object_or_404(Newsletter, pk=newsletter_id)
     #     if newsletter.status == 'SENT':
