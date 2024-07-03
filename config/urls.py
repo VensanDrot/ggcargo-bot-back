@@ -82,6 +82,24 @@ __/tool/admin/dashboard/fifth-chart/__  -  fifth chart
 <h4>UPDATES 2024-06-24</h4>
 Open API to check barcode's status:
 __/api/open/product/{barcode}/__
+
+<br>
+<h4>UPDATES 2024-07-03</h4>
+EMU Regions and Districts list:
+__/integration/emu/regions/__  to get list of regions
+__/integration/emu/districts/{region}/__  pass region name to get list of districts
+
+__/payment/customer/delivery/__  endpoint updated: added MAIL delivery type. Json request body example:
+```
+{
+  "delivery_type": "MAIL",
+  "phone_number": "+998901112233",
+  "town": 143,  # pass district id which you get from district's list
+  "address": "Новза махалля, 15-22",
+  "service_type": 3,  # 1 or 3. 1=От офиса до офиса, 3=На руки получателю
+  "comment": "Позвоните заранее перед приездом"
+}
+```
 """
 
 schema_view = get_schema_view(
