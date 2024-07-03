@@ -23,7 +23,7 @@ class CustomerLoadPaymentSerializer(serializers.ModelSerializer):
     @staticmethod
     def validate_load(obj):
         if obj.status == 'PAID':
-            raise APIValidation(_('Это загрузка уже оплачено'), status_code=status.HTTP_400_BAD_REQUEST)
+            raise APIValidation(_('Эта загрузка уже оплачено'), status_code=status.HTTP_400_BAD_REQUEST)
         return obj
 
     def create(self, validated_data):
@@ -60,7 +60,7 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
             raise APIValidation(_('Загрузка не найдено'), status_code=status.HTTP_400_BAD_REQUEST)
         load = load.first()
         if load.status != 'PAID':
-            raise APIValidation(_('Это загрузка не оплачено'), status_code=status.HTTP_400_BAD_REQUEST)
+            raise APIValidation(_('Эта загрузка не оплачено'), status_code=status.HTTP_400_BAD_REQUEST)
         if hasattr(load, 'delivery'):
             raise APIValidation(_('По этой загрузке у вас уже отправили информации доставки'),
                                 status_code=status.HTTP_400_BAD_REQUEST)
