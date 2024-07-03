@@ -332,7 +332,10 @@ class CustomerModerationListSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_customer_code(obj: CustomerRegistration):
-        return f'{obj.customer.prefix}{obj.customer.code}'
+        customer = obj.customer
+        prefix = customer.prefix if customer.prefix else ''
+        code = customer.code if customer.code else ''
+        return f'{prefix}{code}'
 
     class Meta:
         model = CustomerRegistration
@@ -363,7 +366,10 @@ class CustomerModerationRetrieveSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_customer_code(obj: CustomerRegistration):
-        return f'{obj.customer.prefix}{obj.customer.code}'
+        customer = obj.customer
+        prefix = customer.prefix if customer.prefix else ''
+        code = customer.code if customer.code else ''
+        return f'{prefix}{code}'
 
     class Meta:
         model = CustomerRegistration
