@@ -123,5 +123,7 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
         fields = ['id',
                   'delivery_type',
                   'phone_number',
+                  'town',
                   'address',
+                  'service_type',
                   'comment', ]

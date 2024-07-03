@@ -11,7 +11,7 @@ from apps.loads.models import Product, Load
 from apps.tools.utils.helpers import split_code, get_price
 from apps.user.models import Customer
 from config.core.api_exceptions import APIValidation
-from config.core.choices import TAKE_AWAY_DISPLAY, TAKE_AWAY, YANDEX
+from config.core.choices import TAKE_AWAY_DISPLAY, TAKE_AWAY, YANDEX, MAIL
 
 
 class AdminProductListSerializer(serializers.ModelSerializer):
@@ -166,6 +166,8 @@ class AdminLoadRetrieveSerializer(serializers.ModelSerializer):
             if delivery.delivery_type == TAKE_AWAY:
                 return TAKE_AWAY_DISPLAY
             elif delivery.delivery_type == YANDEX:
+                return delivery.address
+            elif delivery.delivery_type == MAIL:
                 return delivery.address
         return _('Нет информации о доставки')
 

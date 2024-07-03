@@ -6,7 +6,7 @@ from apps.integrations.models import RegionEMU, OrderEMU
 class DistrictEMUSerializer(serializers.ModelSerializer):
     class Meta:
         model = RegionEMU
-        fields = ['code',
+        fields = ['id',
                   'district_ru', ]
 
 
