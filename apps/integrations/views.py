@@ -1,11 +1,11 @@
-import xmltodict
+from drf_yasg.openapi import Parameter, IN_QUERY, TYPE_STRING
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.integrations.emu.data import emu_auth, emu_order
-from apps.integrations.models import RegionEMU, OrderEMU
+from apps.integrations.emu.data import emu_auth, emu_order, emu_tracking_link
+from apps.integrations.models import RegionEMU
 from apps.integrations.serializer import DistrictEMUSerializer, OrderEMUSerializer
 
 
@@ -41,10 +41,20 @@ class OrderEMUAPIView(APIView):
     @swagger_auto_schema(request_body=OrderEMUSerializer)
     def post(self, request, *args, **kwargs):
         data = request.data
-        data['customer'] = request.user.customer.id
+        # data['customer'] = request.user.customer.id
         order_serializer = self.serializer_class(data=data)
         order_serializer.is_valid(raise_exception=True)
         order_instance = order_serializer.save()
         order_response = emu_order(order_id=order_instance.id, customer_full_name=request.user.full_name,
                                    order_instance=order_instance)
         return Response(order_response.text)
+
+
+class EMUTrackingAPIView(APIView):
+    @swagger_auto_schema(manual_parameters=[
+        Parameter('order_number', IN_QUERY, description="Order number", type=TYPE_STRING, required=True),
+    ])
+    def get(self, request, *args, **kwargs):
+        order_number = request.query_params.get('order_number')
+        response = emu_tracking_link(order_number)
+        return Response(response)

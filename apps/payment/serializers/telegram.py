@@ -1,12 +1,15 @@
+import xmltodict
 from django.utils import timezone
 from django.utils.timezone import localdate
 from rest_framework import serializers, status
 from django.utils.translation import gettext_lazy as _
 
-from apps.bot.templates.text import delivery_text, request_location
+from apps.bot.templates.text import delivery_text, request_location, mail_success
 from apps.bot.utils.keyboards import location_keyboard
 from apps.bot.views import avia_customer_bot, auto_customer_bot
 from apps.files.models import File
+from apps.integrations.emu.data import emu_order
+from apps.integrations.serializer import OrderEMUSerializer
 from apps.payment.models import Payment
 from apps.tools.models import Delivery
 from config.core.api_exceptions import APIValidation
@@ -61,7 +64,7 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
         if hasattr(load, 'delivery'):
             raise APIValidation(_('По этой загрузке у вас уже отправили информации доставки'),
                                 status_code=status.HTTP_400_BAD_REQUEST)
-        instance = super().create(validated_data)
+        instance: Delivery = super().create(validated_data)
         instance.customer = customer
         instance.load = load
         load.status = 'CUSTOMER_DELIVERY'
@@ -70,21 +73,48 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
                                        delivery_type=instance.get_delivery_type_display(), comment=instance.comment,
                                        phone_number=customer.phone_number,
                                        customer_id=f'{customer.prefix}{customer.code}')
-        if instance.delivery_type != 'TAKE_AWAY':
+        if instance.delivery_type == 'YANDEX':
             if customer.user_type == 'AVIA':
                 delivery_message = avia_customer_bot.send_message(chat_id=-1002187675934, text=message,
                                                                   parse_mode='HTML')
+                avia_customer_bot.send_message(chat_id=customer.tg_id, text=request_location,
+                                               reply_markup=location_keyboard())
                 instance.telegram_message_id = delivery_message.message_id
-                if instance.delivery_type == 'YANDEX':
-                    avia_customer_bot.send_message(chat_id=customer.tg_id, text=request_location,
-                                                   reply_markup=location_keyboard())
             elif customer.user_type == 'AUTO':
                 delivery_message = auto_customer_bot.send_message(chat_id=-1002187675934, text=message,
                                                                   parse_mode='HTML')
+                auto_customer_bot.send_message(chat_id=customer.tg_id, text=request_location,
+                                               reply_markup=location_keyboard())
                 instance.telegram_message_id = delivery_message.message_id
-                if instance.delivery_type == 'YANDEX':
-                    auto_customer_bot.send_message(chat_id=customer.tg_id, text=request_location,
-                                                   reply_markup=location_keyboard())
+        elif instance.delivery_type == 'MAIL':
+            data = {
+                'address': instance.address,
+                'customer': customer.id,
+                'load': load.id,
+                'phone_number': instance.phone_number,
+                'service': instance.service_type,
+                'town': instance.town.code
+            }
+            order_serializer = OrderEMUSerializer(data=data)
+            order_serializer.is_valid(raise_exception=True)
+            order_instance = order_serializer.save()
+            order_response = emu_order(order_id=order_instance.id, customer_full_name=request.user.full_name,
+                                       order_instance=order_instance)
+            order_dict = xmltodict.parse(order_response.text)
+
+            track_link = ''
+            instance.track_link = track_link
+            mail_message = delivery_text.format(date=localdate(timezone.now()).strftime("%d.%m.%Y"), weight=load.weight,
+                                                delivery_type=instance.get_delivery_type_display(),
+                                                comment=instance.comment, phone_number=customer.phone_number,
+                                                track_link=track_link, customer_id=f'{customer.prefix}{customer.code}')
+            mail_success_message = mail_success.format(track_link=track_link)
+            if customer.user_type == 'AVIA':
+                avia_customer_bot.send_message(chat_id=-1002187675934, text=mail_message, parse_mode='HTML')
+                avia_customer_bot.send_message(chat_id=customer.tg_id, text=mail_success_message)
+            elif customer.user_type == 'AUTO':
+                auto_customer_bot.send_message(chat_id=-1002187675934, text=mail_message, parse_mode='HTML')
+                auto_customer_bot.send_message(chat_id=customer.tg_id, text=mail_success_message)
         instance.save()
         return instance
 

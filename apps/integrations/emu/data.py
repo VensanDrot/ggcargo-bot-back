@@ -1,30 +1,24 @@
 import requests
-import xml.etree.ElementTree as ET
 from django.conf import settings
 
 from apps.integrations.models import OrderEMU
 
 emu_integration = settings.INTEGRATIONS['EMU']
+emu_creds = emu_integration['credentials']
+emu_extra = emu_integration['extra']
 
 
 def emu_auth():
     url = 'https://home.courierexe.ru/api/'
-    emu_creds = emu_integration['credentials']
-    emu_extra = emu_integration['extra']
-    xml = f"""
-    <auth extra="{emu_extra}" login="{emu_creds['username']}" pass="{emu_creds['password']}"></auth>
-    """
+    xml = f"""<auth extra="{emu_extra}" login="{emu_creds['username']}" pass="{emu_creds['password']}"></auth>"""
     headers = {'Content-Type': 'application/xml'}
-    response = requests.post(url, data=xml, headers=headers)
+    response = requests.post(url, data=xml.encode('utf-8'), headers=headers)
     return response
 
 
 def emu_order(order_id, customer_full_name, order_instance: OrderEMU):
     load = order_instance.load
     url = 'https://home.courierexe.ru/api/'
-
-    emu_creds = emu_integration['credentials']
-    emu_extra = emu_integration['extra']
 
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <neworder>
@@ -44,8 +38,10 @@ def emu_order(order_id, customer_full_name, order_instance: OrderEMU):
             <address>{order_instance.address}</address>
         </receiver>
         <service>{order_instance.service}</service>
+        <weight>{load.weight}</weight>
+        <paytype>CASH</paytype>
         <items>
-            <item length="0" height="0" width="0" quantity="{load.products.count()}" mass="{load.weight}" retprice="0">Посылка Express cargo</item>
+            <item length="0" height="0" width="0" quantity="{load.products.count()}" mass="{load.weight / load.products.count()}" retprice="0">Посылка Express cargo</item>
         </items>
     </order>
 </neworder>"""
@@ -87,11 +83,6 @@ def emu_streets(town):
     return response
 
 
-def emu_tracking():
-    xml = f"""
-    <?xml version="1.0" encoding="UTF-8"?>
-    <tracking>
-        <extra>8</extra>
-        <orderno>1234</orderno>
-    </tracking>
-    """
+def emu_tracking_link(order_number):
+    link = f'https://home.courierexe.ru/{emu_extra}/tracking?orderno={order_number}&singlebutton=submit#'
+    return link
