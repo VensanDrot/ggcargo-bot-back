@@ -45,8 +45,7 @@ class OrderEMUAPIView(APIView):
         order_serializer = self.serializer_class(data=data)
         order_serializer.is_valid(raise_exception=True)
         order_instance = order_serializer.save()
-        order_response = emu_order(order_id=order_instance.id, customer_full_name=request.user.full_name,
-                                   order_instance=order_instance)
+        order_response = emu_order(customer_full_name=request.user.full_name, order_instance=order_instance)
         return Response(order_response.text)
 
 

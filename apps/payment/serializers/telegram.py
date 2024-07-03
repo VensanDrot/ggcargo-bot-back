@@ -67,6 +67,10 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
         instance: Delivery = super().create(validated_data)
         instance.customer = customer
         instance.load = load
+        products = load.products.all()
+        for product in products:
+            product.status = 'DONE'
+            product.save()
         load.status = 'DONE'
         message = delivery_text.format(date=localdate(timezone.now()).strftime("%d.%m.%Y"), weight=load.weight,
                                        delivery_type=instance.get_delivery_type_display(), comment=instance.comment,
@@ -98,10 +102,8 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
             order_serializer = OrderEMUSerializer(data=data)
             order_serializer.is_valid(raise_exception=True)
             order_instance = order_serializer.save()
-            order_response = emu_order(order_id=order_instance.id, customer_full_name=request.user.full_name,
-                                       order_instance=order_instance)
+            order_response = emu_order(customer_full_name=request.user.full_name, order_instance=order_instance)
             order_dict = xmltodict.parse(order_response.text)
-            print(order_dict)
             order_instance.order_number = order_dict.get('neworder', {}).get('createorder', {}).get('@orderno')
 
             track_link = emu_tracking_link(order_dict.get('neworder', {}).get('createorder', {}).get('@orderno'))

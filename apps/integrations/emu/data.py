@@ -16,15 +16,14 @@ def emu_auth():
     return response
 
 
-def emu_order(order_id, customer_full_name, order_instance: OrderEMU):
+def emu_order(customer_full_name, order_instance: OrderEMU):
     load = order_instance.load
     url = 'https://home.courierexe.ru/api/'
 
     xml = f"""<?xml version="1.0" encoding="UTF-8"?>
 <neworder>
     <auth extra="{emu_extra}" login="{emu_creds['username']}" pass="{emu_creds['password']}"></auth>
-    <order orderno="{order_id}">
-        <barcode>{order_id}</barcode>
+    <order>
         <sender>
             <company>Express Cargo</company>
             <phone>+998 98 363 37 67</phone>
@@ -84,5 +83,7 @@ def emu_streets(town):
 
 
 def emu_tracking_link(order_number):
+    if '#' in order_number:
+        order_number = order_number.replace('#', '%23')
     link = f'https://home.courierexe.ru/{emu_extra}/tracking?orderno={order_number}&singlebutton=submit#'
     return link
