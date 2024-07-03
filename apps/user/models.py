@@ -41,7 +41,7 @@ class Customer(BaseModel):
     code = models.CharField(max_length=255, null=True, blank=True)
     debt = models.FloatField(default=0)
     phone_number = models.CharField(_("phone number"), max_length=35, null=True, blank=True)
-    tg_id = models.CharField(max_length=155, unique=True, null=True, blank=True)
+    tg_id = models.CharField(max_length=155, null=True, blank=True)
     language = models.CharField(max_length=2, choices=settings.LANGUAGES, default='uz')
     location = models.JSONField(null=True, blank=True)
 
