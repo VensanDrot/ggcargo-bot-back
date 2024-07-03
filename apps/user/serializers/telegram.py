@@ -21,7 +21,8 @@ class CustomerAviaRegistrationStepOneSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         customer_data = validated_data.pop('customer', {})
-        existing_customer = Customer.objects.filter(phone_number=customer_data.get('phone_number'), user_type='AVIA')
+        existing_customer = Customer.objects.filter(phone_number=customer_data.get('phone_number'), user_type='AVIA',
+                                                    prefix__isnull=False, code__isnull=False)
         if existing_customer.exists():
             if not existing_customer.first().customer_registrations.filter(done=False).exists():
                 raise APIValidation('Customer with this phone number already exists',
