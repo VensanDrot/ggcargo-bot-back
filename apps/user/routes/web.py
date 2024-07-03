@@ -180,9 +180,9 @@ class CustomerModerationDeclineAPIView(APIView):
         else:
             message = reg_moderation_decline_ru.format(reject_message=customer_registration.reject_message)
         if customer.user_type == 'AUTO':
-            avia_customer_bot.send_message(chat_id=customer.tg_id, text=message)
-        elif customer.user_type == 'AVIA':
             auto_customer_bot.send_message(chat_id=customer.tg_id, text=message)
+        elif customer.user_type == 'AVIA':
+            avia_customer_bot.send_message(chat_id=customer.tg_id, text=message)
         return Response(response)
 
 
@@ -222,7 +222,7 @@ class CustomerModerationAcceptAPIView(APIView):
         else:
             message = reg_moderation_accept_ru.format(customer_id=f'{customer.prefix}{customer.code}')
         if customer.user_type == 'AUTO':
-            avia_customer_bot.send_message(chat_id=customer.tg_id, text=message)
-        elif customer.user_type == 'AVIA':
             auto_customer_bot.send_message(chat_id=customer.tg_id, text=message)
+        elif customer.user_type == 'AVIA':
+            avia_customer_bot.send_message(chat_id=customer.tg_id, text=message)
         return Response(response)
