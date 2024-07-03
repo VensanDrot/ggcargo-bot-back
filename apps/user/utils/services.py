@@ -31,7 +31,7 @@ def next_prefix(last_prefix, user_type):
 
 def generate_code(customer_data: dict) -> tuple:
     user_type = customer_data.get('user_type')
-    query = Customer.objects.filter(user_type=user_type).order_by('id')
+    query = Customer.objects.filter(user_type=user_type, prefix__isnull=False, code__isnull=False).order_by('id')
     if query.exists():
         last_prefix = query.last().prefix
     else:
