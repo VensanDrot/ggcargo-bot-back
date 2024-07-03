@@ -8,7 +8,7 @@ from apps.bot.templates.text import delivery_text, request_location, mail_succes
 from apps.bot.utils.keyboards import location_keyboard
 from apps.bot.views import avia_customer_bot, auto_customer_bot
 from apps.files.models import File
-from apps.integrations.emu.data import emu_order
+from apps.integrations.emu.data import emu_order, emu_tracking_link
 from apps.integrations.serializer import OrderEMUSerializer
 from apps.payment.models import Payment
 from apps.tools.models import Delivery
@@ -67,11 +67,10 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
         instance: Delivery = super().create(validated_data)
         instance.customer = customer
         instance.load = load
-        load.status = 'CUSTOMER_DELIVERY'
-        load.save()
+        load.status = 'DONE'
         message = delivery_text.format(date=localdate(timezone.now()).strftime("%d.%m.%Y"), weight=load.weight,
                                        delivery_type=instance.get_delivery_type_display(), comment=instance.comment,
-                                       phone_number=customer.phone_number,
+                                       phone_number=customer.phone_number, track_link='',
                                        customer_id=f'{customer.prefix}{customer.code}')
         if instance.delivery_type == 'YANDEX':
             if customer.user_type == 'AVIA':
@@ -87,6 +86,7 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
                                                reply_markup=location_keyboard())
                 instance.telegram_message_id = delivery_message.message_id
         elif instance.delivery_type == 'MAIL':
+            load.status = 'DONE_MAIL'
             data = {
                 'address': instance.address,
                 'customer': customer.id,
@@ -101,8 +101,10 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
             order_response = emu_order(order_id=order_instance.id, customer_full_name=request.user.full_name,
                                        order_instance=order_instance)
             order_dict = xmltodict.parse(order_response.text)
+            print(order_dict)
+            order_instance.order_number = order_dict.get('neworder', {}).get('createorder', {}).get('@orderno')
 
-            track_link = ''
+            track_link = emu_tracking_link(order_dict.get('neworder', {}).get('createorder', {}).get('@orderno'))
             instance.track_link = track_link
             mail_message = delivery_text.format(date=localdate(timezone.now()).strftime("%d.%m.%Y"), weight=load.weight,
                                                 delivery_type=instance.get_delivery_type_display(),
@@ -115,6 +117,7 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
             elif customer.user_type == 'AUTO':
                 auto_customer_bot.send_message(chat_id=-1002187675934, text=mail_message, parse_mode='HTML')
                 auto_customer_bot.send_message(chat_id=customer.tg_id, text=mail_success_message)
+        load.save()
         instance.save()
         return instance
 
