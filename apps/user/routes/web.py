@@ -8,6 +8,9 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.bot.templates.text import reg_moderation_accept_uz, reg_moderation_accept_ru, reg_moderation_decline_ru, \
+    reg_moderation_decline_uz
+from apps.bot.views import avia_customer_bot, auto_customer_bot
 from apps.files.models import File
 from apps.user.filter import UserStaffFilter, CustomerModerationFilter, CustomerSearchFilter, \
     CustomerModerationSearchFilter
@@ -164,8 +167,22 @@ class CustomerModerationDeclineAPIView(APIView):
         customer_registration.save()
         customer_registration.customer.save()
 
+        customer = customer_registration.customer
+        customer.prefix = None
+        customer.code = None
+        customer.phone_number = customer.phone_number + ' '
+        customer.save()
+
         response_serializer = CustomerModerationRetrieveSerializer(instance=customer_registration)
         response = response_serializer.data
+        if customer.language == 'uz':
+            message = reg_moderation_decline_uz.format(reject_message=customer_registration.reject_message)
+        else:
+            message = reg_moderation_decline_ru.format(reject_message=customer_registration.reject_message)
+        if customer.user_type == 'AUTO':
+            avia_customer_bot.send_message(chat_id=customer.tg_id, text=message)
+        elif customer.user_type == 'AVIA':
+            auto_customer_bot.send_message(chat_id=customer.tg_id, text=message)
         return Response(response)
 
 
@@ -200,4 +217,12 @@ class CustomerModerationAcceptAPIView(APIView):
 
         response_serializer = CustomerModerationRetrieveSerializer(instance=customer_registration)
         response = response_serializer.data
+        if customer.language == 'uz':
+            message = reg_moderation_accept_uz.format(customer_id=f'{customer.prefix}{customer.code}')
+        else:
+            message = reg_moderation_accept_ru.format(customer_id=f'{customer.prefix}{customer.code}')
+        if customer.user_type == 'AUTO':
+            avia_customer_bot.send_message(chat_id=customer.tg_id, text=message)
+        elif customer.user_type == 'AVIA':
+            auto_customer_bot.send_message(chat_id=customer.tg_id, text=message)
         return Response(response)

@@ -37,8 +37,8 @@ class User(AbstractUser):
 
 
 class Customer(BaseModel):
-    prefix = models.CharField("prefix", max_length=6, choices=PREFIX_CHOICES)
-    code = models.CharField(max_length=255)
+    prefix = models.CharField("prefix", max_length=6, choices=PREFIX_CHOICES, null=True, blank=True)
+    code = models.CharField(max_length=255, null=True, blank=True)
     debt = models.FloatField(default=0)
     phone_number = models.CharField(_("phone number"), max_length=35, null=True, blank=True)
     tg_id = models.CharField(max_length=155, unique=True, null=True, blank=True)
