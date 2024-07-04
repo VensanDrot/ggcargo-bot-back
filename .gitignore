@@ -14,6 +14,7 @@ apps/loads/migrations/
 apps/payment/migrations/
 apps/integrations/migrations/
 
+media/instructions/
 media/uploads/
 static/
 g_config.py
