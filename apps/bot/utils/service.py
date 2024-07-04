@@ -14,19 +14,21 @@ def language_handler(message: types.Message, bot: TeleBot, web_app_link: str) ->
 def send_uz_instruction(message: types.Message, bot: TeleBot, web_app_link: str) -> None:
     file_path = join_path(settings.MEDIA_ROOT, 'instructions', 'instruction_uz.mp4')
     with open(file_path, 'rb') as video:
+        loader = bot.send_message(chat_id=message.chat.id, text='Fayl yuborilyabdi...',
+                                  reply_markup=types.ReplyKeyboardRemove())
         bot.send_video(chat_id=message.chat.id, video=video, supports_streaming=True,
                        reply_markup=reg_link_web_app_keyboard(web_app_link, 'uz'))
-    remover = bot.send_message(chat_id=message.chat.id, text='.', reply_markup=types.ReplyKeyboardRemove())
-    bot.delete_message(chat_id=message.chat.id, message_id=remover.message_id)
+    bot.delete_message(chat_id=message.chat.id, message_id=loader.message_id)
 
 
 def send_ru_instruction(message: types.Message, bot: TeleBot, web_app_link: str) -> None:
     file_path = join_path(settings.MEDIA_ROOT, 'instructions', 'instruction_ru.mp4')
     with open(file_path, 'rb') as video:
+        loader = bot.send_message(chat_id=message.chat.id, text='Файл отправляется...',
+                                  reply_markup=types.ReplyKeyboardRemove())
         bot.send_video(chat_id=message.chat.id, video=video, supports_streaming=True,
                        reply_markup=reg_link_web_app_keyboard(web_app_link, 'ru'))
-    remover = bot.send_message(chat_id=message.chat.id, text='.', reply_markup=types.ReplyKeyboardRemove())
-    bot.delete_message(chat_id=message.chat.id, message_id=remover.message_id)
+    bot.delete_message(chat_id=message.chat.id, message_id=loader.message_id)
 
 
 handler_tool = {
