@@ -7,7 +7,9 @@ from rest_framework.views import APIView
 from telebot import TeleBot, types
 from telebot.types import Update, ReplyKeyboardRemove
 
-from apps.bot.templates.text import success_location
+from apps.bot.templates.text import success_location, welcome_bot_message
+from apps.bot.utils.keyboards import language_keyboard
+from apps.bot.utils.service import language_handler
 from apps.user.models import Customer
 
 bot_tokens = settings.BOT_TOKENS
@@ -26,6 +28,25 @@ class BotWebhook(APIView):
         auto_customer_bot.process_new_updates([update])
         return Response({'message': 'Success!',
                          'status': status.HTTP_200_OK})
+
+
+@avia_customer_bot.message_handler(commands=['start'])
+@auto_customer_bot.message_handler(commands=['start'])
+def start(message: types.Message):
+    welcome_bot = welcome_bot_message
+    if avia_customer_bot.user.id == message.reply_to_message.from_user.id:
+        avia_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
+    elif auto_customer_bot.user.id == message.reply_to_message.from_user.id:
+        auto_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
+
+
+@avia_customer_bot.message_handler(content_types=['text'])
+@auto_customer_bot.message_handler(content_types=['text'])
+def handle_message(message: types.Message):
+    if avia_customer_bot.user.id == message.reply_to_message.from_user.id:
+        language_handler(message, avia_customer_bot, 'https://avia.gogocargo.uz')
+    elif auto_customer_bot.user.id == message.reply_to_message.from_user.id:
+        language_handler(message, auto_customer_bot, 'https://auto.gogocargo.uz')
 
 
 @avia_customer_bot.message_handler(content_types=['location'])

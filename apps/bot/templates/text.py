@@ -18,6 +18,9 @@ mail_success = """
 Трекинг линк: {track_link}
 """
 location_button = "📍 Отправить локацию"
+uz_button = "Oʻzbekcha 🇺🇿"
+ru_button = "Русский 🇷🇺"
+reg_button = "Начать регистрацию»/«Ro’yxatdan o’tish"
 
 reg_moderation_accept_uz = """
 ✅ Ваш аккаунт успешно зарегистрирован, удачных покупок!
@@ -35,3 +38,4 @@ reg_moderation_decline_ru = """
 ❌ Sizning akkauntingiz rad javob berildi!
 Sabab: {reject_message}
 """
+welcome_bot_message = "Добро пожаловать в Express Cargo! Пожалуйста выберите язык 🇺🇿🇷🇺"
