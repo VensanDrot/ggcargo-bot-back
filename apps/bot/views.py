@@ -14,17 +14,28 @@ from apps.user.models import Customer
 
 bot_tokens = settings.BOT_TOKENS
 
-avia_customer_bot = TeleBot(bot_tokens['avia_customer'])
+avia_customer_bot = TeleBot('6338911651:AAGb1DE_HQipDPc74MLNa_eo15FnPy3A3bw')
+# avia_customer_bot = TeleBot(bot_tokens['avia_customer'])
 auto_customer_bot = TeleBot(bot_tokens['auto_customer'])
 
 
-class BotWebhook(APIView):
+class AviaBotWebhook(APIView):
     permission_classes = [AllowAny, ]
 
     @staticmethod
     def post(request):
         update = Update.de_json(request.data)
         avia_customer_bot.process_new_updates([update])
+        return Response({'message': 'Success!',
+                         'status': status.HTTP_200_OK})
+
+
+class AutoBotWebhook(APIView):
+    permission_classes = [AllowAny, ]
+
+    @staticmethod
+    def post(request):
+        update = Update.de_json(request.data)
         auto_customer_bot.process_new_updates([update])
         return Response({'message': 'Success!',
                          'status': status.HTTP_200_OK})
@@ -32,14 +43,14 @@ class BotWebhook(APIView):
 
 @avia_customer_bot.message_handler(commands=['start'])
 def start(message: types.Message):
+    print("avia", message)
     welcome_bot = welcome_bot_message
     avia_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
-    # if avia_customer_bot.user.id == message.reply_to_message.from_user.id:
-    # elif auto_customer_bot.user.id == message.reply_to_message.from_user.id:
 
 
 @auto_customer_bot.message_handler(commands=['start'])
 def start(message: types.Message):
+    print("auto", message)
     welcome_bot = welcome_bot_message
     auto_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
 
