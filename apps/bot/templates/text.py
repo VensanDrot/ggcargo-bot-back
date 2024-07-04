@@ -20,7 +20,8 @@ mail_success = """
 location_button = "📍 Отправить локацию"
 uz_button = "Oʻzbekcha 🇺🇿"
 ru_button = "Русский 🇷🇺"
-reg_button = "Начать регистрацию»/«Ro’yxatdan o’tish"
+reg_button_uz = "«Ro’yxatdan o’tish"
+reg_button_ru = "Начать регистрацию»"
 
 reg_moderation_accept_uz = """
 ✅ Ваш аккаунт успешно зарегистрирован, удачных покупок!

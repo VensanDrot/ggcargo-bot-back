@@ -31,22 +31,29 @@ class BotWebhook(APIView):
 
 
 @avia_customer_bot.message_handler(commands=['start'])
+def start(message: types.Message):
+    welcome_bot = welcome_bot_message
+    avia_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
+    # if avia_customer_bot.user.id == message.reply_to_message.from_user.id:
+    # elif auto_customer_bot.user.id == message.reply_to_message.from_user.id:
+
+
 @auto_customer_bot.message_handler(commands=['start'])
 def start(message: types.Message):
     welcome_bot = welcome_bot_message
-    if avia_customer_bot.user.id == message.reply_to_message.from_user.id:
-        avia_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
-    elif auto_customer_bot.user.id == message.reply_to_message.from_user.id:
-        auto_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
+    auto_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
 
 
 @avia_customer_bot.message_handler(content_types=['text'])
+def handle_message(message: types.Message):
+    language_handler(message, avia_customer_bot, 'https://avia.gogocargo.uz')
+    # if avia_customer_bot.user.id == message.reply_to_message.from_user.id:
+    # elif auto_customer_bot.user.id == message.reply_to_message.from_user.id:
+
+
 @auto_customer_bot.message_handler(content_types=['text'])
 def handle_message(message: types.Message):
-    if avia_customer_bot.user.id == message.reply_to_message.from_user.id:
-        language_handler(message, avia_customer_bot, 'https://avia.gogocargo.uz')
-    elif auto_customer_bot.user.id == message.reply_to_message.from_user.id:
-        language_handler(message, auto_customer_bot, 'https://auto.gogocargo.uz')
+    language_handler(message, auto_customer_bot, 'https://auto.gogocargo.uz')
 
 
 @avia_customer_bot.message_handler(content_types=['location'])

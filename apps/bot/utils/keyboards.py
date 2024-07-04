@@ -1,6 +1,7 @@
 from telebot import types
+from telebot.types import WebAppInfo
 
-from apps.bot.templates.text import location_button, ru_button, uz_button, reg_button
+from apps.bot.templates.text import location_button, ru_button, uz_button, reg_button_uz, reg_button_ru
 
 
 def location_keyboard():
@@ -18,8 +19,10 @@ def language_keyboard():
     return keyboard
 
 
-def reg_link_web_app_keyboard(web_app_link):
+def reg_link_web_app_keyboard(web_app_link, lang):
     keyboard = types.InlineKeyboardMarkup()
-    button = types.InlineKeyboardButton(text=reg_button, web_app=web_app_link)
+    web_app_info = WebAppInfo(url=web_app_link)
+    button_text = reg_button_uz if lang == 'uz' else reg_button_ru
+    button = types.InlineKeyboardButton(text=button_text, web_app=web_app_info)
     keyboard.add(button)
     return keyboard
