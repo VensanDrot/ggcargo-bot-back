@@ -14,8 +14,7 @@ from apps.user.models import Customer
 
 bot_tokens = settings.BOT_TOKENS
 
-avia_customer_bot = TeleBot('6338911651:AAGb1DE_HQipDPc74MLNa_eo15FnPy3A3bw')
-# avia_customer_bot = TeleBot(bot_tokens['avia_customer'])
+avia_customer_bot = TeleBot(bot_tokens['avia_customer'])
 auto_customer_bot = TeleBot(bot_tokens['auto_customer'])
 
 
@@ -43,14 +42,12 @@ class AutoBotWebhook(APIView):
 
 @avia_customer_bot.message_handler(commands=['start'])
 def start(message: types.Message):
-    print("avia", message)
     welcome_bot = welcome_bot_message
     avia_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
 
 
 @auto_customer_bot.message_handler(commands=['start'])
 def start(message: types.Message):
-    print("auto", message)
     welcome_bot = welcome_bot_message
     auto_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
 
