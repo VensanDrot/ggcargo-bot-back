@@ -210,7 +210,8 @@ class ReleaseLoadInfoSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_products(instance):
-        products_serializer = ProductSerializer(instance.customer.products.exclude(status='ON_WAY'), many=True)
+        products_serializer = ProductSerializer(instance.customer.products.exclude(status__in=['ON_WAY', 'DONE']),
+                                                many=True)
         return products_serializer.data
 
     @staticmethod
