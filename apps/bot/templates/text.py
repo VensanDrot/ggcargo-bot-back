@@ -24,12 +24,18 @@ reg_button_uz = "«Ro’yxatdan o’tish"
 reg_button_ru = "Начать регистрацию»"
 
 reg_moderation_accept_uz = """
-✅ Ваш аккаунт успешно зарегистрирован, удачных покупок!
-Ваш ID: {customer_id}
+✅ Ваш аккаунт успешно зарегистрирован, удачных покупок\!
+Ваш ID:
+```
+{customer_id}
+```
 """
 reg_moderation_accept_ru = """
-✅ Sizning akkauntingiz muvaffaqiyatli ro‘yxatdan o‘tkazildi, omadli xaridlar!
-Sizning ID: {customer_id}
+✅ Sizning akkauntingiz muvaffaqiyatli ro‘yxatdan o‘tkazildi, omadli xaridlar\!
+Sizning ID:
+```
+{customer_id}
+```
 """
 reg_moderation_decline_uz = """
 ❌ Вашему аккаунту было отказано!

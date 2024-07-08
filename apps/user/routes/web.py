@@ -222,7 +222,7 @@ class CustomerModerationAcceptAPIView(APIView):
         else:
             message = reg_moderation_accept_ru.format(customer_id=f'{customer.prefix}{customer.code}')
         if customer.user_type == 'AUTO':
-            auto_customer_bot.send_message(chat_id=customer.tg_id, text=message)
+            auto_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2')
         elif customer.user_type == 'AVIA':
-            avia_customer_bot.send_message(chat_id=customer.tg_id, text=message)
+            avia_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2')
         return Response(response)
