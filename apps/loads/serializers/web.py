@@ -36,6 +36,8 @@ class AdminProductListSerializer(serializers.ModelSerializer):
             prefix = customer.prefix
             code = customer.code
             return f'{prefix}{code}'
+        elif obj.is_homeless:
+            return '0'
         return None
 
     class Meta:
