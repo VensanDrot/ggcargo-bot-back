@@ -194,6 +194,7 @@ class CustomerAutoRegistrationStepOneSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id',
                   'tg_id',
+                  'language',
                   'full_name',
                   'phone_number',
                   'password',
