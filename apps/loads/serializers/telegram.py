@@ -97,7 +97,7 @@ class LoadInfoSerializer(serializers.Serializer):
             (Q(customer__prefix=prefix) & Q(customer__code=code)) & Q(status='DELIVERED')
         )
         products_serializer = ProductSerializer(products, many=True)
-        price = price_obj.get('auto') if data.get('customer_type') == 'AUTO' else price_obj.get('avia')
+        price = price_obj.get('auto') if customer.user_type == 'AUTO' else price_obj.get('avia')
         if not price:
             raise APIValidation('Configure price in settings', status_code=status.HTTP_400_BAD_REQUEST)
         return {
