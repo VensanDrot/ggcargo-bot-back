@@ -37,11 +37,11 @@ Sizning ID:
 {customer_id}
 ```
 """
-reg_moderation_decline_uz = """
+reg_moderation_decline_ru = """
 ❌ Вашему аккаунту было отказано!
 Причина: {reject_message}
 """
-reg_moderation_decline_ru = """
+reg_moderation_decline_uz = """
 ❌ Sizning akkauntingiz rad javob berildi!
 Sabab: {reject_message}
 """
