@@ -57,6 +57,8 @@ class PostSettingsAPIView(APIView):
             if new_settings:
                 existing_settings.update(new_settings)
             json.dump(existing_settings, new_file, indent=2)
+        existing_settings['payment_card'].pop('avia_selector')
+        existing_settings['payment_card'].pop('auto_selector')
         return Response(existing_settings)
 
 

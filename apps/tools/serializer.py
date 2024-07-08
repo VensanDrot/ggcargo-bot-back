@@ -23,20 +23,22 @@ class PaymentCardToolSerializer(serializers.Serializer):
         settings_data = self.context['settings_data']
         if value:
             p_card = value.replace(' ', '')
-            return p_card
+            return p_card, settings_data['payment_card']['avia_selector']
         return settings_data['payment_card']['avia'], settings_data['payment_card']['avia_selector']
 
     def get_auto(self, value):
         settings_data = self.context['settings_data']
         if value:
             p_card = value.replace(' ', '')
-            return p_card
+            return p_card, settings_data['payment_card']['auto_selector']
         return settings_data['payment_card']['auto'], settings_data['payment_card']['auto_selector']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['avia'] = self.get_avia(representation['avia'])
-        representation['auto'] = self.get_auto(representation['auto'])
+        representation['avia'] = self.get_avia(representation['avia'])[0]
+        representation['avia_selector'] = self.get_avia(representation['avia'])[1]
+        representation['auto'] = self.get_auto(representation['auto'])[0]
+        representation['auto_selector'] = self.get_auto(representation['auto'])[1]
         return representation
 
 
