@@ -15,7 +15,7 @@ from config.core.choices import TAKE_AWAY_DISPLAY, TAKE_AWAY, YANDEX, MAIL
 
 
 class AdminProductListSerializer(serializers.ModelSerializer):
-    customer_id = serializers.SerializerMethodField()
+    customer_id = serializers.SerializerMethodField(allow_null=True)
     status_display = serializers.CharField(source='get_status_display', read_only=True, allow_null=True)
     last_update = serializers.DateTimeField(source='updated_at', read_only=True)
     responsible = serializers.SerializerMethodField(allow_null=True)
@@ -31,9 +31,12 @@ class AdminProductListSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_customer_id(obj):
-        prefix = obj.customer.prefix
-        code = obj.customer.code
-        return f'{prefix}{code}'
+        customer = obj.customer
+        if customer:
+            prefix = customer.prefix
+            code = customer.code
+            return f'{prefix}{code}'
+        return None
 
     class Meta:
         model = Product
