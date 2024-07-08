@@ -69,7 +69,7 @@ msgstr "Yetkazib berish haqida ma'lumot yo'q"
 
 #: .\apps\loads\serializers\web.py:206
 msgid "customer_id - обязательное поле"
-msgstr "customer_id - talab majburiy maydon"
+msgstr "customer_id - majburiy maydon"
 
 #: .\apps\payment\routes\web.py:47 .\apps\payment\routes\web.py:78
 msgid "Это заявка уже была обработана"
