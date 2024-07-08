@@ -420,7 +420,7 @@ class CustomerCurrentLoadSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_status_display(obj):
         if obj.payments.filter(status__isnull=True, is_operator=False):
-            return _('On moderation')
+            return _('В модерации')
         return obj.get_status_display()
 
     class Meta:
