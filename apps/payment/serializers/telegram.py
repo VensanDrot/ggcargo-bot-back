@@ -33,11 +33,13 @@ class CustomerLoadPaymentSerializer(serializers.ModelSerializer):
             raise APIValidation('Payment application with status not processed exists',
                                 status_code=status.HTTP_400_BAD_REQUEST)
         try:
-            customer_id = self.context.get('request').user.customer.id
+            customer = self.context.get('request').user.customer
+            customer_id = customer.id
             image = validated_data.pop('files')
             load = validated_data.pop('load')
             payment_card = validated_data.pop('payment_card', '').replace(' ', '')
-            instance = Payment.objects.create(customer_id=customer_id, load=load, payment_card=payment_card)
+            instance = Payment.objects.create(customer_id=customer_id, load=load, payment_card=payment_card,
+                                              residue=customer.debt)
             instance.files.add(image)
             return instance
         except Exception as exc:
