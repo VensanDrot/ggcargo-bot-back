@@ -208,7 +208,7 @@ class CustomerCurrentLoadAPIView(APIView):
         user = request.user
         instance = self.queryset.filter(customer_id=user.customer.id).first()
         if not instance:
-            raise APIValidation(_('No new loads'), status_code=status.HTTP_404_NOT_FOUND)
+            raise APIValidation(_('Нет новых загрузок'), status_code=status.HTTP_404_NOT_FOUND)
         serializer = CustomerCurrentLoadSerializer(instance)
         return Response(serializer.data)
 

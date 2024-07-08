@@ -88,7 +88,7 @@ class CustomerAviaRegistrationStepTwoSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         registration_app = instance.customer.customer_registrations.filter(status='WAITING').first()
         if registration_app.step > 1:
-            raise APIValidation(_('This step of registration has been already done'),
+            raise APIValidation(_('Этот шаг регистрации уже выполнен.'),
                                 status_code=status.HTTP_400_BAD_REQUEST)
         customer_data = validated_data.pop('customer', {})
         instance = super().update(instance, validated_data)

@@ -36,9 +36,9 @@ class FileCreateAPIView(APIView):
     def post(self, request):
         file = request.data.get('file')
         if not file:
-            raise APIValidation(detail=_('File was not sent'), code=status.HTTP_400_BAD_REQUEST)
+            raise APIValidation(detail=_('Файл не был отправлен'), code=status.HTTP_400_BAD_REQUEST)
         if file.size > 52_428_800:
-            raise APIValidation(detail=_('The file size has exceeded 50 mb!'), code=status.HTTP_400_BAD_REQUEST)
+            raise APIValidation(detail=_('Размер файла превысил 50 МБ!'), code=status.HTTP_400_BAD_REQUEST)
 
         e_file = upload_file(file=file)
         return Response({
@@ -88,12 +88,12 @@ class UploadFilesAPIView(APIView):
         files = request.FILES.getlist('files')
         logger.debug(f"Request: {request.FILES}; Files: {files}, Request data: {request.data}")
         if not files:
-            raise APIValidation(detail=_('File was not sent'), status_code=status.HTTP_400_BAD_REQUEST)
+            raise APIValidation(detail=_('Файл не был отправлен'), status_code=status.HTTP_400_BAD_REQUEST)
 
         response = []
         for file in files:
             if file.size > 52_428_800:
-                raise APIValidation(detail=_('The file size has exceeded 50 mb!'),
+                raise APIValidation(detail=_('Размер файла превысил 50 МБ!'),
                                     status_code=status.HTTP_400_BAD_REQUEST)
             e_file = upload_file(file=file)
             response.append({'path': e_file.path, 'id': e_file.id, 'name': e_file.name})

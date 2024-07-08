@@ -118,7 +118,7 @@ class AddLoadSerializer(serializers.ModelSerializer):
         customer = get_object_or_404(Customer, prefix=prefix, code=code)
         delivered_products = customer.products.filter(status='DELIVERED').values_list('id', flat=True)
         if len(value) != len(delivered_products):
-            raise APIValidation(_('Добавьте в загрузку все принятые товары в Ташкенту'),
+            raise APIValidation(_('Добавьте в загрузку все принятые товары в Ташкенте'),
                                 status_code=status.HTTP_400_BAD_REQUEST)
         if not value:
             raise APIValidation(_('Баркоды не отправлены'), status_code=status.HTTP_400_BAD_REQUEST)
