@@ -246,7 +246,8 @@ class ReleasePaymentLoadSerializer(serializers.ModelSerializer):
         instance = Payment.objects.create(load_id=load.id, customer_id=load.customer.id, is_operator=True,
                                           operator_id=request.user.id, status='SUCCESSFUL',
                                           paid_amount=load.customer.debt, **validated_data)
-        instance.customer.debt = min(instance.customer.debt - instance.customer.debt, 0)
+        # instance.customer.debt = min(instance.customer.debt - instance.customer.debt, 0)
+        instance.customer.debt = 0
         instance.customer.save()
         if instance.customer.debt == 0:
             load.status = 'PAID'
