@@ -58,7 +58,8 @@ class AdminAddProductSerializer(serializers.ModelSerializer):
         # representation['status'] = instance.status
         representation['status_display'] = instance.get_status_display()
         representation['last_update'] = localtime(instance.updated_at)
-        representation['responsible'] = instance.accepted_by_china.full_name or instance.accepted_by_tashkent.full_name
+        responsible_user = instance.accepted_by_china or instance.accepted_by_tashkent
+        representation['responsible'] = responsible_user.full_name or responsible_user.full_name
         representation['files'] = FileDataSerializer(instance.china_files.all(), many=True).data
         return representation
 
