@@ -117,6 +117,8 @@ class ReleasePaymentLoadAPIView(APIView):
     def post(self, request, customer_id, *args, **kwargs):
         prefix, code = split_code(customer_id)
         customer = get_object_or_404(Customer, prefix=prefix, code=code)
+        if customer.debt == 0:
+            raise APIValidation(_('Долг клиента: 0'), status_code=status.HTTP_400_BAD_REQUEST)
         load_instance = customer.loads.filter(is_active=True)
         if load_instance.exists():
             load_instance = load_instance.first()
