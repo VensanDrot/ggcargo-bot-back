@@ -17,7 +17,10 @@ class AdminPaymentOpenListSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_customer_id(obj):
-        return f'{obj.customer.prefix}{obj.customer.code}'
+        customer = obj.customer
+        if customer:
+            return f'{customer.prefix}{customer.code}'
+        return None
 
     class Meta:
         model = Payment
@@ -42,7 +45,10 @@ class AdminPaymentClosedListSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_customer_id(obj):
-        return f'{obj.customer.prefix}{obj.customer.code}'
+        customer = obj.customer
+        if customer:
+            return f'{obj.customer.prefix}{obj.customer.code}'
+        return None
 
     class Meta:
         model = Payment

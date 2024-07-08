@@ -124,7 +124,9 @@ class GetCustomerSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_customer_code(obj):
         customer = obj.customer
-        return f'{customer.prefix}{customer.code}'
+        if customer:
+            return f"{obj.customer.prefix}{obj.customer.code}"
+        return None
 
     class Meta:
         model = User
@@ -222,7 +224,9 @@ class PostResponseCustomerSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_customer_code(obj):
         customer = obj.customer
-        return f'{customer.prefix}{customer.code}'
+        if customer:
+            return f"{obj.customer.prefix}{obj.customer.code}"
+        return None
 
     class Meta:
         model = User

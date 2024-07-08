@@ -279,7 +279,9 @@ class ModerationNotProcessedLoadSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_customer_id(obj):
         customer = obj.customer
-        return f"{customer.prefix}{customer.code}"
+        if customer:
+            return f"{customer.prefix}{customer.code}"
+        return None
 
     class Meta:
         model = Payment
@@ -308,7 +310,9 @@ class ModerationProcessedLoadSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_customer_id(obj):
         customer = obj.customer
-        return f"{customer.prefix}{customer.code}"
+        if customer:
+            return f"{customer.prefix}{customer.code}"
+        return None
 
     class Meta:
         model = Payment
@@ -335,7 +339,9 @@ class ModerationLoadPaymentSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_customer_id(obj):
         customer = obj.customer
-        return f"{customer.prefix}{customer.code}"
+        if customer:
+            return f"{customer.prefix}{customer.code}"
+        return None
 
     class Meta:
         model = Payment

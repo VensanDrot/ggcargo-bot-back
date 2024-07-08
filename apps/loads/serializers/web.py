@@ -120,7 +120,10 @@ class AdminLoadListSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_customer_id(obj):
-        return f'{obj.customer.prefix}{obj.customer.code}'
+        customer = obj.customer
+        if customer:
+            return f'{customer.prefix}{customer.code}'
+        return None
 
     @staticmethod
     def get_updated_at(obj):
@@ -177,7 +180,10 @@ class AdminLoadRetrieveSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_customer_id(obj):
-        return f'{obj.customer.prefix}{obj.customer.code}'
+        customer = obj.customer
+        if customer:
+            return f'{customer.prefix}{customer.code}'
+        return None
 
     class Meta:
         model = Load

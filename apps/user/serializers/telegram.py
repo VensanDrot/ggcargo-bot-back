@@ -17,7 +17,10 @@ class CustomerAviaRegistrationStepOneSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_customer_id(obj):
-        return f"{obj.customer.prefix}{obj.customer.code}"
+        customer = obj.customer
+        if customer:
+            return f"{obj.customer.prefix}{obj.customer.code}"
+        return None
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
@@ -140,7 +143,10 @@ class CustomerAutoRegistrationStepOneSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_customer_id(obj):
-        return f"{obj.customer.prefix}{obj.customer.code}"
+        customer = obj.customer
+        if customer:
+            return f"{obj.customer.prefix}{obj.customer.code}"
+        return None
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
