@@ -205,7 +205,7 @@ msgstr "Yuklangan"
 
 #: .\config\core\choices.py:68
 msgid "Ожидает выдачи"
-msgstr ""
+msgstr "Olib ketishga tayyor"
 
 #: .\config\core\choices.py:70
 msgid "Не загружено"
@@ -217,7 +217,7 @@ msgstr "Tayyor"
 
 #: .\config\core\choices.py:73
 msgid "Выдано"
-msgstr ""
+msgstr "Topshirilgan"
 
 #: .\config\core\choices.py:89
 msgid "Не оплачен"
