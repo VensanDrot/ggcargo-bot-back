@@ -72,7 +72,8 @@ def dashboard_chart_maker(objects, comparing_objects, start_date, end_date,
             if date_weight_exists:
                 date_weight[local_date] += obj.weight
         else:
-            date_payment[local_date] += obj.paid_amount
+            paid_amount = obj.paid_amount or 0
+            date_payment[local_date] += paid_amount
 
     c_date_counts = defaultdict(int)
     c_date_weight = defaultdict(int) if date_weight_exists else None
