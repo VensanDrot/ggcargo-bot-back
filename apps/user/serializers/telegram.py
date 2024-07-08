@@ -9,7 +9,7 @@ from config.core.api_exceptions import APIValidation
 
 
 class CustomerAviaRegistrationStepOneSerializer(serializers.ModelSerializer):
-    language = serializers.CharField(source='customer.language', required=True)
+    language = serializers.CharField(source='customer.language', required=False)
     phone_number = serializers.CharField(source='customer.phone_number', required=True)
     tg_id = serializers.CharField(source='customer.tg_id', required=True)
     password = serializers.CharField(write_only=True, required=True)
@@ -132,7 +132,7 @@ class CustomerAviaRegistrationStepThreeSerializer(serializers.ModelSerializer):
 
 
 class CustomerAutoRegistrationStepOneSerializer(serializers.ModelSerializer):
-    language = serializers.CharField(source='customer.language', required=True)
+    language = serializers.CharField(source='customer.language', required=False)
     phone_number = serializers.CharField(source='customer.phone_number', required=True)
     tg_id = serializers.CharField(source='customer.tg_id', required=True)
     password = serializers.CharField(write_only=True, required=True)
