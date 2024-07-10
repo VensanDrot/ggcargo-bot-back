@@ -184,7 +184,7 @@ class AddLoadSerializer(serializers.ModelSerializer):
             instance.save()
             image.loads_id = instance.id
             image.save()
-            LoadAccepted.objects.create(load_id=existing_load.id, accepted_time=timezone.now(),
+            LoadAccepted.objects.create(load_id=instance.id, accepted_time=timezone.now(),
                                         accepted_by=self.context.get('request').user)
             customer.debt += l_cost
             customer.save()
