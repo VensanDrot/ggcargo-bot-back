@@ -121,6 +121,7 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
             elif customer.user_type == 'AUTO':
                 auto_customer_bot.send_message(chat_id=-1002187675934, text=mail_message, parse_mode='HTML')
                 auto_customer_bot.send_message(chat_id=customer.tg_id, text=mail_success_message)
+        load.is_active = False
         load.save()
         instance.save()
         return instance
