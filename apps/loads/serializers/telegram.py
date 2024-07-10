@@ -1,3 +1,5 @@
+import logging
+
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.timezone import localdate, localtime
@@ -17,12 +19,15 @@ from config.core.choices import (PRODUCT_NOT_LOADED, PRODUCT_NOT_LOADED_DISPLAY,
                                  PRODUCT_DELIVERED_DISPLAY_CUSTOMER, PRODUCT_ON_WAY_DISPLAY_CUSTOMER, PRODUCT_LOADED,
                                  PRODUCT_ON_WAY, PRODUCT_DELIVERED, PRODUCT_DONE)
 
+logger = logging.getLogger()
+
 
 class BarcodeConnectionSerializer(serializers.ModelSerializer):
     customer_id = serializers.CharField(source='customer.code', allow_null=True)
     china_files = serializers.SlugRelatedField(slug_field='id', many=True, queryset=File.objects.all(), required=False)
 
     def create(self, validated_data):
+        logger.debug(f'china barcode, request_data: {self.context.get("request").data}')
         request = self.context.get('request')
 
         code = validated_data.pop('customer', '')
