@@ -27,7 +27,7 @@ class BarcodeConnectionSerializer(serializers.ModelSerializer):
     china_files = serializers.SlugRelatedField(slug_field='id', many=True, queryset=File.objects.all(), required=False)
 
     def create(self, validated_data):
-        logger.debug(f'china barcode, request_data: {self.context.get("request").data}')
+        # logger.debug(f'china barcode, request_data: {self.context.get("request").data}')
         request = self.context.get('request')
 
         code = validated_data.pop('customer', '')
