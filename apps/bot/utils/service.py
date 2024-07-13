@@ -25,7 +25,7 @@ def send_uz_instruction(message: types.Message, bot: TeleBot, web_app_link: str)
             bot.send_document(chat_id=message.chat.id, document=video,
                               reply_markup=reg_link_web_app_keyboard(web_app_link, 'uz'))
         except Exception as exc:
-            logger.debug()
+            logger.debug(f'Error occurred: {exc.args}')
     bot.delete_message(chat_id=message.chat.id, message_id=loader.message_id)
 
 
