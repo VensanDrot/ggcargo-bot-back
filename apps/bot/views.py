@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
@@ -12,11 +14,11 @@ from apps.bot.utils.keyboards import language_keyboard
 from apps.bot.utils.service import language_handler
 from apps.user.models import Customer
 
+logger = logging.getLogger()
 bot_tokens = settings.BOT_TOKENS
 
 avia_customer_bot = TeleBot(bot_tokens['avia_customer'])
 auto_customer_bot = TeleBot(bot_tokens['auto_customer'])
-# auto_customer_bot = TeleBot('6338911651:AAGb1DE_HQipDPc74MLNa_eo15FnPy3A3bw')
 
 
 class AviaBotWebhook(APIView):
@@ -73,9 +75,12 @@ def handle_content_avia(message: types.Message):
     customer.location = location
     customer.save()
     delivery = customer.deliveries.order_by('-id').first()
-    avia_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
-    avia_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
-                                    latitude=location['latitude'], longitude=location['longitude'])
+    try:
+        avia_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
+        avia_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
+                                        latitude=location['latitude'], longitude=location['longitude'])
+    except Exception as exc:
+        logger.debug(f'Telegram AVIA location_handler error occurred: {exc.args}')
 
 
 @auto_customer_bot.message_handler(content_types=['location'])
@@ -86,6 +91,9 @@ def handle_content_auto(message: types.Message):
     customer.location = location
     customer.save()
     delivery = customer.deliveries.order_by('-id').first()
-    auto_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
-    auto_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
-                                    latitude=location['latitude'], longitude=location['longitude'])
+    try:
+        auto_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
+        auto_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
+                                        latitude=location['latitude'], longitude=location['longitude'])
+    except Exception as exc:
+        logger.debug(f'Telegram AUTO location_handler error occurred: {exc.args}')
