@@ -20,8 +20,9 @@ mail_success = """
 location_button = "📍 Отправить локацию"
 uz_button = "Oʻzbekcha 🇺🇿"
 ru_button = "Русский 🇷🇺"
-reg_button_uz = "«Ro’yxatdan o’tish"
-reg_button_ru = "Начать регистрацию»"
+reg_button_uz = "«Ro’yxatdan o’tish»"
+reg_button_ru = "«Начать регистрацию»"
+reg_button_uz_ru = "«Ro’yxatdan o’tish»/«Начать регистрацию»"
 instruction_ru = "Перед регистрацией, пожалуйста ознакомьтесь с инструкцией по работе с нашим мобильным приложением. Удачных покупок 🚀"
 instruction_uz = "Ro'yxatdan o'tishdan oldin, iltimos, bizning mobil ilovamiz bilan ishlash bo'yicha qo'llanmani ko'rib chiqing. Muvaffaqiyatli xaridlar tilaymiz 🚀"
 
@@ -48,3 +49,8 @@ reg_moderation_decline_uz = """
 Sabab: {reject_message}
 """
 welcome_bot_message = "Добро пожаловать в Express Cargo! Пожалуйста выберите язык 🇺🇿🇷🇺"
+after_start_message = """
+Для того, чтобы открыть мобильное приложение еще раз, нажмите на кнопку под этим сообщением, или воспользуйтесь кнопкой "Меню" в приборной панели бота 📲
+———
+Mobil ilovani yana bir bor ochish uchun ushbu xabarning ostidagi tugmani bosing yoki botning boshqaruv panelidagi "Menyu" tugmasidan foydalaning 📲
+"""

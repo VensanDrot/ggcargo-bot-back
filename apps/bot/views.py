@@ -9,8 +9,8 @@ from rest_framework.views import APIView
 from telebot import TeleBot, types
 from telebot.types import Update, ReplyKeyboardRemove
 
-from apps.bot.templates.text import success_location, welcome_bot_message
-from apps.bot.utils.keyboards import language_keyboard
+from apps.bot.templates.text import success_location, welcome_bot_message, after_start_message
+from apps.bot.utils.keyboards import language_keyboard, web_app_keyboard
 from apps.bot.utils.service import language_handler
 from apps.user.models import Customer
 
@@ -19,7 +19,8 @@ bot_tokens = settings.BOT_TOKENS
 
 avia_customer_bot = TeleBot(bot_tokens['avia_customer'])
 auto_customer_bot = TeleBot(bot_tokens['auto_customer'])
-# auto_customer_bot = TeleBot('6338911651:AAGb1DE_HQipDPc74MLNa_eo15FnPy3A3bw')
+
+user_states = {}
 
 
 class AviaBotWebhook(APIView):
@@ -46,14 +47,24 @@ class AutoBotWebhook(APIView):
 
 @avia_customer_bot.message_handler(commands=['start'])
 def start(message: types.Message):
-    welcome_bot = welcome_bot_message
-    avia_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
+    chat_id = message.chat.id
+    if chat_id not in user_states:
+        welcome_bot = welcome_bot_message
+        avia_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
+    else:
+        avia_customer_bot.send_message(chat_id=message.from_user.id, text=after_start_message,
+                                       reply_markup=web_app_keyboard('https://avia.gogocargo.uz'))
 
 
 @auto_customer_bot.message_handler(commands=['start'])
 def start(message: types.Message):
-    welcome_bot = welcome_bot_message
-    auto_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
+    chat_id = message.chat.id
+    if chat_id not in user_states:
+        welcome_bot = welcome_bot_message
+        auto_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
+    else:
+        auto_customer_bot.send_message(chat_id=message.from_user.id, text=after_start_message,
+                                       reply_markup=web_app_keyboard('https://auto.gogocargo.uz'))
 
 
 @avia_customer_bot.message_handler(content_types=['text'])
