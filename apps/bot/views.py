@@ -18,8 +18,8 @@ logger = logging.getLogger()
 bot_tokens = settings.BOT_TOKENS
 
 avia_customer_bot = TeleBot(bot_tokens['avia_customer'])
-# auto_customer_bot = TeleBot(bot_tokens['auto_customer'])
-auto_customer_bot = TeleBot('6338911651:AAGb1DE_HQipDPc74MLNa_eo15FnPy3A3bw')
+auto_customer_bot = TeleBot(bot_tokens['auto_customer'])
+# auto_customer_bot = TeleBot('6338911651:AAGb1DE_HQipDPc74MLNa_eo15FnPy3A3bw')
 
 
 class AviaBotWebhook(APIView):
