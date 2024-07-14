@@ -15,7 +15,7 @@ def language_handler(message: types.Message, bot: TeleBot, web_app_link: str) ->
 
 
 def send_uz_instruction(message: types.Message, bot: TeleBot, web_app_link: str) -> None:
-    file_path = join_path(settings.MEDIA_ROOT, 'instructions', "Qo'llanma.mp4")
+    file_path = join_path(settings.MEDIA_ROOT, 'instructions', "Qõllanma.mp4")
     with open(file_path, 'rb') as video:
         loader = bot.send_message(chat_id=message.chat.id, text='Fayl yuborilyabdi...',
                                   reply_markup=types.ReplyKeyboardRemove())
