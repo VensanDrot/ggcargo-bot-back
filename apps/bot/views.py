@@ -51,6 +51,7 @@ def start(message: types.Message):
     if chat_id not in user_states:
         welcome_bot = welcome_bot_message
         avia_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
+        user_states[chat_id] = 'started'
     else:
         avia_customer_bot.send_message(chat_id=message.from_user.id, text=after_start_message,
                                        reply_markup=web_app_keyboard('https://avia.gogocargo.uz'))
@@ -62,6 +63,7 @@ def start(message: types.Message):
     if chat_id not in user_states:
         welcome_bot = welcome_bot_message
         auto_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
+        user_states[chat_id] = 'started'
     else:
         auto_customer_bot.send_message(chat_id=message.from_user.id, text=after_start_message,
                                        reply_markup=web_app_keyboard('https://auto.gogocargo.uz'))
