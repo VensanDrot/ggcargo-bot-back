@@ -22,6 +22,8 @@ uz_button = "Oʻzbekcha 🇺🇿"
 ru_button = "Русский 🇷🇺"
 reg_button_uz = "«Ro’yxatdan o’tish"
 reg_button_ru = "Начать регистрацию»"
+instruction_ru = "Перед регистрацией, пожалуйста ознакомьтесь с инструкцией по работе с нашим мобильным приложением. Удачных покупок 🚀"
+instruction_uz = "Ro'yxatdan o'tishdan oldin, iltimos, bizning mobil ilovamiz bilan ishlash bo'yicha qo'llanmani ko'rib chiqing. Muvaffaqiyatli xaridlar tilaymiz 🚀"
 
 reg_moderation_accept_ru = """
 ✅ Ваш аккаунт успешно зарегистрирован, удачных покупок\!
