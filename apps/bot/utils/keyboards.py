@@ -26,7 +26,7 @@ def reg_link_web_app_keyboard(web_app_link, lang, button_text=None):
     if not button_text:
         button_text = reg_button_uz if lang == 'uz' else reg_button_ru
     else:
-        button_text = '«Открыть приложение»' if lang == 'uz' else '«Ilovani ochish»'
+        button_text = '«Ilovani ochish»' if lang == 'uz' else '«Открыть приложение»'
     button = types.InlineKeyboardButton(text=button_text, web_app=web_app_info)
     keyboard.add(button)
     return keyboard
