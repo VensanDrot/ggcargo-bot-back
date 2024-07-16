@@ -11,6 +11,7 @@ from telebot.types import ReplyKeyboardRemove
 
 from apps.bot.templates.text import reg_moderation_accept_uz, reg_moderation_accept_ru, reg_moderation_decline_ru, \
     reg_moderation_decline_uz, customer_menu_instruction_ru, customer_menu_instruction_uz
+from apps.bot.utils.keyboards import reg_link_web_app_keyboard
 from apps.bot.utils.tools import send_instruction
 from apps.bot.views import avia_customer_bot, auto_customer_bot
 from apps.files.models import File
@@ -233,10 +234,12 @@ class CustomerModerationAcceptAPIView(APIView):
             auto_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2')
 
             send_instruction(message=customer.tg_id, bot=auto_customer_bot, caption=instruction_message,
-                             file_name=file_name, keyboard=ReplyKeyboardRemove(), loader_text=loader_text)
+                             file_name=file_name, loader_text=loader_text,
+                             keyboard=reg_link_web_app_keyboard('https://auto.gogocargo.uz', 'uz'))
         elif customer.user_type == 'AVIA':
             avia_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2')
 
             send_instruction(message=customer.tg_id, bot=avia_customer_bot, caption=instruction_message,
-                             file_name=file_name, keyboard=ReplyKeyboardRemove(), loader_text=loader_text)
+                             file_name=file_name, loader_text=loader_text,
+                             keyboard=reg_link_web_app_keyboard('https://avia.gogocargo.uz', 'uz'))
         return Response(response)
