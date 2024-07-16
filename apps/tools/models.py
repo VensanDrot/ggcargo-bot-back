@@ -35,6 +35,7 @@ class Delivery(BaseModel):
 
     service_type = models.IntegerField(choices=EMU_SERVICE_CHOICE, default=TO_RECEIVER, null=True, blank=True)
     track_link = models.URLField(null=True, blank=True)
+    message_sent = models.BooleanField(default=False)
 
     load = models.OneToOneField(Load, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery')
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True, related_name='deliveries')

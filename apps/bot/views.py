@@ -72,8 +72,6 @@ def start(message: types.Message):
 @avia_customer_bot.message_handler(content_types=['text'])
 def handle_message(message: types.Message):
     language_handler(message, avia_customer_bot, 'https://avia.gogocargo.uz')
-    # if avia_customer_bot.user.id == message.reply_to_message.from_user.id:
-    # elif auto_customer_bot.user.id == message.reply_to_message.from_user.id:
 
 
 @auto_customer_bot.message_handler(content_types=['text'])
@@ -89,10 +87,11 @@ def handle_content_avia(message: types.Message):
         location = message.location.to_dict()
         customer.location = location
         customer.save()
-        delivery = customer.deliveries.order_by('-id').first()
-        avia_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
-        avia_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
-                                        latitude=location['latitude'], longitude=location['longitude'])
+        delivery = customer.deliveries.filter(message_sent=False).order_by('-id').first()
+        if delivery:
+            avia_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
+            avia_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
+                                            latitude=location['latitude'], longitude=location['longitude'])
     except Exception as exc:
         logger.debug(f'Telegram AVIA location_handler error occurred: {exc.args}')
 
@@ -105,9 +104,10 @@ def handle_content_auto(message: types.Message):
         location = message.location.to_dict()
         customer.location = location
         customer.save()
-        delivery = customer.deliveries.order_by('-id').first()
-        auto_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
-        auto_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
-                                        latitude=location['latitude'], longitude=location['longitude'])
+        delivery = customer.deliveries.filter(message_sent=False).order_by('-id').first()
+        if delivery:
+            auto_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
+            auto_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
+                                            latitude=location['latitude'], longitude=location['longitude'])
     except Exception as exc:
         logger.debug(f'Telegram AUTO location_handler error occurred: {exc.args}')

@@ -40,6 +40,16 @@ Sizning ID:
 {customer_id}
 ```
 """
+customer_menu_instruction_uz = """
+Siz ro’yxatdan o’tdingiz! Keyingi qadamingiz qanday?
+
+Botdan qanday foydalanishni bilib olish uchun ushbu videoni ko’ring.
+"""
+customer_menu_instruction_ru = """
+Вот вы и зарегистрировались! Что делать дальше?
+
+Чтобы узнать, как пользоваться нашим ботом, посмотрите это видео.
+"""
 reg_moderation_decline_ru = """
 ❌ Вашему аккаунту было отказано!
 Причина: {reject_message}

@@ -7,9 +7,11 @@ from rest_framework.filters import SearchFilter
 from rest_framework.generics import ListAPIView, RetrieveAPIView, get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from telebot.types import ReplyKeyboardRemove
 
 from apps.bot.templates.text import reg_moderation_accept_uz, reg_moderation_accept_ru, reg_moderation_decline_ru, \
-    reg_moderation_decline_uz
+    reg_moderation_decline_uz, customer_menu_instruction_ru, customer_menu_instruction_uz
+from apps.bot.utils.tools import send_instruction
 from apps.bot.views import avia_customer_bot, auto_customer_bot
 from apps.files.models import File
 from apps.user.filter import UserStaffFilter, CustomerModerationFilter, CustomerSearchFilter, \
@@ -219,10 +221,22 @@ class CustomerModerationAcceptAPIView(APIView):
         response = response_serializer.data
         if customer.language == 'uz':
             message = reg_moderation_accept_uz.format(customer_id=f'{customer.prefix}{customer.code}')
+            instruction_message = customer_menu_instruction_uz
+            loader_text = "Fayl yuborilyabdi..."
+            file_name = "Qõllanma (Mijoz).mp4"
         else:
             message = reg_moderation_accept_ru.format(customer_id=f'{customer.prefix}{customer.code}')
+            instruction_message = customer_menu_instruction_ru
+            loader_text = "Файл отправляется..."
+            file_name = "Руководство (Клиент).mp4"
         if customer.user_type == 'AUTO':
             auto_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2')
+
+            send_instruction(message, auto_customer_bot, caption=instruction_message, file_name=file_name,
+                             keyboard=ReplyKeyboardRemove(), loader_text=loader_text)
         elif customer.user_type == 'AVIA':
             avia_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2')
+
+            send_instruction(message, avia_customer_bot, caption=instruction_message, file_name=file_name,
+                             keyboard=ReplyKeyboardRemove(), loader_text=loader_text)
         return Response(response)
