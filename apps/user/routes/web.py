@@ -135,7 +135,7 @@ class CustomerIDPrefix(APIView):
 
 
 class CustomerModerationListAPIView(ListAPIView):
-    queryset = CustomerRegistration.objects.select_related('customer').filter(done=True)
+    queryset = CustomerRegistration.objects.select_related('customer').filter(done=True).order_by('-id')
     serializer_class = CustomerModerationListSerializer
     permission_classes = [IsOperator, ]
     pagination_class = APIPagination
