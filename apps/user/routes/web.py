@@ -235,11 +235,11 @@ class CustomerModerationAcceptAPIView(APIView):
 
             send_instruction(message=customer.tg_id, bot=auto_customer_bot, caption=instruction_message,
                              file_name=file_name, loader_text=loader_text,
-                             keyboard=reg_link_web_app_keyboard('https://auto.gogocargo.uz', customer.language))
+                             keyboard=reg_link_web_app_keyboard('https://auto.gogocargo.uz', customer.language, True))
         elif customer.user_type == 'AVIA':
             avia_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2')
 
             send_instruction(message=customer.tg_id, bot=avia_customer_bot, caption=instruction_message,
                              file_name=file_name, loader_text=loader_text,
-                             keyboard=reg_link_web_app_keyboard('https://avia.gogocargo.uz', customer.language))
+                             keyboard=reg_link_web_app_keyboard('https://avia.gogocargo.uz', customer.language, True))
         return Response(response)
