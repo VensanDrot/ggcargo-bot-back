@@ -232,11 +232,11 @@ class CustomerModerationAcceptAPIView(APIView):
         if customer.user_type == 'AUTO':
             auto_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2')
 
-            send_instruction(message, auto_customer_bot, caption=instruction_message, file_name=file_name,
-                             keyboard=ReplyKeyboardRemove(), loader_text=loader_text)
+            send_instruction(message=customer.tg_id, bot=auto_customer_bot, caption=instruction_message,
+                             file_name=file_name, keyboard=ReplyKeyboardRemove(), loader_text=loader_text)
         elif customer.user_type == 'AVIA':
             avia_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2')
 
-            send_instruction(message, avia_customer_bot, caption=instruction_message, file_name=file_name,
-                             keyboard=ReplyKeyboardRemove(), loader_text=loader_text)
+            send_instruction(message=customer.tg_id, bot=avia_customer_bot, caption=instruction_message,
+                             file_name=file_name, keyboard=ReplyKeyboardRemove(), loader_text=loader_text)
         return Response(response)
