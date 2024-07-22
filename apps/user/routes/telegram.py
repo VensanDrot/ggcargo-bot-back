@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.tools.utils.helpers import get_price
 from apps.tools.views import settings_path
 from apps.user.models import User
 from apps.user.serializers.telegram import (CustomerAviaRegistrationStepOneSerializer,
@@ -93,14 +94,15 @@ class CustomerStatAPIView(APIView):
             customer = request.user.customer
             customer_id = f'{customer.prefix}{customer.code}'
 
+            # weight = 0
+            # load = customer.loads.filter(is_active=True).exclude(status='PAID')
+            debt = customer.debt
+            price_per_kg = get_price().get('auto') if customer.user_type == 'AUTO' else get_price().get('avia')
             weight = 0
-            load = customer.loads.filter(is_active=True).exclude(status='PAID')
-            if load.exists():
-                load = load.first()
-                weight = load.weight
+            if price_per_kg != 0:
+                weight = round((debt / price_per_kg), 2)
             products_on_way = customer.products.filter(status='ON_WAY').count()
             products_loaded = customer.products.filter(status='LOADED').count()
-            debt = customer.debt
             return Response({
                 'full_name': request.user.full_name,
                 'customer_id': customer_id,
