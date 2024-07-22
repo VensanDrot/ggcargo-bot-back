@@ -29,16 +29,12 @@ instruction_uz = "Ro'yxatdan o'tishdan oldin, iltimos, bizning mobil ilovamiz bi
 reg_moderation_accept_ru = """
 ✅ Ваш аккаунт успешно зарегистрирован, удачных покупок\!
 Ваш ID:
-```
 `{customer_id}`
-```
 """
 reg_moderation_accept_uz = """
 ✅ Sizning akkauntingiz muvaffaqiyatli ro‘yxatdan o‘tkazildi, omadli xaridlar\!
 Sizning ID:
-```
 `{customer_id}`
-```
 """
 customer_menu_instruction_uz = """
 Siz ro’yxatdan o’tdingiz! Keyingi qadamingiz qanday?

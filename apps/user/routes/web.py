@@ -229,17 +229,13 @@ class CustomerModerationAcceptAPIView(APIView):
             loader_text = "Файл отправляется..."
             file_name = "Руководство (Клиент).mp4"
         if customer.user_type == 'AUTO':
-            auto_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2',
-                                           reply_markup=copy_customer_id_keyboard(f'{customer.prefix}{customer.code}',
-                                                                                  customer.language))
+            auto_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2')
 
             send_instruction(message=customer.tg_id, bot=auto_customer_bot, caption=instruction_message,
                              file_name=file_name, loader_text=loader_text,
                              keyboard=reg_link_web_app_keyboard('https://auto.gogocargo.uz', customer.language, True))
         elif customer.user_type == 'AVIA':
-            avia_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2',
-                                           reply_markup=copy_customer_id_keyboard(f'{customer.prefix}{customer.code}',
-                                                                                  customer.language))
+            avia_customer_bot.send_message(chat_id=customer.tg_id, text=message, parse_mode='MarkdownV2')
 
             send_instruction(message=customer.tg_id, bot=avia_customer_bot, caption=instruction_message,
                              file_name=file_name, loader_text=loader_text,
