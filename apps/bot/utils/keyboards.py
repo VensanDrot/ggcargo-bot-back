@@ -2,7 +2,7 @@ from telebot import types
 from telebot.types import WebAppInfo
 
 from apps.bot.templates.text import location_button, ru_button, uz_button, reg_button_uz, reg_button_ru, \
-    reg_button_uz_ru
+    reg_button_uz_ru, copy_text_uz, copy_text_ru
 
 
 def location_keyboard():
@@ -36,5 +36,13 @@ def web_app_keyboard(web_app_link):
     keyboard = types.InlineKeyboardMarkup()
     web_app_info = WebAppInfo(url=web_app_link)
     button = types.InlineKeyboardButton(text=reg_button_uz_ru, web_app=web_app_info)
+    keyboard.add(button)
+    return keyboard
+
+
+def copy_customer_id_keyboard(customer_id, lang):
+    keyboard = types.InlineKeyboardMarkup()
+    button_text = copy_text_uz if lang == 'uz' else copy_text_ru
+    button = types.InlineKeyboardButton(text=button_text, switch_inline_query=customer_id)
     keyboard.add(button)
     return keyboard
