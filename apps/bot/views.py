@@ -105,6 +105,7 @@ def handle_content_avia(message: types.Message):
             avia_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery_message.message_id,
                                             latitude=location['latitude'], longitude=location['longitude'])
             load.is_active = False
+            load.status = 'DONE'
             load.save()
             delivery.message_sent = True
             delivery.save()
@@ -136,6 +137,7 @@ def handle_content_auto(message: types.Message):
             auto_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery_message.message_id,
                                             latitude=location['latitude'], longitude=location['longitude'])
             load.is_active = False
+            load.status = 'DONE'
             load.save()
             delivery.message_sent = True
             delivery.save()
