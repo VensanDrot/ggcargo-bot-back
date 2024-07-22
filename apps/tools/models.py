@@ -37,7 +37,7 @@ class Delivery(BaseModel):
     track_link = models.URLField(null=True, blank=True)
     message_sent = models.BooleanField(default=False)
 
-    load = models.OneToOneField(Load, on_delete=models.SET_NULL, null=True, blank=True, related_name='delivery')
+    load = models.ForeignKey(Load, on_delete=models.SET_NULL, null=True, blank=True, related_name='deliveries')
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, null=True, blank=True, related_name='deliveries')
 
     class Meta:

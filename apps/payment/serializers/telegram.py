@@ -63,34 +63,22 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
         load = load.first()
         if load.status != 'PAID':
             raise APIValidation(_('Эта загрузка не оплачено'), status_code=status.HTTP_400_BAD_REQUEST)
-        if hasattr(load, 'delivery'):
-            raise APIValidation(_('По этой загрузке у вас уже отправили информации доставки'),
+        delivery = load.deliveries.filter(message_sent=True)
+        if delivery.exists():
+            raise APIValidation(_('Вы уже получили информацию о доставке этой загрузки.'),
                                 status_code=status.HTTP_400_BAD_REQUEST)
         instance: Delivery = super().create(validated_data)
         instance.customer = customer
         instance.load = load
-        products = load.products.all()
-        for product in products:
-            product.status = 'DONE'
-            product.save()
-        load.status = 'DONE'
-        message = delivery_text.format(date=localdate(timezone.now()).strftime("%d.%m.%Y"), weight=load.weight,
-                                       delivery_type=instance.get_delivery_type_display(), comment=instance.comment,
-                                       phone_number=customer.phone_number, track_link='',
-                                       customer_id=f'{customer.prefix}{customer.code}')
+        instance.save()
+
         if instance.delivery_type == 'YANDEX':
             if customer.user_type == 'AVIA':
-                delivery_message = avia_customer_bot.send_message(chat_id=-1002187675934, text=message,
-                                                                  parse_mode='HTML')
                 avia_customer_bot.send_message(chat_id=customer.tg_id, text=request_location,
                                                reply_markup=location_keyboard())
-                instance.telegram_message_id = delivery_message.message_id
             elif customer.user_type == 'AUTO':
-                delivery_message = auto_customer_bot.send_message(chat_id=-1002187675934, text=message,
-                                                                  parse_mode='HTML')
                 auto_customer_bot.send_message(chat_id=customer.tg_id, text=request_location,
                                                reply_markup=location_keyboard())
-                instance.telegram_message_id = delivery_message.message_id
         elif instance.delivery_type == 'MAIL':
             load.status = 'DONE_MAIL'
             data = {
@@ -121,9 +109,14 @@ class CustomerDeliverySerializer(serializers.ModelSerializer):
             elif customer.user_type == 'AUTO':
                 auto_customer_bot.send_message(chat_id=-1002187675934, text=mail_message, parse_mode='HTML')
                 auto_customer_bot.send_message(chat_id=customer.tg_id, text=mail_success_message)
-        load.is_active = False
-        load.save()
-        instance.save()
+
+            products = load.products.all()
+            for product in products:
+                product.status = 'DONE'
+                product.save()
+            load.is_active = False
+            load.save()
+            instance.save()
         return instance
 
     class Meta:

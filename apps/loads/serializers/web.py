@@ -170,8 +170,9 @@ class AdminLoadRetrieveSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_address(obj):
-        if hasattr(obj, 'delivery'):
-            delivery = obj.delivery
+        delivery = obj.deliveries.filter(message_sent=True)
+        if delivery.exists():
+            delivery = delivery.first()
             if delivery.delivery_type == TAKE_AWAY:
                 return TAKE_AWAY_DISPLAY
             elif delivery.delivery_type == YANDEX:

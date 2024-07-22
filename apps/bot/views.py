@@ -1,6 +1,8 @@
 import logging
 
 from django.conf import settings
+from django.utils import timezone
+from django.utils.timezone import localdate
 from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
@@ -9,7 +11,7 @@ from rest_framework.views import APIView
 from telebot import TeleBot, types
 from telebot.types import Update, ReplyKeyboardRemove
 
-from apps.bot.templates.text import success_location, welcome_bot_message, after_start_message
+from apps.bot.templates.text import success_location, welcome_bot_message, after_start_message, delivery_text
 from apps.bot.utils.keyboards import language_keyboard, web_app_keyboard
 from apps.bot.utils.service import language_handler
 from apps.user.models import Customer
@@ -89,9 +91,23 @@ def handle_content_avia(message: types.Message):
         customer.save()
         delivery = customer.deliveries.filter(message_sent=False).order_by('-id').first()
         if delivery:
+            load = delivery.load
+            channel_message = delivery_text.format(date=localdate(timezone.now()).strftime("%d.%m.%Y"),
+                                                   weight=load.weight,
+                                                   delivery_type=delivery.get_delivery_type_display(),
+                                                   comment=delivery.comment,
+                                                   phone_number=customer.phone_number,
+                                                   track_link='',
+                                                   customer_id=f'{customer.prefix}{customer.code}')
+            delivery_message = avia_customer_bot.send_message(chat_id=-1002187675934, text=channel_message,
+                                                              parse_mode='HTML')
             avia_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
-            avia_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
+            avia_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery_message.message_id,
                                             latitude=location['latitude'], longitude=location['longitude'])
+            load.is_active = False
+            load.save()
+            delivery.message_sent = True
+            delivery.save()
     except Exception as exc:
         logger.debug(f'Telegram AVIA location_handler error occurred: {exc.args}')
 
@@ -106,8 +122,22 @@ def handle_content_auto(message: types.Message):
         customer.save()
         delivery = customer.deliveries.filter(message_sent=False).order_by('-id').first()
         if delivery:
+            load = delivery.load
+            channel_message = delivery_text.format(date=localdate(timezone.now()).strftime("%d.%m.%Y"),
+                                                   weight=load.weight,
+                                                   delivery_type=delivery.get_delivery_type_display(),
+                                                   comment=delivery.comment,
+                                                   phone_number=customer.phone_number,
+                                                   track_link='',
+                                                   customer_id=f'{customer.prefix}{customer.code}')
+            delivery_message = auto_customer_bot.send_message(chat_id=-1002187675934, text=channel_message,
+                                                              parse_mode='HTML')
             auto_customer_bot.send_message(chat_id=tg_id, text=success_location, reply_markup=ReplyKeyboardRemove())
-            auto_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery.telegram_message_id,
+            auto_customer_bot.send_location(chat_id=-1002187675934, reply_to_message_id=delivery_message.message_id,
                                             latitude=location['latitude'], longitude=location['longitude'])
+            load.is_active = False
+            load.save()
+            delivery.message_sent = True
+            delivery.save()
     except Exception as exc:
         logger.debug(f'Telegram AUTO location_handler error occurred: {exc.args}')
