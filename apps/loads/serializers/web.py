@@ -24,9 +24,9 @@ class AdminProductListSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_responsible(obj):
         if obj.accepted_by_china:
-            responsible = obj.accepted_by_china.full_name
+            responsible = obj.accepted_by_china.full_name if obj.accepted_by_china else None
         else:
-            responsible = obj.accepted_by_tashkent.full_name
+            responsible = obj.accepted_by_tashkent.full_name if obj.accepted_by_tashkent else None
         return responsible
 
     @staticmethod

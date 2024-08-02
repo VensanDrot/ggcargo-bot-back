@@ -41,7 +41,7 @@ class PostUserSerializer(serializers.ModelSerializer):
     operator_type = serializers.ChoiceField(source='operator.operator_type', choices=WEB_OR_TELEGRAM_CHOICE,
                                             write_only=True, required=False)
     warehouse = serializers.ChoiceField(source='operator.warehouse', choices=WAREHOUSE_CHOICE, write_only=True,
-                                        required=False)
+                                        required=False, allow_blank=True)
     email = serializers.EmailField(required=False, allow_blank=False)
 
     def validate_warehouse(self, value):
