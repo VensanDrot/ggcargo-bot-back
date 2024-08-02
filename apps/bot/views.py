@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from telebot import TeleBot, types
 from telebot.types import Update, ReplyKeyboardRemove
 
+from apps.bot.models import StartedTG
 from apps.bot.templates.text import success_location, welcome_bot_message, after_start_message, delivery_text
 from apps.bot.utils.keyboards import language_keyboard, web_app_keyboard
 from apps.bot.utils.service import language_handler
@@ -50,10 +51,11 @@ class AutoBotWebhook(APIView):
 @avia_customer_bot.message_handler(commands=['start'])
 def start(message: types.Message):
     chat_id = message.from_user.id
-    if chat_id not in user_states:
+    started_tg, created = StartedTG.objects.get_or_create(tg_id=chat_id, bot_type='AVIA')
+    if created:
         welcome_bot = welcome_bot_message
         avia_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
-        user_states[message.from_user.id] = 'started'
+        # user_states[message.from_user.id] = 'started'
     else:
         avia_customer_bot.send_message(chat_id=message.from_user.id, text=after_start_message,
                                        reply_markup=web_app_keyboard('https://avia.gogocargo.uz'))
@@ -62,10 +64,11 @@ def start(message: types.Message):
 @auto_customer_bot.message_handler(commands=['start'])
 def start(message: types.Message):
     chat_id = message.from_user.id
-    if chat_id not in user_states:
+    started_tg, created = StartedTG.objects.get_or_create(tg_id=chat_id, bot_type='AVIA')
+    if created:
         welcome_bot = welcome_bot_message
         auto_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
-        user_states[message.from_user.id] = 'started'
+        # user_states[message.from_user.id] = 'started'
     else:
         auto_customer_bot.send_message(chat_id=message.from_user.id, text=after_start_message,
                                        reply_markup=web_app_keyboard('https://auto.gogocargo.uz'))
