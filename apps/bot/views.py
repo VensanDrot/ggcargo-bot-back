@@ -64,7 +64,7 @@ def start(message: types.Message):
 @auto_customer_bot.message_handler(commands=['start'])
 def start(message: types.Message):
     chat_id = message.from_user.id
-    started_tg, created = StartedTG.objects.get_or_create(tg_id=chat_id, bot_type='AVIA')
+    started_tg, created = StartedTG.objects.get_or_create(tg_id=chat_id, bot_type='AUTO')
     if created:
         welcome_bot = welcome_bot_message
         auto_customer_bot.send_message(chat_id=message.from_user.id, text=welcome_bot, reply_markup=language_keyboard())
